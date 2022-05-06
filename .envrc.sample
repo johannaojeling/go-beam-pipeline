@@ -1,0 +1,13 @@
+set -a
+
+# Local
+export CONFIG_PATH=""
+export PROJECT=""
+export BUCKET=""
+
+# GCP
+export CONFIG_PATH=""
+export PROJECT=""
+export BUCKET=""
+export REGION=""
+export DATAFLOW_BUCKET=""

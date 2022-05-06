@@ -1,0 +1,10 @@
+source:
+  format: "FILE"
+  file:
+    format: "JSON"
+    path: "gs://{{ .Bucket }}/input/users.json"
+sink:
+  format: "FILE"
+  file:
+    format: "CSV"
+    path: "gs://{{ .Bucket }}/output/users.csv"

@@ -1,0 +1,10 @@
+source:
+  format: "FILE"
+  file:
+    format: "AVRO"
+    path: "gs://{{ .Bucket }}/input/users.avro"
+sink:
+  format: "BIGQUERY"
+  bigquery:
+    project_id: "{{ .Project }}"
+    table: "{{ .Project }}:raw.users"

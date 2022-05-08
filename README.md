@@ -18,6 +18,7 @@ Supported sinks:
 
 - BigQuery
 - Cloud Storage (avro, csv, json)
+- Firestore
 
 The image below shows a Dataflow pipeline that reads from file/json and writes to file/csv.
 
@@ -69,15 +70,15 @@ go run main.go --configPath=${CONFIG_PATH}
 
 Set environment variables
 
-| Variable        | Description                                                                                                                                                                                                         |
-|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| CONFIG_PATH     | Path to yaml configuration file                                                                                                                                                                                     |
-| PROJECT         | GCP project (if source or sink is BigQuery)                                                                                                                                                                         |
-| BUCKET          | Bucket for data storage (if source or sink is GCS)                                                                                                                                                                  |
-| REGION          | Compute region                                                                                                                                                                                                      |
-| SUBNETWORK      | Subnetwork                                                                                                                                                                                                          |
-| SA_EMAIL        | Email of service account used for Dataflow. Needs the roles:<br/><ul><li>`roles/dataflow.worker`</li><li>`roles/bigquery.dataEditor`</li><li>`roles/bigquery.jobUser`</li><li>`roles/storage.objectAdmin`</li></ul> |
-| DATAFLOW_BUCKET | Bucket for Dataflow staging data                                                                                                                                                                                    |
+| Variable        | Description                                                                                                                                                                                                                                        |
+|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| CONFIG_PATH     | Path to yaml configuration file                                                                                                                                                                                                                    |
+| PROJECT         | GCP project (if source or sink is BigQuery)                                                                                                                                                                                                        |
+| BUCKET          | Bucket for data storage (if source or sink is GCS)                                                                                                                                                                                                 |
+| REGION          | Compute region                                                                                                                                                                                                                                     |
+| SUBNETWORK      | Subnetwork                                                                                                                                                                                                                                         |
+| SA_EMAIL        | Email of service account used for Dataflow. Needs the roles:<br/><ul><li>`roles/dataflow.worker`</li><li>`roles/bigquery.dataEditor`</li><li>`roles/bigquery.jobUser`</li><li>`roles/datastore.user`</li><li>`roles/storage.objectAdmin`</li></ul> |
+| DATAFLOW_BUCKET | Bucket for Dataflow staging data                                                                                                                                                                                                                   |
 
 ### Running with DataflowRunner
 

@@ -1,0 +1,10 @@
+source:
+  format: "BIGQUERY"
+  bigquery:
+    project_id: "{{ .Project }}"
+    table: "{{ .Project }}:raw.users"
+sink:
+  format: "FIRESTORE"
+  firestore:
+    project_id: "{{ .Project }}"
+    collection: "users"

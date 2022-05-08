@@ -21,10 +21,10 @@ var (
 )
 
 type User struct {
-	Id        int    `json:"id"         bigquery:"id"`
-	FirstName string `json:"first_name" bigquery:"first_name"`
-	LastName  string `json:"last_name"  bigquery:"last_name"`
-	Email     string `json:"email"      bigquery:"email"`
+	Id        int    `json:"id"         bigquery:"id"         firestore:"id"`
+	FirstName string `json:"first_name" bigquery:"first_name" firestore:"first_name"`
+	LastName  string `json:"last_name"  bigquery:"last_name"  firestore:"last_name"`
+	Email     string `json:"email"      bigquery:"email"      firestore:"email"`
 }
 
 func init() {

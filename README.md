@@ -69,13 +69,15 @@ go run main.go --configPath=${CONFIG_PATH}
 
 Set environment variables
 
-| Variable        | Description                                        |
-|-----------------|----------------------------------------------------|
-| CONFIG_PATH     | Path to yaml configuration file                    |
-| PROJECT         | GCP project (if source or sink is BigQuery)        |
-| BUCKET          | Bucket for data storage (if source or sink is GCS) |
-| REGION          | Compute region                                     |
-| DATAFLOW_BUCKET | Bucket for Dataflow staging data                   |
+| Variable        | Description                                                                                                                                                                                                         |
+|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| CONFIG_PATH     | Path to yaml configuration file                                                                                                                                                                                     |
+| PROJECT         | GCP project (if source or sink is BigQuery)                                                                                                                                                                         |
+| BUCKET          | Bucket for data storage (if source or sink is GCS)                                                                                                                                                                  |
+| REGION          | Compute region                                                                                                                                                                                                      |
+| SUBNETWORK      | Subnetwork                                                                                                                                                                                                          |
+| SA_EMAIL        | Email of service account used for Dataflow. Needs the roles:<br/><ul><li>`roles/dataflow.worker`</li><li>`roles/bigquery.dataEditor`</li><li>`roles/bigquery.jobUser`</li><li>`roles/storage.objectAdmin`</li></ul> |
+| DATAFLOW_BUCKET | Bucket for Dataflow staging data                                                                                                                                                                                    |
 
 ### Running with DataflowRunner
 
@@ -85,5 +87,8 @@ go run main.go \
 --runner=dataflow \
 --project=${PROJECT} \
 --region=${REGION} \
---staging_location=gs://${DATAFLOW_BUCKET}/staging
+--subnetwork=${SUBNETWORK} \
+--service_account_email=${SA_EMAIL} \
+--staging_location=gs://${DATAFLOW_BUCKET}/staging \
+--job_name=${JOB_NAME}-$(date +%s)
 ```

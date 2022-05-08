@@ -1,0 +1,10 @@
+source:
+  format: "FIRESTORE"
+  firestore:
+    project_id: "{{ .Project }}"
+    collection: "users"
+sink:
+  format: "FILE"
+  file:
+    format: "JSON"
+    path: "gs://{{ .Bucket }}/output/users.json"

@@ -8,12 +8,14 @@ import (
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/bigquery"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/file"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/firestore"
 )
 
 type Source struct {
-	Format   Format            `yaml:"format"`
-	File     file.File         `yaml:"file"`
-	BigQuery bigquery.BigQuery `yaml:"bigquery"`
+	Format    Format              `yaml:"format"`
+	File      file.File           `yaml:"file"`
+	BigQuery  bigquery.BigQuery   `yaml:"bigquery"`
+	Firestore firestore.Firestore `yaml:"firestore"`
 }
 
 func (source Source) Read(
@@ -26,6 +28,8 @@ func (source Source) Read(
 		return source.BigQuery.Read(scope, elemType), nil
 	case File:
 		return source.File.Read(scope, elemType)
+	case Firestore:
+		return source.Firestore.Read(scope, elemType), nil
 	default:
 		return beam.PCollection{}, fmt.Errorf("source format %q is not supported", format)
 	}

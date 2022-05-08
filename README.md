@@ -13,6 +13,7 @@ Supported sources:
 
 - BigQuery
 - Cloud Storage (avro, csv, json)
+- Firestore
 
 Supported sinks:
 

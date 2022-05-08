@@ -41,3 +41,26 @@ func ReadDocuments(projectId string, collection string) ([]map[string]interface{
 	}
 	return records, nil
 }
+
+func WriteDocuments(projectId string, collection string, records []map[string]interface{}) error {
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectId)
+	if err != nil {
+		return fmt.Errorf("error creating Firestore client: %v", err)
+	}
+	defer client.Close()
+
+	batch := client.Batch()
+	collectionRef := client.Collection(collection)
+
+	for _, record := range records {
+		docRef := collectionRef.NewDoc()
+		batch.Create(docRef, record)
+	}
+
+	_, err = batch.Commit(ctx)
+	if err != nil {
+		return fmt.Errorf("error committing batch: %v", err)
+	}
+	return nil
+}

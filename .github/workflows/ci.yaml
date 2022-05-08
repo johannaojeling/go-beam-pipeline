@@ -62,4 +62,4 @@ jobs:
       - name: Install dependencies
         run: go mod download
       - name: Run unit tests
-        run: go test ./...
+        run: go test ./... -short

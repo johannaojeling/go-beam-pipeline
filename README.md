@@ -44,6 +44,12 @@ go mod download
 Run unit tests
 
 ```bash
+go test ./... -short
+```
+
+Run unit tests and integration tests
+
+```bash
 go test ./...
 ```
 

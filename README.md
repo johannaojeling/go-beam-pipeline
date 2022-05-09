@@ -58,11 +58,11 @@ go test ./...
 
 Set environment variables
 
-| Variable    | Description                                        |
-|-------------|----------------------------------------------------|
-| CONFIG_PATH | Path to yaml configuration file                    |
-| PROJECT     | GCP project (if source or sink is BigQuery)        |
-| BUCKET      | Bucket for data storage (if source or sink is GCS) |
+| Variable    | Description                                                    |
+|-------------|----------------------------------------------------------------|
+| CONFIG_PATH | Path to yaml configuration file                                |
+| PROJECT     | GCP project (if source or sink is one of: BigQuery, Firestore) |
+| BUCKET      | Bucket for data storage (if source or sink is GCS)             |
 
 Run pipeline
 
@@ -80,7 +80,7 @@ Set environment variables
 | Variable        | Description                                                                                                                                                                                                                                        |
 |-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | CONFIG_PATH     | Path to yaml configuration file                                                                                                                                                                                                                    |
-| PROJECT         | GCP project (if source or sink is BigQuery)                                                                                                                                                                                                        |
+| PROJECT         | GCP project                                                                                                                                                                                                                                        |
 | BUCKET          | Bucket for data storage (if source or sink is GCS)                                                                                                                                                                                                 |
 | REGION          | Compute region                                                                                                                                                                                                                                     |
 | SUBNETWORK      | Subnetwork                                                                                                                                                                                                                                         |

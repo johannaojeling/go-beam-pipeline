@@ -14,6 +14,7 @@ Supported sources:
 - BigQuery
 - Cloud Storage (avro, csv, json)
 - Firestore
+- SQL database (PostgreSQL)
 
 Supported sinks:
 

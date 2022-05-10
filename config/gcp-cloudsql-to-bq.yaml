@@ -1,0 +1,12 @@
+source:
+  format: "DATABASE"
+  database:
+    driver: "postgres"
+    dsn:
+      secret: "projects/{{ .Project }}/secrets/cloud-sql-dsn/versions/latest"
+    table: "users"
+sink:
+  format: "BIGQUERY"
+  bigquery:
+    project_id: "{{ .Project }}"
+    table: "{{ .Project }}:raw.users"

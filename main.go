@@ -11,7 +11,8 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/x/beamx"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline"
-	"github.com/johannaojeling/go-beam-pipeline/pkg/utils"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/config"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/file"
 )
 
 var (
@@ -35,7 +36,7 @@ func main() {
 	beam.Init()
 
 	ctx := context.Background()
-	content, err := utils.ReadFile(ctx, *configPath)
+	content, err := file.ReadFile(ctx, *configPath)
 	if err != nil {
 		log.Fatalf("error reading config file: %v", err)
 	}
@@ -49,7 +50,7 @@ func main() {
 	}
 
 	var options pipeline.Options
-	err = utils.ParseConfig(string(content), fields, &options)
+	err = config.ParseConfig(string(content), fields, &options)
 	if err != nil {
 		log.Fatalf("error parsing config to Options: %v", err)
 	}

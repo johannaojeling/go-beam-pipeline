@@ -58,19 +58,16 @@ go test ./...
 
 Set environment variables
 
-| Variable    | Description                                                    |
-|-------------|----------------------------------------------------------------|
-| CONFIG_PATH | Path to yaml configuration file                                |
-| PROJECT     | GCP project (if source or sink is one of: BigQuery, Firestore) |
-| BUCKET      | Bucket for data storage (if source or sink is GCS)             |
+| Variable    | Description                                        |
+|-------------|----------------------------------------------------|
+| CONFIG_PATH | Path to yaml configuration file                    |
+| PROJECT     | GCP project                                        |
+| BUCKET      | Bucket for data storage (if source or sink is GCS) |
 
 Run pipeline
 
 ```bash
-# If running with the example input: ignore PROJECT and BUCKET, and set CONFIG_PATH:
-export CONFIG_PATH="config/local-json-to-csv.yaml"
-
-go run main.go --configPath=${CONFIG_PATH}
+go run main.go --configPath=${CONFIG_PATH} --project=${PROJECT} --bucket=${BUCKET}
 ```
 
 ## Deployment
@@ -92,8 +89,9 @@ Set environment variables
 ```bash
 go run main.go \
 --configPath=${CONFIG_PATH} \
---runner=dataflow \
 --project=${PROJECT} \
+--bucket=${BUCKET} \
+--runner=dataflow \
 --region=${REGION} \
 --subnetwork=${SUBNETWORK} \
 --service_account_email=${SA_EMAIL} \

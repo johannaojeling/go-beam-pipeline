@@ -4,10 +4,10 @@ import (
 	"context"
 	"flag"
 	"log"
-	"os"
 	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/options/gcpopts"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/x/beamx"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline"
@@ -16,8 +16,7 @@ import (
 
 var (
 	configPath = flag.String("configPath", "", "Path to configuration file")
-	project    = os.Getenv("PROJECT")
-	bucket     = os.Getenv("BUCKET")
+	bucket     = flag.String("bucket", "", "Bucket for data storage")
 )
 
 type User struct {
@@ -45,8 +44,8 @@ func main() {
 		Project string
 		Bucket  string
 	}{
-		Project: project,
-		Bucket:  bucket,
+		Project: *gcpopts.Project,
+		Bucket:  *bucket,
 	}
 
 	var options pipeline.Options

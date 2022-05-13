@@ -18,14 +18,14 @@ func Read(scope beam.Scope, project, collection string, elemType reflect.Type) b
 	impulse := beam.Impulse(scope)
 	return beam.ParDo(
 		scope,
-		&readFn{ProjectId: project, Collection: collection, Type: beam.EncodedType{T: elemType}},
+		&readFn{Project: project, Collection: collection, Type: beam.EncodedType{T: elemType}},
 		impulse,
 		beam.TypeDefinition{Var: beam.XType, T: elemType},
 	)
 }
 
 type readFn struct {
-	ProjectId     string
+	Project       string
 	Collection    string
 	Type          beam.EncodedType
 	client        *firestore.Client
@@ -33,7 +33,7 @@ type readFn struct {
 }
 
 func (fn *readFn) Setup() error {
-	client, err := firestore.NewClient(context.Background(), fn.ProjectId)
+	client, err := firestore.NewClient(context.Background(), fn.Project)
 	if err != nil {
 		return fmt.Errorf("error initializing Firestore client: %v", err)
 	}

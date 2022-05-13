@@ -1,10 +1,10 @@
 source:
   format: "BIGQUERY"
   bigquery:
-    project_id: "{{ .Project }}"
+    project: "{{ .Project }}"
     table: "{{ .Project }}:raw.users"
 sink:
   format: "FIRESTORE"
   firestore:
-    project_id: "{{ .Project }}"
+    project: "{{ .Project }}"
     collection: "users"

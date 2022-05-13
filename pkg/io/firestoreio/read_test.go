@@ -29,7 +29,7 @@ func (s *ReadSuite) TestRead() {
 		Key string `firestore:"key"`
 	}
 
-	projectId := TestProjectId
+	project := TestProject
 	collection := "docs"
 
 	testCases := []struct {
@@ -63,7 +63,7 @@ func (s *ReadSuite) TestRead() {
 
 	for i, tc := range testCases {
 		s.T().Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
-			err := testutils.WriteDocuments(projectId, collection, tc.records)
+			err := testutils.WriteDocuments(project, collection, tc.records)
 			if err != nil {
 				t.Fatalf("error writigng records to collection %v", err)
 			}
@@ -71,7 +71,7 @@ func (s *ReadSuite) TestRead() {
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
 
-			actual := Read(scope, projectId, collection, tc.elemType)
+			actual := Read(scope, project, collection, tc.elemType)
 
 			passert.Equals(scope, actual, tc.expected...)
 			ptest.RunAndValidate(t, pipeline)

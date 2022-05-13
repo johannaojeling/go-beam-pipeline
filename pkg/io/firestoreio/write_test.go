@@ -28,7 +28,7 @@ func (s *WriteSuite) TestWrite() {
 		Key string `firestore:"key"`
 	}
 
-	projectId := TestProjectId
+	project := TestProject
 	collection := "docs"
 
 	testCases := []struct {
@@ -63,11 +63,11 @@ func (s *WriteSuite) TestWrite() {
 			pipeline, scope := beam.NewPipelineWithRoot()
 
 			col := beam.Create(scope, tc.input...)
-			Write(scope, projectId, collection, col)
+			Write(scope, project, collection, col)
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := testutils.ReadDocuments(projectId, collection)
+			actual, err := testutils.ReadDocuments(project, collection)
 			if err != nil {
 				t.Fatalf("error reading output file %v", err)
 			}

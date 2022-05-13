@@ -1,7 +1,7 @@
 source:
   format: "FIRESTORE"
   firestore:
-    project_id: "{{ .Project }}"
+    project: "{{ .Project }}"
     collection: "users"
 sink:
   format: "FILE"

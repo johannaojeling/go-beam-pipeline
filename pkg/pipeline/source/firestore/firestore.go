@@ -9,7 +9,7 @@ import (
 )
 
 type Firestore struct {
-	ProjectId  string `yaml:"project_id"`
+	Project    string `yaml:"project"`
 	Collection string `yaml:"collection"`
 }
 
@@ -17,5 +17,5 @@ func (firestore Firestore) Read(
 	scope beam.Scope,
 	elemType reflect.Type) beam.PCollection {
 	scope = scope.Scope("Read from Firestore")
-	return firestoreio.Read(scope, firestore.ProjectId, firestore.Collection, elemType)
+	return firestoreio.Read(scope, firestore.Project, firestore.Collection, elemType)
 }

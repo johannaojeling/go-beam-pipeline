@@ -8,9 +8,9 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-func ReadDocuments(projectId string, collection string) ([]map[string]interface{}, error) {
+func ReadDocuments(project string, collection string) ([]map[string]interface{}, error) {
 	ctx := context.Background()
-	client, err := firestore.NewClient(ctx, projectId)
+	client, err := firestore.NewClient(ctx, project)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Firestore client: %v", err)
 	}
@@ -42,9 +42,9 @@ func ReadDocuments(projectId string, collection string) ([]map[string]interface{
 	return records, nil
 }
 
-func WriteDocuments(projectId string, collection string, records []map[string]interface{}) error {
+func WriteDocuments(project string, collection string, records []map[string]interface{}) error {
 	ctx := context.Background()
-	client, err := firestore.NewClient(ctx, projectId)
+	client, err := firestore.NewClient(ctx, project)
 	if err != nil {
 		return fmt.Errorf("error creating Firestore client: %v", err)
 	}

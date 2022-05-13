@@ -15,18 +15,18 @@ func init() {
 	beam.RegisterType(reflect.TypeOf((*writeFn)(nil)))
 }
 
-func Write(scope beam.Scope, projectId string, collection string, col beam.PCollection) {
+func Write(scope beam.Scope, project string, collection string, col beam.PCollection) {
 	scope = scope.Scope("Write to Firestore")
 	elemType := col.Type().Type()
 	beam.ParDo(
 		scope,
-		&writeFn{ProjectId: projectId, Collection: collection, Type: beam.EncodedType{T: elemType}},
+		&writeFn{Project: project, Collection: collection, Type: beam.EncodedType{T: elemType}},
 		col,
 	)
 }
 
 type writeFn struct {
-	ProjectId     string
+	Project       string
 	Collection    string
 	Type          beam.EncodedType
 	client        *firestore.Client
@@ -36,7 +36,7 @@ type writeFn struct {
 }
 
 func (fn *writeFn) Setup() error {
-	client, err := firestore.NewClient(context.Background(), fn.ProjectId)
+	client, err := firestore.NewClient(context.Background(), fn.Project)
 	if err != nil {
 		return fmt.Errorf("error initializing Firestore client: %v", err)
 	}

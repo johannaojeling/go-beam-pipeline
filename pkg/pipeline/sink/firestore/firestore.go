@@ -7,11 +7,11 @@ import (
 )
 
 type Firestore struct {
-	ProjectId  string `yaml:"project_id"`
+	Project    string `yaml:"project"`
 	Collection string `yaml:"collection"`
 }
 
 func (firestore Firestore) Write(scope beam.Scope, col beam.PCollection) {
 	scope = scope.Scope("Write to Firestore")
-	firestoreio.Write(scope, firestore.ProjectId, firestore.Collection, col)
+	firestoreio.Write(scope, firestore.Project, firestore.Collection, col)
 }

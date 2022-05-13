@@ -1,7 +1,7 @@
 source:
   format: "BIGQUERY"
   bigquery:
-    project_id: "{{ .Project }}"
+    project: "{{ .Project }}"
     table: "{{ .Project }}:raw.users"
 sink:
   format: "FILE"

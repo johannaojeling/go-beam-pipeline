@@ -18,7 +18,7 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils"
 )
 
-const TestProjectId = "test-project"
+const TestProject = "test-project"
 const EmulatorHost = "FIRESTORE_EMULATOR_HOST"
 const EmulatorRunningMessage = "Dev App Server is now running"
 const EmulatorFlushEndpoint = "http://%s/emulator/v1/projects/%s/databases/(default)/documents"
@@ -107,7 +107,7 @@ func (s *Suite) TearDownSuite() {
 }
 
 func (s *Suite) TearDownTest() {
-	url := fmt.Sprintf(EmulatorFlushEndpoint, s.host, TestProjectId)
+	url := fmt.Sprintf(EmulatorFlushEndpoint, s.host, TestProject)
 	request, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		s.T().Fatalf("error creating http DELETE request: %v", err)

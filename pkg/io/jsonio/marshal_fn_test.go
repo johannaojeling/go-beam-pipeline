@@ -20,7 +20,7 @@ func TestMarshalJsonFn_ProcessElement(t *testing.T) {
 		reason   string
 		elemType reflect.Type
 		input    interface{}
-		expected string
+		expected []byte
 	}{
 		{
 			reason:   "Should parse element of type map to json string",
@@ -29,16 +29,16 @@ func TestMarshalJsonFn_ProcessElement(t *testing.T) {
 				"id":   1,
 				"name": "user1",
 			},
-			expected: `{"id":1,"name":"user1"}`,
+			expected: []byte(`{"id":1,"name":"user1"}`),
 		},
 		{
-			reason:   "Should parse element of type user to json string",
+			reason:   "Should parse element of type entry to json string",
 			elemType: reflect.TypeOf(user{}),
 			input: user{
 				Id:   1,
 				Name: "user1",
 			},
-			expected: `{"id":1,"name":"user1"}`,
+			expected: []byte(`{"id":1,"name":"user1"}`),
 		},
 	}
 

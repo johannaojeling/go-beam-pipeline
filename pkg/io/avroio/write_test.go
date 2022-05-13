@@ -14,7 +14,7 @@ import (
 )
 
 func TestWrite(t *testing.T) {
-	type user struct {
+	type entry struct {
 		Key string `json:"key"`
 	}
 
@@ -32,8 +32,8 @@ func TestWrite(t *testing.T) {
 		input  []interface{}
 	}{
 		{
-			reason: "Should write to avro file from PCollection of type user",
-			input:  []interface{}{user{Key: "val1"}, user{Key: "val2"}},
+			reason: "Should write to avro file from PCollection of type entry",
+			input:  []interface{}{entry{Key: "val1"}, entry{Key: "val2"}},
 		},
 		{
 			reason: "Should write to avro file from PCollection of type map",

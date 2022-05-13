@@ -15,7 +15,7 @@ import (
 )
 
 func TestRead(t *testing.T) {
-	type user struct {
+	type entry struct {
 		Key string `json:"key"`
 	}
 
@@ -26,10 +26,10 @@ func TestRead(t *testing.T) {
 		expected []interface{}
 	}{
 		{
-			reason:   "Should read from json file to PCollection of type user",
-			elemType: reflect.TypeOf(user{}),
+			reason:   "Should read from json file to PCollection of type entry",
+			elemType: reflect.TypeOf(entry{}),
 			input:    "{\"key\":\"val1\"}\n{\"key\":\"val2\"}\n",
-			expected: []interface{}{user{Key: "val1"}, user{Key: "val2"}},
+			expected: []interface{}{entry{Key: "val1"}, entry{Key: "val2"}},
 		},
 		{
 			reason:   "Should read from json file to PCollection of type map",

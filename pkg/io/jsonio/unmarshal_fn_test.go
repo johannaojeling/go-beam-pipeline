@@ -19,22 +19,22 @@ func TestUnMarshalJsonFn_ProcessElement(t *testing.T) {
 	testCases := []struct {
 		reason   string
 		elemType reflect.Type
-		input    string
+		input    []byte
 		expected interface{}
 	}{
 		{
 			reason:   "Should parse json string to map",
 			elemType: reflect.TypeOf(map[string]interface{}{}),
-			input:    `{"id":1,"name":"user1"}`,
+			input:    []byte(`{"id":1,"name":"user1"}`),
 			expected: map[string]interface{}{
 				"id":   1,
 				"name": "user1",
 			},
 		},
 		{
-			reason:   "Should parse json string to user",
+			reason:   "Should parse json string to entry",
 			elemType: reflect.TypeOf(user{}),
-			input:    `{"id":1,"name":"user1"}`,
+			input:    []byte(`{"id":1,"name":"user1"}`),
 			expected: user{
 				Id:   1,
 				Name: "user1",

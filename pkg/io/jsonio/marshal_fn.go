@@ -20,13 +20,13 @@ type MarshalJsonFn struct {
 func (fn *MarshalJsonFn) ProcessElement(
 	_ context.Context,
 	elem beam.X,
-	emit func(string),
+	emit func([]byte),
 ) error {
 	jsonBytes, err := json.Marshal(elem)
 	if err != nil {
 		return fmt.Errorf("error marshaling json: %v", err)
 	}
 
-	emit(string(jsonBytes))
+	emit(jsonBytes)
 	return nil
 }

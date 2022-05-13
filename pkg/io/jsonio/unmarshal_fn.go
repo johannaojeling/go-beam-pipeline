@@ -19,11 +19,11 @@ type UnMarshalJsonFn struct {
 
 func (fn *UnMarshalJsonFn) ProcessElement(
 	_ context.Context,
-	elem string,
+	elem []byte,
 	emit func(beam.X),
 ) error {
 	out := reflect.New(fn.Type.T).Interface()
-	err := json.Unmarshal([]byte(elem), out)
+	err := json.Unmarshal(elem, out)
 	if err != nil {
 		return fmt.Errorf("error unmarshaling json: %v", err)
 	}

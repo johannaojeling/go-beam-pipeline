@@ -9,4 +9,5 @@ sink:
   format: "BIGQUERY"
   bigquery:
     project: "{{ .Project }}"
-    table: "{{ .Project }}:raw.users"
+    dataset: "raw"
+    table: "users"

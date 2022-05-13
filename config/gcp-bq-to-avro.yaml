@@ -2,7 +2,8 @@ source:
   format: "BIGQUERY"
   bigquery:
     project: "{{ .Project }}"
-    table: "{{ .Project }}:raw.users"
+    dataset: "raw"
+    table: "users"
 sink:
   format: "FILE"
   file:

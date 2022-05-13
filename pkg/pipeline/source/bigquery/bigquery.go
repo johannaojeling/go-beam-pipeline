@@ -9,6 +9,7 @@ import (
 
 type BigQuery struct {
 	Project string `yaml:"project"`
+	Dataset string `yaml:"dataset"`
 	Table   string `yaml:"table"`
 }
 
@@ -17,5 +18,10 @@ func (bigquery BigQuery) Read(
 	elemType reflect.Type,
 ) beam.PCollection {
 	scope = scope.Scope("Read from BigQuery")
-	return bigqueryio.Read(scope, bigquery.Project, bigquery.Table, elemType)
+	tableName := bigqueryio.QualifiedTableName{
+		Project: bigquery.Project,
+		Dataset: bigquery.Dataset,
+		Table:   bigquery.Table,
+	}
+	return bigqueryio.Read(scope, bigquery.Project, tableName.String(), elemType)
 }

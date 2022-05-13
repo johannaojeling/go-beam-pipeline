@@ -13,7 +13,7 @@ func Read(
 	elemType reflect.Type,
 ) beam.PCollection {
 	scope = scope.Scope("Read from csv")
-	col := textio.Read(scope, inputPath)
+	col := textio.ReadSdf(scope, inputPath)
 	return beam.ParDo(
 		scope,
 		&UnMarshalCsvFn{Type: beam.EncodedType{T: elemType}},

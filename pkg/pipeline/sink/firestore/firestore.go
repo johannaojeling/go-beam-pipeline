@@ -9,9 +9,10 @@ import (
 type Firestore struct {
 	Project    string `yaml:"project"`
 	Collection string `yaml:"collection"`
+	BatchSize  int    `yaml:"batch_size"`
 }
 
 func (firestore Firestore) Write(scope beam.Scope, col beam.PCollection) {
 	scope = scope.Scope("Write to Firestore")
-	firestoreio.Write(scope, firestore.Project, firestore.Collection, col)
+	firestoreio.Write(scope, firestore.Project, firestore.Collection, firestore.BatchSize, col)
 }

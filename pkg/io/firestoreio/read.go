@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"cloud.google.com/go/firestore"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"google.golang.org/api/iterator"
 )
@@ -15,31 +14,24 @@ func init() {
 }
 
 func Read(scope beam.Scope, project, collection string, elemType reflect.Type) beam.PCollection {
+	scope = scope.Scope("firestoreio.Read")
 	impulse := beam.Impulse(scope)
 	return beam.ParDo(
 		scope,
-		&readFn{Project: project, Collection: collection, Type: beam.EncodedType{T: elemType}},
+		&readFn{
+			firestoreFn{
+				Project:    project,
+				Collection: collection,
+				Type:       beam.EncodedType{T: elemType},
+			},
+		},
 		impulse,
 		beam.TypeDefinition{Var: beam.XType, T: elemType},
 	)
 }
 
 type readFn struct {
-	Project       string
-	Collection    string
-	Type          beam.EncodedType
-	client        *firestore.Client
-	collectionRef *firestore.CollectionRef
-}
-
-func (fn *readFn) Setup() error {
-	client, err := firestore.NewClient(context.Background(), fn.Project)
-	if err != nil {
-		return fmt.Errorf("error initializing Firestore client: %v", err)
-	}
-	fn.client = client
-	fn.collectionRef = client.Collection(fn.Collection)
-	return nil
+	firestoreFn
 }
 
 func (fn *readFn) ProcessElement(
@@ -67,14 +59,6 @@ func (fn *readFn) ProcessElement(
 
 		newElem := reflect.ValueOf(out).Elem().Interface()
 		emit(newElem)
-	}
-	return nil
-}
-
-func (fn *readFn) Teardown() error {
-	err := fn.client.Close()
-	if err != nil {
-		return fmt.Errorf("error closing Firestore client: %v", err)
 	}
 	return nil
 }

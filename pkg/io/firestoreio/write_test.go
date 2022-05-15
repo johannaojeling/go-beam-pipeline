@@ -30,6 +30,7 @@ func (s *WriteSuite) TestWrite() {
 
 	project := TestProject
 	collection := "docs"
+	batchSize := 2
 
 	testCases := []struct {
 		reason   string
@@ -63,7 +64,7 @@ func (s *WriteSuite) TestWrite() {
 			pipeline, scope := beam.NewPipelineWithRoot()
 
 			col := beam.Create(scope, tc.input...)
-			Write(scope, project, collection, col)
+			Write(scope, project, collection, batchSize, col)
 
 			ptest.RunAndValidate(t, pipeline)
 

@@ -6,15 +6,14 @@ This project contains a pipeline and a number of IO transforms developed with th
 DirectRunner or DataflowRunner.
 
 The pipeline reads from a source and writes to a sink. Which source and sink to use can be configured in a templated
-yaml file, which is passed to the program as an argument. The configuration file can be read from the local file system
-or from Cloud Storage. Example configuration files can be found in the [config](config) directory.
+yaml file, which is passed to the program as an argument. Example configuration is in the [config](config) folder.
 
 Supported sources:
 
 - BigQuery
 - Cloud Storage (avro, csv, json)
 - Firestore
-- SQL database (PostgreSQL)
+- SQL database (postgres)
 
 Supported sinks:
 
@@ -59,11 +58,11 @@ go test ./...
 
 Set environment variables
 
-| Variable    | Description                                        |
-|-------------|----------------------------------------------------|
-| CONFIG_PATH | Path to yaml configuration file                    |
-| PROJECT     | GCP project                                        |
-| BUCKET      | Bucket for data storage (if source or sink is GCS) |
+| Variable    | Description                                         |
+|-------------|-----------------------------------------------------|
+| CONFIG_PATH | Path to yaml configuration file (local or GCS path) |
+| PROJECT     | GCP project                                         |
+| BUCKET      | Bucket for data storage (if source or sink is GCS)  |
 
 Run pipeline
 
@@ -77,7 +76,7 @@ Set environment variables
 
 | Variable        | Description                                                                                                                                                                                                                                        |
 |-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| CONFIG_PATH     | Path to yaml configuration file                                                                                                                                                                                                                    |
+| CONFIG_PATH     | Path to yaml configuration file (local or GCS path)                                                                                                                                                                                                |
 | PROJECT         | GCP project                                                                                                                                                                                                                                        |
 | BUCKET          | Bucket for data storage (if source or sink is GCS)                                                                                                                                                                                                 |
 | REGION          | Compute region                                                                                                                                                                                                                                     |

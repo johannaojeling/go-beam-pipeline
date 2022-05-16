@@ -10,6 +10,7 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/database"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/file"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/firestore"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/redis"
 )
 
 type Source struct {
@@ -18,6 +19,7 @@ type Source struct {
 	BigQuery  bigquery.BigQuery   `yaml:"bigquery"`
 	Firestore firestore.Firestore `yaml:"firestore"`
 	Database  database.Database   `yaml:"database"`
+	Redis     redis.Redis         `yaml:"redis"`
 }
 
 func (source Source) Read(
@@ -34,6 +36,8 @@ func (source Source) Read(
 		return source.Firestore.Read(scope, elemType), nil
 	case Database:
 		return source.Database.Read(scope, elemType)
+	case Redis:
+		return source.Redis.Read(scope, elemType)
 	default:
 		return beam.PCollection{}, fmt.Errorf("source format %q is not supported", format)
 	}

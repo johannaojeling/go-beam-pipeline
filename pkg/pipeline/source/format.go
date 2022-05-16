@@ -7,4 +7,5 @@ const (
 	Database  Format = "DATABASE"
 	File      Format = "FILE"
 	Firestore Format = "FIRESTORE"
+	Redis     Format = "REDIS"
 )

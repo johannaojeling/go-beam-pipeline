@@ -2,8 +2,8 @@
 
 ## Introduction
 
-This project contains a pipeline and a number of IO transforms developed with the Apache Beam Go SDK. It can be run with
-DirectRunner or DataflowRunner.
+This project contains a pipeline with a number of IO transforms developed with the Apache Beam Go SDK. It can be run
+with DirectRunner or DataflowRunner.
 
 The pipeline reads from a source and writes to a sink. Which source and sink to use can be configured in a templated
 yaml file, which is passed to the program as an argument. Example configuration is in the [config](config) folder.
@@ -11,17 +11,19 @@ yaml file, which is passed to the program as an argument. Example configuration 
 Supported sources:
 
 - BigQuery
-- Cloud Storage (avro, csv, json)
+- Cloud Storage/File (Avro, Csv, Json)
+- Cloud SQL/PostgreSQL
 - Firestore
-- SQL database (postgres)
+- Memorystore/Redis
 
 Supported sinks:
 
 - BigQuery
-- Cloud Storage (avro, csv, json)
+- Cloud Storage/File (Avro, Csv, Json)
 - Firestore
+- Memorystore/Redis
 
-The image below shows a Dataflow pipeline that reads from file/json and writes to file/csv.
+The image below shows a Dataflow pipeline that reads from File (Json) and writes to File (Csv).
 
 ![Dataflow pipeline](images/dataflow.png)
 
@@ -58,11 +60,11 @@ go test ./...
 
 Set environment variables
 
-| Variable    | Description                                         |
-|-------------|-----------------------------------------------------|
-| CONFIG_PATH | Path to yaml configuration file (local or GCS path) |
-| PROJECT     | GCP project                                         |
-| BUCKET      | Bucket for data storage (if source or sink is GCS)  |
+| Variable    | Description                                        |
+|-------------|----------------------------------------------------|
+| CONFIG_PATH | Path to configuration file (local or GCS path)     |
+| PROJECT     | GCP project                                        |
+| BUCKET      | Bucket for data storage (if source or sink is GCS) |
 
 Run pipeline
 
@@ -76,7 +78,7 @@ Set environment variables
 
 | Variable        | Description                                                                                                                                                                                                                                        |
 |-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| CONFIG_PATH     | Path to yaml configuration file (local or GCS path)                                                                                                                                                                                                |
+| CONFIG_PATH     | Path to configuration file (local or GCS path)                                                                                                                                                                                                     |
 | PROJECT         | GCP project                                                                                                                                                                                                                                        |
 | BUCKET          | Bucket for data storage (if source or sink is GCS)                                                                                                                                                                                                 |
 | REGION          | Compute region                                                                                                                                                                                                                                     |

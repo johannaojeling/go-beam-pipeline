@@ -1,0 +1,11 @@
+source:
+  format: "FILE"
+  file:
+    format: "JSON"
+    path: "gs://{{ .Bucket }}/input/users.json"
+sink:
+  format: "REDIS"
+  redis:
+    url:
+      secret: "projects/{{ .Project }}/secrets/redis-url/versions/latest"
+    key_field: "Email"

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"log"
 	"reflect"
@@ -25,6 +26,10 @@ type User struct {
 	FirstName string `json:"first_name" bigquery:"first_name" firestore:"first_name"`
 	LastName  string `json:"last_name"  bigquery:"last_name"  firestore:"last_name"`
 	Email     string `json:"email"      bigquery:"email"      firestore:"email"`
+}
+
+func (user User) MarshalBinary() ([]byte, error) {
+	return json.Marshal(user)
 }
 
 func init() {

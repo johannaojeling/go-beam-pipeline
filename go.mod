@@ -5,7 +5,9 @@ go 1.16
 require (
 	cloud.google.com/go/firestore v1.6.1
 	cloud.google.com/go/secretmanager v1.4.0
+	github.com/alicebob/miniredis/v2 v2.21.0
 	github.com/apache/beam/sdks/v2 v2.38.0
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/lib/pq v1.10.4
 	github.com/linkedin/goavro v2.1.0+incompatible
 	github.com/stretchr/testify v1.7.0

@@ -15,7 +15,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/port"
 )
 
 const TestProject = "test-project"
@@ -30,7 +30,7 @@ type Suite struct {
 }
 
 func (s *Suite) SetupSuite() {
-	port, err := testutils.FindLocalPort()
+	port, err := port.FindLocalPort()
 	if err != nil {
 		s.T().Fatalf("error finding local port: %v", err)
 	}

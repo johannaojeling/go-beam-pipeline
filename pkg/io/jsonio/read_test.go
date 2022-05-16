@@ -11,7 +11,7 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/passert"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/file"
 )
 
 func TestRead(t *testing.T) {
@@ -47,7 +47,7 @@ func TestRead(t *testing.T) {
 			tempDir := t.TempDir()
 			inputPath := filepath.Join(tempDir, "input.json")
 
-			err := testutils.WriteText(inputPath, tc.input)
+			err := file.WriteText(inputPath, tc.input)
 			if err != nil {
 				t.Fatalf("error writing input %v", err)
 			}

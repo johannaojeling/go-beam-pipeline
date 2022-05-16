@@ -5,12 +5,12 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/firestore"
+
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/passert"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils"
 )
 
 type ReadSuite struct {
@@ -63,7 +63,7 @@ func (s *ReadSuite) TestRead() {
 
 	for i, tc := range testCases {
 		s.T().Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
-			err := testutils.WriteDocuments(project, collection, tc.records)
+			err := firestore.WriteDocuments(project, collection, tc.records)
 			if err != nil {
 				t.Fatalf("error writigng records to collection %v", err)
 			}

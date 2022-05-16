@@ -6,7 +6,8 @@ This project contains a pipeline with a number of IO transforms developed with t
 with DirectRunner or DataflowRunner.
 
 The pipeline reads from a source and writes to a sink. Which source and sink to use can be configured in a templated
-yaml file, which is passed to the program as an argument. Example configuration is in the [config](config) folder.
+yaml file, which is passed to the program as an argument. Example configuration is in
+the [examples/config](examples/config) folder.
 
 Supported sources:
 

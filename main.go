@@ -21,19 +21,19 @@ var (
 	bucket     = flag.String("bucket", "", "Bucket for data storage")
 )
 
-type User struct {
-	Id        int    `json:"id"         bigquery:"id"         firestore:"id"`
-	FirstName string `json:"first_name" bigquery:"first_name" firestore:"first_name"`
-	LastName  string `json:"last_name"  bigquery:"last_name"  firestore:"last_name"`
-	Email     string `json:"email"      bigquery:"email"      firestore:"email"`
+type Event struct {
+	Timestamp int64  `json:"timestamp"  bigquery:"timestamp"  firestore:"timestamp"`
+	EventType int32  `json:"event_type" bigquery:"event_type" firestore:"event_type"`
+	EventId   string `json:"event_id"   bigquery:"event_id"   firestore:"event_id"`
+	UserId    string `json:"user_id"    bigquery:"user_id"    firestore:"user_id"`
 }
 
-func (user User) MarshalBinary() ([]byte, error) {
-	return json.Marshal(user)
+func (event Event) MarshalBinary() ([]byte, error) {
+	return json.Marshal(event)
 }
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*User)(nil)))
+	beam.RegisterType(reflect.TypeOf((*Event)(nil)))
 }
 
 func main() {
@@ -60,7 +60,7 @@ func main() {
 		log.Fatalf("error parsing config to Options: %v", err)
 	}
 
-	elemType := reflect.TypeOf(User{})
+	elemType := reflect.TypeOf(Event{})
 	beamPipeline, err := options.Construct(elemType)
 	if err != nil {
 		log.Fatalf("error constructing pipeline: %v", err)

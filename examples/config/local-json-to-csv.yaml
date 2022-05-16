@@ -2,9 +2,9 @@ source:
   format: "FILE"
   file:
     format: "JSON"
-    path: "gs://{{ .Bucket }}/input/users.json"
+    path: "examples/input/events.json"
 sink:
   format: "FILE"
   file:
     format: "CSV"
-    path: "gs://{{ .Bucket }}/output/users.csv"
+    path: "output/events.csv"

@@ -2,9 +2,9 @@ source:
   format: "FIRESTORE"
   firestore:
     project: "{{ .Project }}"
-    collection: "users"
+    collection: "events"
 sink:
   format: "FILE"
   file:
     format: "JSON"
-    path: "gs://{{ .Bucket }}/output/users.json"
+    path: "gs://{{ .Bucket }}/output/events.json"

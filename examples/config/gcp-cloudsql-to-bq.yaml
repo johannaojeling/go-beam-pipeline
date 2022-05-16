@@ -4,10 +4,10 @@ source:
     driver: "postgres"
     dsn:
       secret: "projects/{{ .Project }}/secrets/cloud-sql-dsn/versions/latest"
-    table: "users"
+    table: "events"
 sink:
   format: "BIGQUERY"
   bigquery:
     project: "{{ .Project }}"
     dataset: "raw"
-    table: "users"
+    table: "events"

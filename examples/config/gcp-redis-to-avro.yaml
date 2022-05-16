@@ -1,0 +1,23 @@
+source:
+  format: "REDIS"
+  redis:
+    url:
+      secret: "projects/{{ .Project }}/secrets/redis-url/versions/latest"
+    key_patterns:
+      - "*"
+sink:
+  format: "FILE"
+  file:
+    format: "AVRO"
+    path: "gs://{{ .Bucket }}/output/events.avro"
+    avro:
+      schema: '{
+        "type": "record",
+        "name": "events",
+        "fields": [
+            {"name": "timestamp", "type": {"type": "long", "logicalType": "timestamp-millis"}},
+            {"name": "event_type", "type": "int"},
+            {"name": "event_id", "type": "string"},
+            {"name": "user_id", "type": "string"}
+        ]
+      }'

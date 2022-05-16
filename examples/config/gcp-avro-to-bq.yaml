@@ -2,10 +2,10 @@ source:
   format: "FILE"
   file:
     format: "AVRO"
-    path: "gs://{{ .Bucket }}/input/users.avro"
+    path: "gs://{{ .Bucket }}/input/events.avro"
 sink:
   format: "BIGQUERY"
   bigquery:
     project: "{{ .Project }}"
     dataset: "raw"
-    table: "users"
+    table: "events"

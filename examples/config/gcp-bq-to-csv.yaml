@@ -1,0 +1,11 @@
+source:
+  format: "BIGQUERY"
+  bigquery:
+    project: "{{ .Project }}"
+    dataset: "raw"
+    table: "events"
+sink:
+  format: "FILE"
+  file:
+    format: "CSV"
+    path: "gs://{{ .Bucket }}/output/events.csv"

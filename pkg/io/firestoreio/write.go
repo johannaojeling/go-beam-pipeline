@@ -9,7 +9,7 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 )
 
-const MaxBatchSize = 500
+const DefaultWriteBatchSize = 500
 
 func init() {
 	beam.RegisterType(reflect.TypeOf((*createIdFn)(nil)))
@@ -74,10 +74,11 @@ type writeFn struct {
 }
 
 func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
-	if fn.BatchSize <= 0 || fn.BatchSize > MaxBatchSize {
-		fn.BatchSize = MaxBatchSize
+	if fn.BatchSize <= 0 {
+		fn.BatchSize = DefaultWriteBatchSize
 	}
 	fn.batch = fn.client.Batch()
+	fn.batchCount = 0
 	return nil
 }
 

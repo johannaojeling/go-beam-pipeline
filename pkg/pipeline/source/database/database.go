@@ -14,7 +14,7 @@ import (
 
 type Database struct {
 	Driver string `yaml:"driver"`
-	Dsn    DSN    `yaml:"dsn"`
+	DSN    DSN    `yaml:"dsn"`
 	Table  string `yaml:"table"`
 }
 
@@ -28,14 +28,14 @@ func (database Database) Read(
 	elemType reflect.Type) (beam.PCollection, error) {
 	var dsnValue string
 
-	if database.Dsn.Secret != "" {
+	if secret := database.DSN.Secret; secret != "" {
 		var err error
-		dsnValue, err = gcp.ReadSecret(context.Background(), database.Dsn.Secret)
+		dsnValue, err = gcp.ReadSecret(context.Background(), secret)
 		if err != nil {
 			return beam.PCollection{}, fmt.Errorf("error retrieving DSN secret: %v", err)
 		}
 	} else {
-		dsnValue = database.Dsn.Value
+		dsnValue = database.DSN.Value
 	}
 
 	return databaseio.Read(scope, database.Driver, dsnValue, database.Table, elemType), nil

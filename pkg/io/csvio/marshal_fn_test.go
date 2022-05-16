@@ -10,7 +10,7 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 )
 
-func TestMarshalCsvFn_ProcessElement(t *testing.T) {
+func TestMarshalFn_ProcessElement(t *testing.T) {
 	type user struct {
 		Id   string `json:"id"`
 		Name string `json:"name"`
@@ -38,7 +38,7 @@ func TestMarshalCsvFn_ProcessElement(t *testing.T) {
 			col := beam.Create(scope, tc.input)
 			actual := beam.ParDo(
 				scope,
-				&MarshalCsvFn{Type: beam.EncodedType{T: tc.elemType}},
+				&MarshalFn{Type: beam.EncodedType{T: tc.elemType}},
 				col,
 			)
 

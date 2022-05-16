@@ -9,7 +9,7 @@ import (
 func Write(scope beam.Scope, outputPath string, col beam.PCollection) {
 	scope = scope.Scope("Write to json")
 	elemType := col.Type().Type()
-	marshaled := beam.ParDo(scope, &MarshalJsonFn{Type: beam.EncodedType{T: elemType}}, col)
+	marshaled := beam.ParDo(scope, &MarshalFn{Type: beam.EncodedType{T: elemType}}, col)
 	output := beam.ParDo(scope, &stringio.DecodeFn{}, marshaled)
 	textio.Write(scope, outputPath, output)
 }

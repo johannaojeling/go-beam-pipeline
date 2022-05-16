@@ -8,6 +8,6 @@ import (
 func Write(scope beam.Scope, filename string, col beam.PCollection) {
 	scope = scope.Scope("Write to csv")
 	elemType := col.Type().Type()
-	output := beam.ParDo(scope, &MarshalCsvFn{Type: beam.EncodedType{T: elemType}}, col)
+	output := beam.ParDo(scope, &MarshalFn{Type: beam.EncodedType{T: elemType}}, col)
 	textio.Write(scope, filename, output)
 }

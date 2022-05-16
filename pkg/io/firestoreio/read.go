@@ -13,7 +13,12 @@ func init() {
 	beam.RegisterType(reflect.TypeOf((*readFn)(nil)))
 }
 
-func Read(scope beam.Scope, project, collection string, elemType reflect.Type) beam.PCollection {
+func Read(
+	scope beam.Scope,
+	project string,
+	collection string,
+	elemType reflect.Type,
+) beam.PCollection {
 	scope = scope.Scope("firestoreio.Read")
 	impulse := beam.Impulse(scope)
 	return beam.ParDo(

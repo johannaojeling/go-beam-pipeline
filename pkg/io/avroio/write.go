@@ -11,7 +11,7 @@ import (
 func Write(scope beam.Scope, outputPath string, schema string, col beam.PCollection) {
 	scope = scope.Scope("Write to avro")
 	elemType := col.Type().Type()
-	marshaled := beam.ParDo(scope, &jsonio.MarshalJsonFn{Type: beam.EncodedType{T: elemType}}, col)
+	marshaled := beam.ParDo(scope, &jsonio.MarshalFn{Type: beam.EncodedType{T: elemType}}, col)
 	output := beam.ParDo(scope, &stringio.DecodeFn{}, marshaled)
 	avroio.Write(scope, outputPath, schema, output)
 }

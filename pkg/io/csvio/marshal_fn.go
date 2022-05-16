@@ -11,14 +11,14 @@ import (
 )
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*MarshalCsvFn)(nil)))
+	beam.RegisterType(reflect.TypeOf((*MarshalFn)(nil)))
 }
 
-type MarshalCsvFn struct {
+type MarshalFn struct {
 	Type beam.EncodedType
 }
 
-func (fn *MarshalCsvFn) ProcessElement(
+func (fn *MarshalFn) ProcessElement(
 	_ context.Context,
 	elem beam.X,
 	emit func(string),

@@ -39,7 +39,7 @@ func Read(
 	encoded := beam.ParDo(scope, &stringio.EncodeFn{}, values)
 	return beam.ParDo(
 		scope,
-		&jsonio.UnMarshalJsonFn{Type: beam.EncodedType{T: elemType}},
+		&jsonio.UnMarshalFn{Type: beam.EncodedType{T: elemType}},
 		encoded,
 		beam.TypeDefinition{Var: beam.XType, T: elemType},
 	)

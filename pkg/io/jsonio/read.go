@@ -15,7 +15,7 @@ func Read(scope beam.Scope, inputPath string, elemType reflect.Type) beam.PColle
 	encoded := beam.ParDo(scope, &stringio.EncodeFn{}, col)
 	return beam.ParDo(
 		scope,
-		&UnMarshalJsonFn{Type: beam.EncodedType{T: elemType}},
+		&UnMarshalFn{Type: beam.EncodedType{T: elemType}},
 		encoded,
 		beam.TypeDefinition{Var: beam.XType, T: elemType},
 	)

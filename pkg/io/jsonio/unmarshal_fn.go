@@ -10,14 +10,14 @@ import (
 )
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*UnMarshalJsonFn)(nil)))
+	beam.RegisterType(reflect.TypeOf((*UnMarshalFn)(nil)))
 }
 
-type UnMarshalJsonFn struct {
+type UnMarshalFn struct {
 	Type beam.EncodedType
 }
 
-func (fn *UnMarshalJsonFn) ProcessElement(
+func (fn *UnMarshalFn) ProcessElement(
 	_ context.Context,
 	elem []byte,
 	emit func(beam.X),

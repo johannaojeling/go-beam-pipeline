@@ -10,7 +10,7 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 )
 
-func TestUnMarshalJsonFn_ProcessElement(t *testing.T) {
+func TestUnMarshalFn_ProcessElement(t *testing.T) {
 	type user struct {
 		Id   int    `json:"id"`
 		Name string `json:"name"`
@@ -50,7 +50,7 @@ func TestUnMarshalJsonFn_ProcessElement(t *testing.T) {
 			col := beam.Create(scope, tc.input)
 			actual := beam.ParDo(
 				scope,
-				&UnMarshalJsonFn{Type: beam.EncodedType{T: tc.elemType}},
+				&UnMarshalFn{Type: beam.EncodedType{T: tc.elemType}},
 				col,
 				beam.TypeDefinition{Var: beam.XType, T: tc.elemType},
 			)

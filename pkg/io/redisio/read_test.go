@@ -79,7 +79,7 @@ func TestRead(t *testing.T) {
 			address := miniRedis.Addr()
 			url := fmt.Sprintf("redis://%s/0", address)
 
-			err = redis.SetValues(url, tc.input)
+			err = redis.SetEntries(url, tc.input)
 			if err != nil {
 				t.Fatalf("error setting Redis values: %v", err)
 			}

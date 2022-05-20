@@ -7,7 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-func GetValues(url string, prefix string) ([]string, error) {
+func GetEntries(url string, prefix string) (map[string]string, error) {
 	ctx := context.Background()
 	client, err := newClient(ctx, url)
 	if err != nil {
@@ -24,10 +24,16 @@ func GetValues(url string, prefix string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error getting values: %v", err)
 	}
-	return values, nil
+
+	entries := make(map[string]string, len(keys))
+	for i := 0; i < len(keys); i++ {
+		entries[keys[i]] = values[i]
+	}
+
+	return entries, nil
 }
 
-func SetValues(url string, entries map[string]string) error {
+func SetEntries(url string, entries map[string]string) error {
 	ctx := context.Background()
 	client, err := newClient(ctx, url)
 	if err != nil {

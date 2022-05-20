@@ -24,7 +24,7 @@ func TestWrite(t *testing.T) {
 		elemType   reflect.Type
 		input      []interface{}
 		keyPrefix  string
-		expected   []string
+		expected   map[string]string
 	}{
 		{
 			reason:   "Should extract key and write to Redis from PCollection of type entry",
@@ -41,9 +41,9 @@ func TestWrite(t *testing.T) {
 				},
 			},
 			keyPrefix: "val*",
-			expected: []string{
-				`{"field1":"val1","field2":1}`,
-				`{"field1":"val2","field2":2}`,
+			expected: map[string]string{
+				"val1": `{"field1":"val1","field2":1}`,
+				"val2": `{"field1":"val2","field2":2}`,
 			},
 		},
 	}
@@ -67,12 +67,12 @@ func TestWrite(t *testing.T) {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := redis.GetValues(url, tc.keyPrefix)
+			actual, err := redis.GetEntries(url, tc.keyPrefix)
 			if err != nil {
 				t.Fatalf("error getting values: %v", err)
 			}
 
-			assert.ElementsMatch(t, tc.expected, actual, "Elements should match in any order")
+			assert.Equal(t, tc.expected, actual, "Entries should match")
 		})
 	}
 }
@@ -86,7 +86,7 @@ func TestWriteKV(t *testing.T) {
 		unpackDoFn interface{}
 		input      []interface{}
 		keyPrefix  string
-		expected   []string
+		expected   map[string]string
 	}{
 		{
 			reason:     "Should write to Redis from PCollection of type KV<string, string>",
@@ -103,7 +103,10 @@ func TestWriteKV(t *testing.T) {
 				},
 			},
 			keyPrefix: "skey*",
-			expected:  []string{"val1", "val2"},
+			expected: map[string]string{
+				"skey1": "val1",
+				"skey2": "val2",
+			},
 		},
 		{
 			reason:     "Should write to Redis from PCollection of type KV<string, entry>",
@@ -126,9 +129,9 @@ func TestWriteKV(t *testing.T) {
 				},
 			},
 			keyPrefix: "ekey*",
-			expected: []string{
-				`{"field1":"val1","field2":1}`,
-				`{"field1":"val2","field2":2}`,
+			expected: map[string]string{
+				"ekey1": `{"field1":"val1","field2":1}`,
+				"ekey2": `{"field1":"val2","field2":2}`,
 			},
 		},
 	}
@@ -158,12 +161,12 @@ func TestWriteKV(t *testing.T) {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := redis.GetValues(url, tc.keyPrefix)
+			actual, err := redis.GetEntries(url, tc.keyPrefix)
 			if err != nil {
 				t.Fatalf("error getting values: %v", err)
 			}
 
-			assert.ElementsMatch(t, tc.expected, actual, "Elements should match in any order")
+			assert.Equal(t, tc.expected, actual, "Entries should match")
 		})
 	}
 }

@@ -12,7 +12,7 @@ the [examples/config](examples/config) folder.
 Supported sources:
 
 - BigQuery
-- Cloud Storage/File (Avro, Csv, Json)
+- Cloud Storage/File (Avro, Csv, Json, Parquet)
 - Cloud SQL/PostgreSQL
 - Firestore
 - Memorystore/Redis
@@ -20,7 +20,7 @@ Supported sources:
 Supported sinks:
 
 - BigQuery
-- Cloud Storage/File (Avro, Csv, Json)
+- Cloud Storage/File (Avro, Csv, Json, Parquet)
 - Firestore
 - Memorystore/Redis
 

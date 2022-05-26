@@ -1,8 +1,8 @@
 source:
   format: "FILE"
   file:
-    format: "JSON"
-    path: "gs://{{ .Bucket }}/input/events.json"
+    format: "PARQUET"
+    path: "gs://{{ .Bucket }}/input/events.parquet"
 sink:
   format: "REDIS"
   redis:

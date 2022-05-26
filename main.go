@@ -22,10 +22,10 @@ var (
 )
 
 type Event struct {
-	Timestamp int64  `json:"timestamp"  bigquery:"timestamp"  firestore:"timestamp"`
-	EventType int32  `json:"event_type" bigquery:"event_type" firestore:"event_type"`
-	EventId   string `json:"event_id"   bigquery:"event_id"   firestore:"event_id"`
-	UserId    string `json:"user_id"    bigquery:"user_id"    firestore:"user_id"`
+	Timestamp int64  `json:"timestamp"  bigquery:"timestamp"  firestore:"timestamp"  parquet:"name=timestamp, type=INT64, convertedtype=TIMESTAMP_MILLIS"`
+	EventType int32  `json:"event_type" bigquery:"event_type" firestore:"event_type" parquet:"name=event_type, type=INT32"`
+	EventId   string `json:"event_id"   bigquery:"event_id"   firestore:"event_id"   parquet:"name=event_id, type=BYTE_ARRAY, convertedtype=UTF8"`
+	UserId    string `json:"user_id"    bigquery:"user_id"    firestore:"user_id"    parquet:"name=user_id, type=BYTE_ARRAY, convertedtype=UTF8"`
 }
 
 func (event Event) MarshalBinary() ([]byte, error) {

@@ -8,6 +8,7 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/avroio"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/csvio"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/jsonio"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/io/parquetio"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/file/avro"
 )
 
@@ -26,6 +27,8 @@ func (file File) Write(scope beam.Scope, col beam.PCollection) error {
 		csvio.Write(scope, file.Path, col)
 	case Json:
 		jsonio.Write(scope, file.Path, col)
+	case Parquet:
+		parquetio.Write(scope, file.Path, col)
 	default:
 		return fmt.Errorf("file format %q is not supported", format)
 	}

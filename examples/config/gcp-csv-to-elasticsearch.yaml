@@ -1,0 +1,13 @@
+source:
+  format: "FILE"
+  file:
+    format: "CSV"
+    path: "gs://{{ .Bucket }}/input/events.csv"
+sink:
+  format: "ELASTICSEARCH"
+  elasticsearch:
+    cloud_id:
+      secret_name: "projects/{{ .Project }}/secrets/elasticsearch-cloud-id/versions/latest"
+    api_key:
+      secret_name: "projects/{{ .Project }}/secrets/elasticsearch-api-key/versions/latest"
+    index: "events"

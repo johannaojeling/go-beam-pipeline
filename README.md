@@ -21,6 +21,7 @@ Supported sinks:
 
 - BigQuery
 - Cloud Storage/File (Avro, Csv, Json, Parquet)
+- Elasticsearch
 - Firestore
 - Memorystore/Redis
 

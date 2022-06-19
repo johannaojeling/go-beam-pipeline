@@ -1,0 +1,14 @@
+source:
+  format: "ELASTICSEARCH"
+  elasticsearch:
+    cloud_id:
+      secret_name: "projects/{{ .Project }}/secrets/elasticsearch-cloud-id/versions/latest"
+    api_key:
+      secret_name: "projects/{{ .Project }}/secrets/elasticsearch-api-key/versions/latest"
+    index: "events"
+    query: '{"match_all": {}}'
+sink:
+  format: "FIRESTORE"
+  firestore:
+    project: "{{ .Project }}"
+    collection: "events"

@@ -1,6 +1,7 @@
 package es
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -58,6 +59,64 @@ func DeleteIndices(
 	defer response.Body.Close()
 	if response.IsError() {
 		return fmt.Errorf("error in response: %v", response.String())
+	}
+	return nil
+}
+
+func IndexDocuments(
+	ctx context.Context,
+	client *elasticsearch.Client,
+	index string,
+	documents []map[string]interface{},
+) error {
+	config := esutil.BulkIndexerConfig{
+		Client: client,
+		Index:  index,
+	}
+	bulkIndexer, err := esutil.NewBulkIndexer(config)
+	if err != nil {
+		return fmt.Errorf("failed to initialize bulk indexer: %v", err)
+	}
+
+	for _, doc := range documents {
+		err := addDocument(ctx, bulkIndexer, doc)
+		if err != nil {
+			return fmt.Errorf("failed to add document to bulk indexer: %v", err)
+		}
+	}
+	err = bulkIndexer.Close(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to close bulk indexer: %v", err)
+	}
+
+	stats := bulkIndexer.Stats()
+	if numFailed := stats.NumFailed; numFailed > 0 {
+		return fmt.Errorf("failed to index %d document", numFailed)
+	}
+
+	return nil
+}
+
+func addDocument(
+	ctx context.Context,
+	bulkIndexer esutil.BulkIndexer,
+	document map[string]interface{},
+) error {
+	data, err := json.Marshal(document)
+	if err != nil {
+		return fmt.Errorf("failed to encode document: %v", err)
+	}
+	body := bytes.NewReader(data)
+
+	err = bulkIndexer.Add(
+		ctx,
+		esutil.BulkIndexerItem{
+			Action: "index",
+			Body:   body,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to add item: %v", err)
 	}
 	return nil
 }

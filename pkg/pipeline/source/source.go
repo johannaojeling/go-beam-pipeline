@@ -8,18 +8,20 @@ import (
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/bigquery"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/database"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/elasticsearch"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/file"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/firestore"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/redis"
 )
 
 type Source struct {
-	Format    Format              `yaml:"format"`
-	File      file.File           `yaml:"file"`
-	BigQuery  bigquery.BigQuery   `yaml:"bigquery"`
-	Firestore firestore.Firestore `yaml:"firestore"`
-	Database  database.Database   `yaml:"database"`
-	Redis     redis.Redis         `yaml:"redis"`
+	Format        Format                      `yaml:"format"`
+	BigQuery      bigquery.BigQuery           `yaml:"bigquery"`
+	Elasticsearch elasticsearch.Elasticsearch `yaml:"elasticsearch"`
+	File          file.File                   `yaml:"file"`
+	Firestore     firestore.Firestore         `yaml:"firestore"`
+	Database      database.Database           `yaml:"database"`
+	Redis         redis.Redis                 `yaml:"redis"`
 }
 
 func (source Source) Read(
@@ -30,6 +32,8 @@ func (source Source) Read(
 	switch format := source.Format; format {
 	case BigQuery:
 		return source.BigQuery.Read(scope, elemType), nil
+	case Elasticsearch:
+		return source.Elasticsearch.Read(scope, elemType)
 	case File:
 		return source.File.Read(scope, elemType)
 	case Firestore:

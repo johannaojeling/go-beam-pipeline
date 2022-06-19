@@ -14,6 +14,7 @@ Supported sources:
 - BigQuery
 - Cloud Storage/File (Avro, Csv, Json, Parquet)
 - Cloud SQL/PostgreSQL
+- Elasticsearch
 - Firestore
 - Memorystore/Redis
 

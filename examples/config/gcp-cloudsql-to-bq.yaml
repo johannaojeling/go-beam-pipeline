@@ -3,7 +3,7 @@ source:
   database:
     driver: "postgres"
     dsn:
-      secret: "projects/{{ .Project }}/secrets/cloud-sql-dsn/versions/latest"
+      secret_name: "projects/{{ .Project }}/secrets/cloud-sql-dsn/versions/latest"
     table: "events"
 sink:
   format: "BIGQUERY"

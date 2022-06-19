@@ -7,5 +7,5 @@ sink:
   format: "REDIS"
   redis:
     url:
-      secret: "projects/{{ .Project }}/secrets/redis-url/versions/latest"
+      secret_name: "projects/{{ .Project }}/secrets/redis-url/versions/latest"
     key_field: "EventId"

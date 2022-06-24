@@ -38,7 +38,7 @@ func TestUnMarshalFn_ProcessElement(t *testing.T) {
 			col := beam.Create(scope, tc.input)
 			actual := beam.ParDo(
 				scope,
-				&UnMarshalFn{Type: beam.EncodedType{T: tc.elemType}},
+				NewUnMarshalFn(tc.elemType),
 				col,
 				beam.TypeDefinition{Var: beam.XType, T: tc.elemType},
 			)

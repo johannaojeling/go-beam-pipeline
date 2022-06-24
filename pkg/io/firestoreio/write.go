@@ -27,33 +27,30 @@ func Write(
 	elemType := col.Type().Type()
 	keyed := beam.ParDo(
 		scope,
-		&createIdFn{
-			firestoreFn{
-				Project:    project,
-				Collection: collection,
-				Type:       beam.EncodedType{T: elemType},
-			},
-		},
+		newCreateIdFn(project, collection, elemType),
 		col,
 	)
 
 	keyedType := keyed.Type().Type()
 	beam.ParDo(
 		scope,
-		&writeFn{
-			firestoreFn: firestoreFn{
-				Project:    project,
-				Collection: collection,
-				Type:       beam.EncodedType{T: keyedType},
-			},
-			BatchSize: batchSize,
-		},
+		newWriteFn(project, collection, keyedType, batchSize),
 		keyed,
 	)
 }
 
 type createIdFn struct {
 	firestoreFn
+}
+
+func newCreateIdFn(project string, collection string, elemType reflect.Type) *createIdFn {
+	return &createIdFn{
+		firestoreFn{
+			Project:    project,
+			Collection: collection,
+			Type:       beam.EncodedType{T: elemType},
+		},
+	}
 }
 
 func (fn *createIdFn) ProcessElement(
@@ -73,10 +70,22 @@ type writeFn struct {
 	batchCount int
 }
 
-func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
-	if fn.BatchSize <= 0 {
-		fn.BatchSize = DefaultWriteBatchSize
+func newWriteFn(project string, collection string, elemType reflect.Type, batchSize int) *writeFn {
+	if batchSize <= 0 {
+		batchSize = DefaultWriteBatchSize
 	}
+
+	return &writeFn{
+		firestoreFn: firestoreFn{
+			Project:    project,
+			Collection: collection,
+			Type:       beam.EncodedType{T: elemType},
+		},
+		BatchSize: batchSize,
+	}
+}
+
+func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
 	fn.batch = fn.client.Batch()
 	fn.batchCount = 0
 	return nil

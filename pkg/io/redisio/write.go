@@ -30,7 +30,7 @@ func Write(
 	elemType := col.Type().Type()
 	keyed := beam.ParDo(
 		scope,
-		&dofns.ExtractKeyFn{KeyField: keyField, Type: beam.EncodedType{T: elemType}},
+		dofns.NewExtractKeyFn(keyField, elemType),
 		col,
 	)
 	WriteKV(scope, url, expiration, batchSize, keyed)
@@ -47,14 +47,7 @@ func WriteKV(
 	elemType := col.Type().Type()
 	beam.ParDo(
 		scope,
-		&writeFn{
-			redisFn: redisFn{
-				URL: url,
-			},
-			Expiration: expiration,
-			BatchSize:  batchSize,
-			Type:       beam.EncodedType{T: elemType},
-		},
+		newWriteFn(url, expiration, batchSize, elemType),
 		col,
 	)
 }
@@ -68,10 +61,27 @@ type writeFn struct {
 	batchCount int
 }
 
-func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
-	if fn.BatchSize <= 0 {
-		fn.BatchSize = DefaultWriteBatchSize
+func newWriteFn(
+	url string,
+	expiration time.Duration,
+	batchSize int,
+	elemType reflect.Type,
+) *writeFn {
+	if batchSize <= 0 {
+		batchSize = DefaultWriteBatchSize
 	}
+
+	return &writeFn{
+		redisFn: redisFn{
+			URL: url,
+		},
+		Expiration: expiration,
+		BatchSize:  batchSize,
+		Type:       beam.EncodedType{T: elemType},
+	}
+}
+
+func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
 	pipe := fn.client.Pipeline()
 	fn.pipeline = &pipe
 	fn.batchCount = 0

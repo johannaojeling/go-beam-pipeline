@@ -13,6 +13,10 @@ func init() {
 
 type DecodeFn struct{}
 
+func NewDecodeFn() *DecodeFn {
+	return &DecodeFn{}
+}
+
 func (fn *DecodeFn) ProcessElement(
 	_ context.Context,
 	elem []byte,

@@ -12,10 +12,10 @@ import (
 func Read(scope beam.Scope, inputPath string, elemType reflect.Type) beam.PCollection {
 	scope = scope.Scope("Read from json")
 	col := textio.ReadSdf(scope, inputPath)
-	encoded := beam.ParDo(scope, &stringio.EncodeFn{}, col)
+	encoded := beam.ParDo(scope, stringio.NewEncodeFn(), col)
 	return beam.ParDo(
 		scope,
-		&UnMarshalFn{Type: beam.EncodedType{T: elemType}},
+		NewUnMarshalFn(elemType),
 		encoded,
 		beam.TypeDefinition{Var: beam.XType, T: elemType},
 	)

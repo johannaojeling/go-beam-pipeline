@@ -23,23 +23,21 @@ func Read(
 	scope beam.Scope,
 	url string,
 	keyPatterns []string,
+	batchSize int,
 	elemType reflect.Type,
 ) beam.PCollection {
 	scope = scope.Scope("redisio.Read")
-	keyed := ReadKV(scope, url, keyPatterns)
+	keyed := ReadKV(scope, url, keyPatterns, batchSize)
 	stringType := reflect.TypeOf("")
 	values := beam.ParDo(
 		scope,
-		&dofns.DropKeyFn{
-			XType: beam.EncodedType{T: stringType},
-			YType: beam.EncodedType{T: stringType},
-		},
+		dofns.NewDropKeyFn(stringType, stringType),
 		keyed,
 	)
-	encoded := beam.ParDo(scope, &stringio.EncodeFn{}, values)
+	encoded := beam.ParDo(scope, stringio.NewEncodeFn(), values)
 	return beam.ParDo(
 		scope,
-		&jsonio.UnMarshalFn{Type: beam.EncodedType{T: elemType}},
+		jsonio.NewUnMarshalFn(elemType),
 		encoded,
 		beam.TypeDefinition{Var: beam.XType, T: elemType},
 	)
@@ -49,15 +47,27 @@ func ReadKV(
 	scope beam.Scope,
 	url string,
 	keyPatterns []string,
+	batchSize int,
 ) beam.PCollection {
 	scope = scope.Scope("redisio.ReadKV")
 	col := beam.CreateList(scope, keyPatterns)
-	return beam.ParDo(scope, &readFn{redisFn: redisFn{URL: url}}, col)
+	return beam.ParDo(scope, newReadFn(url, batchSize), col)
 }
 
 type readFn struct {
 	redisFn
-	BatchSize int
+	BatchSize int64
+}
+
+func newReadFn(url string, batchSize int) *readFn {
+	if batchSize <= 0 {
+		batchSize = DefaultReadBatchSize
+	}
+
+	return &readFn{
+		redisFn:   redisFn{URL: url},
+		BatchSize: int64(batchSize),
+	}
 }
 
 func (fn *readFn) ProcessElement(
@@ -67,16 +77,11 @@ func (fn *readFn) ProcessElement(
 ) error {
 	log.Info(ctx, "Reading from Redis")
 
-	batchSize := int64(fn.BatchSize)
-	if batchSize <= 0 {
-		batchSize = DefaultReadBatchSize
-	}
-
 	var cursor uint64
 	for {
 		var keys []string
 		var err error
-		keys, cursor, err = fn.client.Scan(ctx, cursor, elem, batchSize).Result()
+		keys, cursor, err = fn.client.Scan(ctx, cursor, elem, fn.BatchSize).Result()
 		if err != nil {
 			return fmt.Errorf("error scanning keys: %v", err)
 		}

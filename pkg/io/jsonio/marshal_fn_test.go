@@ -50,7 +50,7 @@ func TestMarshalFn_ProcessElement(t *testing.T) {
 			col := beam.Create(scope, tc.input)
 			actual := beam.ParDo(
 				scope,
-				&MarshalFn{Type: beam.EncodedType{T: tc.elemType}},
+				NewMarshalFn(tc.elemType),
 				col,
 			)
 

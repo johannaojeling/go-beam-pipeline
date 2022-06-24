@@ -70,7 +70,7 @@ func (s *WriteSuite) TestWrite() {
 
 			actual, err := firestore.ReadDocuments(project, collection)
 			if err != nil {
-				t.Fatalf("error reading output file %v", err)
+				t.Fatalf("error reading documents %v", err)
 			}
 
 			assert.ElementsMatch(t, tc.expected, actual, "Elements should match in any order")

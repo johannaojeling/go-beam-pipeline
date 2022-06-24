@@ -22,6 +22,7 @@ func TestRead(t *testing.T) {
 	testCases := []struct {
 		reason      string
 		keyPatterns []string
+		batchSize   int
 		elemType    reflect.Type
 		input       map[string]string
 		expected    []interface{}
@@ -87,7 +88,7 @@ func TestRead(t *testing.T) {
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
 
-			actual := Read(scope, url, tc.keyPatterns, tc.elemType)
+			actual := Read(scope, url, tc.keyPatterns, tc.batchSize, tc.elemType)
 
 			passert.Equals(scope, actual, tc.expected...)
 			ptest.RunAndValidate(t, pipeline)

@@ -18,6 +18,10 @@ type MarshalFn struct {
 	Type beam.EncodedType
 }
 
+func NewMarshalFn(elemType reflect.Type) *MarshalFn {
+	return &MarshalFn{beam.EncodedType{T: elemType}}
+}
+
 func (fn *MarshalFn) ProcessElement(
 	_ context.Context,
 	elem beam.X,

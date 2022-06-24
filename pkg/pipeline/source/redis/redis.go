@@ -13,6 +13,7 @@ import (
 type Redis struct {
 	URL         creds.Credential `yaml:"url"`
 	KeyPatterns []string         `yaml:"key_patterns"`
+	BatchSize   int              `yaml:"batch_size"`
 }
 
 func (redis Redis) Read(scope beam.Scope, elemType reflect.Type) (beam.PCollection, error) {
@@ -23,5 +24,5 @@ func (redis Redis) Read(scope beam.Scope, elemType reflect.Type) (beam.PCollecti
 		return beam.PCollection{}, fmt.Errorf("failed to get URL value: %v", err)
 	}
 
-	return redisio.Read(scope, url, redis.KeyPatterns, elemType), nil
+	return redisio.Read(scope, url, redis.KeyPatterns, redis.BatchSize, elemType), nil
 }

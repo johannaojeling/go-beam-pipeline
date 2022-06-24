@@ -17,7 +17,7 @@ func TestEncodeFn_ProcessElement(t *testing.T) {
 		col := beam.Create(scope, input)
 		actual := beam.ParDo(
 			scope,
-			&EncodeFn{},
+			NewEncodeFn(),
 			col,
 		)
 

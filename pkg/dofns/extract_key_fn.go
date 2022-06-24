@@ -17,6 +17,13 @@ type ExtractKeyFn struct {
 	Type     beam.EncodedType
 }
 
+func NewExtractKeyFn(keyField string, elemType reflect.Type) *ExtractKeyFn {
+	return &ExtractKeyFn{
+		KeyField: keyField,
+		Type:     beam.EncodedType{T: elemType},
+	}
+}
+
 func (fn *ExtractKeyFn) ProcessElement(
 	_ context.Context,
 	elem beam.X,

@@ -18,6 +18,10 @@ type UnMarshalFn struct {
 	Type beam.EncodedType
 }
 
+func NewUnMarshalFn(elemType reflect.Type) *UnMarshalFn {
+	return &UnMarshalFn{beam.EncodedType{T: elemType}}
+}
+
 func (fn *UnMarshalFn) ProcessElement(
 	_ context.Context,
 	elem string,

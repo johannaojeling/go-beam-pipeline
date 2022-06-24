@@ -16,7 +16,7 @@ func Read(
 	col := textio.ReadSdf(scope, inputPath)
 	return beam.ParDo(
 		scope,
-		&UnMarshalFn{Type: beam.EncodedType{T: elemType}},
+		NewUnMarshalFn(elemType),
 		col,
 		beam.TypeDefinition{Var: beam.XType, T: elemType},
 	)

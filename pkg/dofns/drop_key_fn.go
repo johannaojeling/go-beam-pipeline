@@ -16,6 +16,13 @@ type DropKeyFn struct {
 	YType beam.EncodedType
 }
 
+func NewDropKeyFn(keyType reflect.Type, valueType reflect.Type) *DropKeyFn {
+	return &DropKeyFn{
+		XType: beam.EncodedType{T: keyType},
+		YType: beam.EncodedType{T: valueType},
+	}
+}
+
 func (fn *DropKeyFn) ProcessElement(_ context.Context, _ beam.X, value beam.Y, emit func(beam.Y)) {
 	emit(value)
 }

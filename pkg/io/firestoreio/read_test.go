@@ -65,7 +65,7 @@ func (s *ReadSuite) TestRead() {
 		s.T().Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
 			err := firestore.WriteDocuments(project, collection, tc.records)
 			if err != nil {
-				t.Fatalf("error writigng records to collection %v", err)
+				t.Fatalf("error writing records to collection %v", err)
 			}
 
 			beam.Init()

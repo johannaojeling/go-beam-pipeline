@@ -23,13 +23,7 @@ func Read(
 	impulse := beam.Impulse(scope)
 	return beam.ParDo(
 		scope,
-		&readFn{
-			firestoreFn{
-				Project:    project,
-				Collection: collection,
-				Type:       beam.EncodedType{T: elemType},
-			},
-		},
+		newReadFn(project, collection, elemType),
 		impulse,
 		beam.TypeDefinition{Var: beam.XType, T: elemType},
 	)
@@ -37,6 +31,20 @@ func Read(
 
 type readFn struct {
 	firestoreFn
+}
+
+func newReadFn(
+	project string,
+	collection string,
+	elemType reflect.Type,
+) *readFn {
+	return &readFn{
+		firestoreFn{
+			Project:    project,
+			Collection: collection,
+			Type:       beam.EncodedType{T: elemType},
+		},
+	}
 }
 
 func (fn *readFn) ProcessElement(

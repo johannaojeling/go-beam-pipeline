@@ -13,6 +13,10 @@ func init() {
 
 type EncodeFn struct{}
 
+func NewEncodeFn() *EncodeFn {
+	return &EncodeFn{}
+}
+
 func (fn *EncodeFn) ProcessElement(
 	_ context.Context,
 	elem string,

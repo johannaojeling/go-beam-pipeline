@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/es"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/esutils"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -130,7 +130,7 @@ func (s *Suite) TearDownSuite() {
 }
 
 func (s *Suite) TearDownTest(ctx context.Context, client *elasticsearch.Client, index string) {
-	err := es.DeleteIndices(ctx, client, []string{index})
+	err := esutils.DeleteIndices(ctx, client, []string{index})
 	if err != nil {
 		s.T().Fatalf("failed to delete index %q: %v", index, err)
 	}

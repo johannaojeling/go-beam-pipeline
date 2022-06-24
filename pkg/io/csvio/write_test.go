@@ -10,7 +10,7 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/file"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/fileutils"
 )
 
 func TestWrite(t *testing.T) {
@@ -43,12 +43,12 @@ func TestWrite(t *testing.T) {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := file.ReadText(path)
+			actual, err := fileutils.ReadText(path)
 			if err != nil {
 				t.Fatalf("error reading output file %v", err)
 			}
 
-			expected, err := file.ReadText(expectedPath)
+			expected, err := fileutils.ReadText(expectedPath)
 			if err != nil {
 				t.Fatalf("error reading expected file %v", err)
 			}

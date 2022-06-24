@@ -1,4 +1,4 @@
-package es
+package esutils
 
 import (
 	"bytes"

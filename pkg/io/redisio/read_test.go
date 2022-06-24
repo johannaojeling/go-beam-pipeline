@@ -10,7 +10,7 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/passert"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/redis"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/redisutils"
 )
 
 func TestRead(t *testing.T) {
@@ -86,7 +86,7 @@ func TestRead(t *testing.T) {
 				BatchSize:   tc.batchSize,
 			}
 
-			err = redis.SetEntries(url, tc.input)
+			err = redisutils.SetEntries(url, tc.input)
 			if err != nil {
 				t.Fatalf("error setting Redis values: %v", err)
 			}

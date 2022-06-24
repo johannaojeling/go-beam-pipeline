@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/firestore"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/firestoreutils"
 )
 
 type WriteSuite struct {
@@ -72,7 +72,7 @@ func (s *WriteSuite) TestWrite() {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := firestore.ReadDocuments(project, collection)
+			actual, err := firestoreutils.ReadDocuments(project, collection)
 			if err != nil {
 				t.Fatalf("error reading documents %v", err)
 			}

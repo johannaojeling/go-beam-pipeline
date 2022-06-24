@@ -11,7 +11,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/es"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/esutils"
 )
 
 type ReadSuite struct {
@@ -54,12 +54,12 @@ func (s *ReadSuite) TestRead() {
 		}
 
 		ctx := context.Background()
-		err = es.IndexDocuments(ctx, client, index, input)
+		err = esutils.IndexDocuments(ctx, client, index, input)
 		if err != nil {
 			t.Fatalf("failed to index documents: %v", err)
 		}
 
-		err = es.RefreshIndices(ctx, client, []string{index})
+		err = esutils.RefreshIndices(ctx, client, []string{index})
 		if err != nil {
 			t.Fatalf("failed to refresh index: %v", err)
 		}

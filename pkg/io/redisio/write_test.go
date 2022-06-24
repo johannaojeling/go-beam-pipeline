@@ -12,7 +12,7 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/redis"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/redisutils"
 )
 
 func TestWrite(t *testing.T) {
@@ -74,7 +74,7 @@ func TestWrite(t *testing.T) {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := redis.GetEntries(url, tc.keyPrefix)
+			actual, err := redisutils.GetEntries(url, tc.keyPrefix)
 			if err != nil {
 				t.Fatalf("error getting values: %v", err)
 			}
@@ -174,7 +174,7 @@ func TestWriteKV(t *testing.T) {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := redis.GetEntries(url, tc.keyPrefix)
+			actual, err := redisutils.GetEntries(url, tc.keyPrefix)
 			if err != nil {
 				t.Fatalf("error getting values: %v", err)
 			}

@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/es"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/esutils"
 )
 
 type WriteSuite struct {
@@ -55,13 +55,13 @@ func (s *WriteSuite) TestWrite() {
 		}
 
 		ctx := context.Background()
-		err = es.RefreshIndices(ctx, client, []string{index})
+		err = esutils.RefreshIndices(ctx, client, []string{index})
 		if err != nil {
 			t.Fatalf("failed to refresh index: %v", err)
 		}
 
 		query := `{"match_all": {}}`
-		actual, err := es.SearchDocuments(ctx, client, index, query)
+		actual, err := esutils.SearchDocuments(ctx, client, index, query)
 		if err != nil {
 			t.Fatalf("failed to read documents %v", err)
 		}

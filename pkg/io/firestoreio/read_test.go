@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/firestore"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/firestoreutils"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/passert"
@@ -68,7 +68,7 @@ func (s *ReadSuite) TestRead() {
 				Collection: collection,
 			}
 
-			err := firestore.WriteDocuments(project, collection, tc.records)
+			err := firestoreutils.WriteDocuments(project, collection, tc.records)
 			if err != nil {
 				t.Fatalf("error writing records to collection %v", err)
 			}

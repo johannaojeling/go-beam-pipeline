@@ -8,10 +8,15 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/stringio"
 )
 
-func Write(scope beam.Scope, outputPath string, schema string, col beam.PCollection) {
+type WriteConfig struct {
+	Path   string
+	Schema string
+}
+
+func Write(scope beam.Scope, cfg WriteConfig, col beam.PCollection) {
 	scope = scope.Scope("Write to avro")
 	elemType := col.Type().Type()
 	marshaled := beam.ParDo(scope, jsonio.NewMarshalFn(elemType), col)
 	output := beam.ParDo(scope, stringio.NewDecodeFn(), marshaled)
-	avroio.Write(scope, outputPath, schema, output)
+	avroio.Write(scope, cfg.Path, cfg.Schema, output)
 }

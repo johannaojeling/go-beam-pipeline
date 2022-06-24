@@ -16,20 +16,24 @@ func init() {
 	beam.RegisterType(reflect.TypeOf((*writeFn)(nil)))
 }
 
+type WriteConfig struct {
+	Addresses  []string
+	CloudId    string
+	ApiKey     string
+	Index      string
+	FlushBytes int
+}
+
 func Write(
 	scope beam.Scope,
-	addresses []string,
-	cloudId string,
-	apiKey string,
-	index string,
-	flushBytes int,
+	cfg WriteConfig,
 	col beam.PCollection,
 ) {
 	scope = scope.Scope("firestoreio.Write")
 	elemType := col.Type().Type()
 	beam.ParDo(
 		scope,
-		newWriteFn(addresses, cloudId, apiKey, index, flushBytes, elemType),
+		newWriteFn(cfg, elemType),
 		col,
 	)
 }
@@ -41,22 +45,18 @@ type writeFn struct {
 }
 
 func newWriteFn(
-	addresses []string,
-	cloudId string,
-	apiKey string,
-	index string,
-	flushBytes int,
+	cfg WriteConfig,
 	elemType reflect.Type,
 ) *writeFn {
 	return &writeFn{
 		esFn: esFn{
-			Addresses: addresses,
-			CloudId:   cloudId,
-			ApiKey:    apiKey,
-			Index:     index,
+			Addresses: cfg.Addresses,
+			CloudId:   cfg.CloudId,
+			ApiKey:    cfg.ApiKey,
+			Index:     cfg.Index,
 			Type:      beam.EncodedType{T: elemType},
 		},
-		FlushBytes: flushBytes,
+		FlushBytes: cfg.FlushBytes,
 	}
 }
 

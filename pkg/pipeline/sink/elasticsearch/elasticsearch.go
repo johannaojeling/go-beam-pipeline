@@ -40,6 +40,13 @@ func (es Elasticsearch) Write(scope beam.Scope, col beam.PCollection) error {
 		return fmt.Errorf("failed to get API key value: %v", err)
 	}
 
-	elasticsearchio.Write(scope, addresses, cloudId, apiKey, es.Index, es.FlushBytes, col)
+	cfg := elasticsearchio.WriteConfig{
+		Addresses:  addresses,
+		CloudId:    cloudId,
+		ApiKey:     apiKey,
+		Index:      es.Index,
+		FlushBytes: es.FlushBytes,
+	}
+	elasticsearchio.Write(scope, cfg, col)
 	return nil
 }

@@ -19,15 +19,19 @@ func init() {
 	beam.RegisterType(reflect.TypeOf((*readFn)(nil)))
 }
 
+type ReadConfig struct {
+	Addresses []string
+	CloudId   string
+	ApiKey    string
+	Index     string
+	Query     string
+	BatchSize int
+	KeepAlive string
+}
+
 func Read(
 	scope beam.Scope,
-	addresses []string,
-	cloudId string,
-	apiKey string,
-	index string,
-	query string,
-	batchSize int,
-	keepAlive string,
+	cfg ReadConfig,
 	elemType reflect.Type,
 ) beam.PCollection {
 	scope = scope.Scope("elasticsearchio.Read")
@@ -35,7 +39,7 @@ func Read(
 
 	return beam.ParDo(
 		scope,
-		newReadFn(addresses, cloudId, apiKey, index, query, batchSize, keepAlive, elemType),
+		newReadFn(cfg, elemType),
 		impulse,
 		beam.TypeDefinition{Var: beam.XType, T: elemType},
 	)
@@ -49,31 +53,27 @@ type readFn struct {
 }
 
 func newReadFn(
-	addresses []string,
-	cloudId string,
-	apiKey string,
-	index string,
-	query string,
-	batchSize int,
-	keepAlive string,
+	cfg ReadConfig,
 	elemType reflect.Type,
 ) *readFn {
+	batchSize := cfg.BatchSize
 	if batchSize <= 0 {
 		batchSize = DefaultReadBatchSize
 	}
+	keepAlive := cfg.KeepAlive
 	if keepAlive == "" {
 		keepAlive = DefaultReadKeepAlive
 	}
 
 	return &readFn{
 		esFn: esFn{
-			Addresses: addresses,
-			CloudId:   cloudId,
-			ApiKey:    apiKey,
-			Index:     index,
+			Addresses: cfg.Addresses,
+			CloudId:   cfg.CloudId,
+			ApiKey:    cfg.ApiKey,
+			Index:     cfg.Index,
 			Type:      beam.EncodedType{T: elemType},
 		},
-		Query:     query,
+		Query:     cfg.Query,
 		BatchSize: batchSize,
 		KeepAlive: keepAlive,
 	}

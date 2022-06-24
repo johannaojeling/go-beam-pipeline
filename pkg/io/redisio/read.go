@@ -19,15 +19,19 @@ func init() {
 	beam.RegisterType(reflect.TypeOf((*readFn)(nil)))
 }
 
+type ReadConfig struct {
+	URL         string
+	KeyPatterns []string
+	BatchSize   int
+}
+
 func Read(
 	scope beam.Scope,
-	url string,
-	keyPatterns []string,
-	batchSize int,
+	cfg ReadConfig,
 	elemType reflect.Type,
 ) beam.PCollection {
 	scope = scope.Scope("redisio.Read")
-	keyed := ReadKV(scope, url, keyPatterns, batchSize)
+	keyed := ReadKV(scope, cfg)
 	stringType := reflect.TypeOf("")
 	values := beam.ParDo(
 		scope,
@@ -45,13 +49,11 @@ func Read(
 
 func ReadKV(
 	scope beam.Scope,
-	url string,
-	keyPatterns []string,
-	batchSize int,
+	cfg ReadConfig,
 ) beam.PCollection {
 	scope = scope.Scope("redisio.ReadKV")
-	col := beam.CreateList(scope, keyPatterns)
-	return beam.ParDo(scope, newReadFn(url, batchSize), col)
+	col := beam.CreateList(scope, cfg.KeyPatterns)
+	return beam.ParDo(scope, newReadFn(cfg.URL, cfg.BatchSize), col)
 }
 
 type readFn struct {

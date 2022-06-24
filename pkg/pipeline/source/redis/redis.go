@@ -24,5 +24,10 @@ func (redis Redis) Read(scope beam.Scope, elemType reflect.Type) (beam.PCollecti
 		return beam.PCollection{}, fmt.Errorf("failed to get URL value: %v", err)
 	}
 
-	return redisio.Read(scope, url, redis.KeyPatterns, redis.BatchSize, elemType), nil
+	cfg := redisio.ReadConfig{
+		URL:         url,
+		KeyPatterns: redis.KeyPatterns,
+		BatchSize:   redis.BatchSize,
+	}
+	return redisio.Read(scope, cfg, elemType), nil
 }

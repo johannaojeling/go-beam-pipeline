@@ -80,6 +80,12 @@ func TestRead(t *testing.T) {
 			address := miniRedis.Addr()
 			url := fmt.Sprintf("redis://%s/0", address)
 
+			cfg := ReadConfig{
+				URL:         url,
+				KeyPatterns: tc.keyPatterns,
+				BatchSize:   tc.batchSize,
+			}
+
 			err = redis.SetEntries(url, tc.input)
 			if err != nil {
 				t.Fatalf("error setting Redis values: %v", err)
@@ -88,7 +94,7 @@ func TestRead(t *testing.T) {
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
 
-			actual := Read(scope, url, tc.keyPatterns, tc.batchSize, tc.elemType)
+			actual := Read(scope, cfg, tc.elemType)
 
 			passert.Equals(scope, actual, tc.expected...)
 			ptest.RunAndValidate(t, pipeline)

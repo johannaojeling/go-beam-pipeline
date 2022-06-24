@@ -59,11 +59,18 @@ func TestWrite(t *testing.T) {
 			address := miniRedis.Addr()
 			url := fmt.Sprintf("redis://%s/0", address)
 
+			cfg := WriteConfig{
+				URL:        url,
+				Expiration: tc.expiration,
+				BatchSize:  tc.batchSize,
+				KeyField:   tc.fieldKey,
+			}
+
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
 
 			col := beam.Create(scope, tc.input...)
-			Write(scope, url, tc.expiration, tc.batchSize, tc.fieldKey, col)
+			Write(scope, cfg, col)
 
 			ptest.RunAndValidate(t, pipeline)
 
@@ -147,6 +154,12 @@ func TestWriteKV(t *testing.T) {
 			address := miniRedis.Addr()
 			url := fmt.Sprintf("redis://%s/0", address)
 
+			cfg := WriteKVConfig{
+				URL:        url,
+				Expiration: tc.expiration,
+				BatchSize:  tc.batchSize,
+			}
+
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
 
@@ -157,7 +170,7 @@ func TestWriteKV(t *testing.T) {
 				col,
 				beam.TypeDefinition{Var: beam.XType, T: tc.elemType},
 			)
-			WriteKV(scope, url, tc.expiration, tc.batchSize, unpacked)
+			WriteKV(scope, cfg, unpacked)
 
 			ptest.RunAndValidate(t, pipeline)
 

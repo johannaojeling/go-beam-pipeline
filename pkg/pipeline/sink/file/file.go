@@ -22,7 +22,11 @@ func (file File) Write(scope beam.Scope, col beam.PCollection) error {
 	scope = scope.Scope("Write to file")
 	switch format := file.Format; format {
 	case Avro:
-		avroio.Write(scope, file.Path, file.Avro.Schema, col)
+		cfg := avroio.WriteConfig{
+			Path:   file.Path,
+			Schema: file.Avro.Schema,
+		}
+		avroio.Write(scope, cfg, col)
 	case Csv:
 		csvio.Write(scope, file.Path, col)
 	case Json:

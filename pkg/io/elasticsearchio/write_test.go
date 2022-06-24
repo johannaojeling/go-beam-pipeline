@@ -32,9 +32,11 @@ func (s *WriteSuite) TestWrite() {
 	s.T().Run("Should write to Elasticsearch", func(t *testing.T) {
 		addresses := []string{s.URL}
 		index := "testindex"
-		cloudId := ""
-		apiKey := ""
-		flushBytes := 0
+
+		writeCfg := WriteConfig{
+			Addresses: addresses,
+			Index:     index,
+		}
 
 		input := []interface{}{doc{Key: "val1"}, doc{Key: "val2"}}
 
@@ -42,12 +44,12 @@ func (s *WriteSuite) TestWrite() {
 		pipeline, scope := beam.NewPipelineWithRoot()
 
 		col := beam.Create(scope, input...)
-		Write(scope, addresses, cloudId, apiKey, index, flushBytes, col)
+		Write(scope, writeCfg, col)
 
 		ptest.RunAndValidate(t, pipeline)
 
-		cfg := elasticsearch.Config{Addresses: addresses}
-		client, err := elasticsearch.NewClient(cfg)
+		esCfg := elasticsearch.Config{Addresses: addresses}
+		client, err := elasticsearch.NewClient(esCfg)
 		if err != nil {
 			t.Fatalf("failed to initialize client: %v", err)
 		}
@@ -59,7 +61,7 @@ func (s *WriteSuite) TestWrite() {
 		}
 
 		query := `{"match_all": {}}`
-		actual, err := es.ReadDocuments(ctx, client, index, query)
+		actual, err := es.SearchDocuments(ctx, client, index, query)
 		if err != nil {
 			t.Fatalf("failed to read documents %v", err)
 		}

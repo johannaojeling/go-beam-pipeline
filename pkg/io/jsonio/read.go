@@ -9,9 +9,9 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/stringio"
 )
 
-func Read(scope beam.Scope, inputPath string, elemType reflect.Type) beam.PCollection {
+func Read(scope beam.Scope, path string, elemType reflect.Type) beam.PCollection {
 	scope = scope.Scope("Read from json")
-	col := textio.ReadSdf(scope, inputPath)
+	col := textio.ReadSdf(scope, path)
 	encoded := beam.ParDo(scope, stringio.NewEncodeFn(), col)
 	return beam.ParDo(
 		scope,

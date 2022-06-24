@@ -18,38 +18,47 @@ func init() {
 	beam.RegisterType(reflect.TypeOf((*writeFn)(nil)))
 }
 
+type WriteConfig struct {
+	URL        string
+	Expiration time.Duration
+	BatchSize  int
+	KeyField   string
+}
+
+type WriteKVConfig struct {
+	URL        string
+	Expiration time.Duration
+	BatchSize  int
+}
+
 func Write(
 	scope beam.Scope,
-	url string,
-	expiration time.Duration,
-	batchSize int,
-	keyField string,
+	cfg WriteConfig,
 	col beam.PCollection,
 ) {
 	scope = scope.Scope("redisio.Write")
 	elemType := col.Type().Type()
 	keyed := beam.ParDo(
 		scope,
-		dofns.NewExtractKeyFn(keyField, elemType),
+		dofns.NewExtractKeyFn(cfg.KeyField, elemType),
 		col,
 	)
-	WriteKV(scope, url, expiration, batchSize, keyed)
+	kvCfg := WriteKVConfig{
+		URL:        cfg.URL,
+		Expiration: cfg.Expiration,
+		BatchSize:  cfg.BatchSize,
+	}
+	WriteKV(scope, kvCfg, keyed)
 }
 
 func WriteKV(
 	scope beam.Scope,
-	url string,
-	expiration time.Duration,
-	batchSize int,
+	cfg WriteKVConfig,
 	col beam.PCollection,
 ) {
 	scope = scope.Scope("redisio.WriteKV")
 	elemType := col.Type().Type()
-	beam.ParDo(
-		scope,
-		newWriteFn(url, expiration, batchSize, elemType),
-		col,
-	)
+	beam.ParDo(scope, newWriteFn(cfg, elemType), col)
 }
 
 type writeFn struct {
@@ -62,20 +71,19 @@ type writeFn struct {
 }
 
 func newWriteFn(
-	url string,
-	expiration time.Duration,
-	batchSize int,
+	cfg WriteKVConfig,
 	elemType reflect.Type,
 ) *writeFn {
+	batchSize := cfg.BatchSize
 	if batchSize <= 0 {
 		batchSize = DefaultWriteBatchSize
 	}
 
 	return &writeFn{
 		redisFn: redisFn{
-			URL: url,
+			URL: cfg.URL,
 		},
-		Expiration: expiration,
+		Expiration: cfg.Expiration,
 		BatchSize:  batchSize,
 		Type:       beam.EncodedType{T: elemType},
 	}

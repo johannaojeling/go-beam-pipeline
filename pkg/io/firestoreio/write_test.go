@@ -28,10 +28,6 @@ func (s *WriteSuite) TestWrite() {
 		Key string `firestore:"key"`
 	}
 
-	project := TestProject
-	collection := "docs"
-	batchSize := 2
-
 	testCases := []struct {
 		reason   string
 		input    []interface{}
@@ -60,11 +56,19 @@ func (s *WriteSuite) TestWrite() {
 
 	for i, tc := range testCases {
 		s.T().Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
+			project := TestProject
+			collection := "docs"
+
+			cfg := WriteConfig{
+				Project:    project,
+				Collection: collection,
+			}
+
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
 
 			col := beam.Create(scope, tc.input...)
-			Write(scope, project, collection, batchSize, col)
+			Write(scope, cfg, col)
 
 			ptest.RunAndValidate(t, pipeline)
 

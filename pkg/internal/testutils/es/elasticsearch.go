@@ -121,7 +121,7 @@ func addDocument(
 	return nil
 }
 
-func ReadDocuments(
+func SearchDocuments(
 	ctx context.Context,
 	client *elasticsearch.Client,
 	index string,

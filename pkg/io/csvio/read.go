@@ -9,11 +9,11 @@ import (
 
 func Read(
 	scope beam.Scope,
-	inputPath string,
+	path string,
 	elemType reflect.Type,
 ) beam.PCollection {
 	scope = scope.Scope("Read from csv")
-	col := textio.ReadSdf(scope, inputPath)
+	col := textio.ReadSdf(scope, path)
 	return beam.ParDo(
 		scope,
 		NewUnMarshalFn(elemType),

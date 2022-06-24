@@ -15,7 +15,12 @@ type Firestore struct {
 
 func (firestore Firestore) Read(
 	scope beam.Scope,
-	elemType reflect.Type) beam.PCollection {
+	elemType reflect.Type,
+) beam.PCollection {
 	scope = scope.Scope("Read from Firestore")
-	return firestoreio.Read(scope, firestore.Project, firestore.Collection, elemType)
+	cfg := firestoreio.ReadConfig{
+		Project:    firestore.Project,
+		Collection: firestore.Collection,
+	}
+	return firestoreio.Read(scope, cfg, elemType)
 }

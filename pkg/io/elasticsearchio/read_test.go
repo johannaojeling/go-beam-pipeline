@@ -32,12 +32,14 @@ func (s *ReadSuite) TestRead() {
 
 	s.T().Run("Should read from Elasticsearch", func(t *testing.T) {
 		addresses := []string{s.URL}
-		cloudId := ""
-		apiKey := ""
-		batchSize := 10
-		keepAlive := "1m"
 		index := "testindex"
-		query := `{"match_all": {}}`
+
+		readCfg := ReadConfig{
+			Addresses: addresses,
+			Index:     index,
+			Query:     `{"match_all": {}}`,
+			KeepAlive: "1m",
+		}
 		elemType := reflect.TypeOf(doc{})
 
 		input := []map[string]interface{}{
@@ -45,8 +47,8 @@ func (s *ReadSuite) TestRead() {
 			{"key": "val2"},
 		}
 
-		cfg := elasticsearch.Config{Addresses: addresses}
-		client, err := elasticsearch.NewClient(cfg)
+		esCfg := elasticsearch.Config{Addresses: addresses}
+		client, err := elasticsearch.NewClient(esCfg)
 		if err != nil {
 			t.Fatalf("failed to initialize client: %v", err)
 		}
@@ -65,17 +67,7 @@ func (s *ReadSuite) TestRead() {
 		beam.Init()
 		pipeline, scope := beam.NewPipelineWithRoot()
 
-		actual := Read(
-			scope,
-			addresses,
-			cloudId,
-			apiKey,
-			index,
-			query,
-			batchSize,
-			keepAlive,
-			elemType,
-		)
+		actual := Read(scope, readCfg, elemType)
 		expected := []interface{}{doc{Key: "val1"}, doc{Key: "val2"}}
 
 		passert.Equals(scope, actual, expected...)

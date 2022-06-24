@@ -25,6 +25,12 @@ func (redis Redis) Write(scope beam.Scope, col beam.PCollection) error {
 		return fmt.Errorf("failed to get URL value: %v", err)
 	}
 
-	redisio.Write(scope, url, redis.Expiration, redis.BatchSize, redis.KeyField, col)
+	cfg := redisio.WriteConfig{
+		URL:        url,
+		Expiration: redis.Expiration,
+		BatchSize:  redis.BatchSize,
+		KeyField:   redis.KeyField,
+	}
+	redisio.Write(scope, cfg, col)
 	return nil
 }

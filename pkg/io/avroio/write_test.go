@@ -47,17 +47,21 @@ func TestWrite(t *testing.T) {
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
 			tempDir := t.TempDir()
-			outputPath := filepath.Join(tempDir, "output.avro")
+			path := filepath.Join(tempDir, "output.avro")
+			config := WriteConfig{
+				Path:   path,
+				Schema: schema,
+			}
 
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
 
 			col := beam.Create(scope, tc.input...)
-			Write(scope, outputPath, schema, col)
+			Write(scope, config, col)
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := file.ReadAvro(outputPath)
+			actual, err := file.ReadAvro(path)
 			if err != nil {
 				t.Fatalf("error reading output file %v", err)
 			}

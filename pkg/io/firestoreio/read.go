@@ -13,17 +13,21 @@ func init() {
 	beam.RegisterType(reflect.TypeOf((*readFn)(nil)))
 }
 
+type ReadConfig struct {
+	Project    string
+	Collection string
+}
+
 func Read(
 	scope beam.Scope,
-	project string,
-	collection string,
+	cfg ReadConfig,
 	elemType reflect.Type,
 ) beam.PCollection {
 	scope = scope.Scope("firestoreio.Read")
 	impulse := beam.Impulse(scope)
 	return beam.ParDo(
 		scope,
-		newReadFn(project, collection, elemType),
+		newReadFn(cfg, elemType),
 		impulse,
 		beam.TypeDefinition{Var: beam.XType, T: elemType},
 	)
@@ -34,14 +38,13 @@ type readFn struct {
 }
 
 func newReadFn(
-	project string,
-	collection string,
+	cfg ReadConfig,
 	elemType reflect.Type,
 ) *readFn {
 	return &readFn{
 		firestoreFn{
-			Project:    project,
-			Collection: collection,
+			Project:    cfg.Project,
+			Collection: cfg.Collection,
 			Type:       beam.EncodedType{T: elemType},
 		},
 	}

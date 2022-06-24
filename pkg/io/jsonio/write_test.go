@@ -40,17 +40,17 @@ func TestWrite(t *testing.T) {
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
 			tempDir := t.TempDir()
-			outputPath := filepath.Join(tempDir, "output.json")
+			path := filepath.Join(tempDir, "output.json")
 
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
 
 			col := beam.Create(scope, tc.input...)
-			Write(scope, outputPath, col)
+			Write(scope, path, col)
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := file.ReadJson(outputPath)
+			actual, err := file.ReadJson(path)
 			if err != nil {
 				t.Fatalf("error reading output file %v", err)
 			}

@@ -45,15 +45,15 @@ func (es Elasticsearch) Read(
 		return beam.PCollection{}, fmt.Errorf("failed to get API key value: %v", err)
 	}
 
-	return elasticsearchio.Read(
-		scope,
-		addresses,
-		cloudId,
-		apiKey,
-		es.Index,
-		es.Query,
-		es.BatchSize,
-		es.KeepAlive,
-		elemType,
-	), nil
+	cfg := elasticsearchio.ReadConfig{
+		Addresses: addresses,
+		CloudId:   cloudId,
+		ApiKey:    apiKey,
+		Index:     es.Index,
+		Query:     es.Query,
+		BatchSize: es.BatchSize,
+		KeepAlive: es.KeepAlive,
+	}
+
+	return elasticsearchio.Read(scope, cfg, elemType), nil
 }

@@ -14,5 +14,10 @@ type Firestore struct {
 
 func (firestore Firestore) Write(scope beam.Scope, col beam.PCollection) {
 	scope = scope.Scope("Write to Firestore")
-	firestoreio.Write(scope, firestore.Project, firestore.Collection, firestore.BatchSize, col)
+	cfg := firestoreio.WriteConfig{
+		Project:    firestore.Project,
+		Collection: firestore.Collection,
+		BatchSize:  firestore.BatchSize,
+	}
+	firestoreio.Write(scope, cfg, col)
 }

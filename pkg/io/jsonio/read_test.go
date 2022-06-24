@@ -45,9 +45,9 @@ func TestRead(t *testing.T) {
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
 			tempDir := t.TempDir()
-			inputPath := filepath.Join(tempDir, "input.json")
+			path := filepath.Join(tempDir, "input.json")
 
-			err := file.WriteText(inputPath, tc.input)
+			err := file.WriteText(path, tc.input)
 			if err != nil {
 				t.Fatalf("error writing input %v", err)
 			}
@@ -55,7 +55,7 @@ func TestRead(t *testing.T) {
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
 
-			actual := Read(scope, inputPath, tc.elemType)
+			actual := Read(scope, path, tc.elemType)
 
 			passert.Equals(scope, actual, tc.expected...)
 			ptest.RunAndValidate(t, pipeline)

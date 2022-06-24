@@ -16,25 +16,29 @@ func init() {
 	beam.RegisterType(reflect.TypeOf((*writeFn)(nil)))
 }
 
+type WriteConfig struct {
+	Project    string
+	Collection string
+	BatchSize  int
+}
+
 func Write(
 	scope beam.Scope,
-	project string,
-	collection string,
-	batchSize int,
+	cfg WriteConfig,
 	col beam.PCollection,
 ) {
 	scope = scope.Scope("firestoreio.Write")
 	elemType := col.Type().Type()
 	keyed := beam.ParDo(
 		scope,
-		newCreateIdFn(project, collection, elemType),
+		newCreateIdFn(cfg.Project, cfg.Collection, elemType),
 		col,
 	)
 
 	keyedType := keyed.Type().Type()
 	beam.ParDo(
 		scope,
-		newWriteFn(project, collection, keyedType, batchSize),
+		newWriteFn(cfg, keyedType),
 		keyed,
 	)
 }
@@ -70,15 +74,16 @@ type writeFn struct {
 	batchCount int
 }
 
-func newWriteFn(project string, collection string, elemType reflect.Type, batchSize int) *writeFn {
+func newWriteFn(cfg WriteConfig, elemType reflect.Type) *writeFn {
+	batchSize := cfg.BatchSize
 	if batchSize <= 0 {
 		batchSize = DefaultWriteBatchSize
 	}
 
 	return &writeFn{
 		firestoreFn: firestoreFn{
-			Project:    project,
-			Collection: collection,
+			Project:    cfg.Project,
+			Collection: cfg.Collection,
 			Type:       beam.EncodedType{T: elemType},
 		},
 		BatchSize: batchSize,

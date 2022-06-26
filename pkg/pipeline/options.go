@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 
@@ -8,6 +9,7 @@ import (
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
 
 type Options struct {
@@ -16,16 +18,18 @@ type Options struct {
 }
 
 func (options Options) Construct(
+	ctx context.Context,
+	secretReader *gcp.SecretReader,
 	elemType reflect.Type,
 ) (*beam.Pipeline, error) {
 	pipeline, scope := beam.NewPipelineWithRoot()
 
-	col, err := options.Source.Read(scope, elemType)
+	col, err := options.Source.Read(ctx, secretReader, scope, elemType)
 	if err != nil {
 		return nil, fmt.Errorf("error creating source transform: %v", err)
 	}
 
-	err = options.Sink.Write(scope, col)
+	err = options.Sink.Write(ctx, secretReader, scope, col)
 	if err != nil {
 		return nil, fmt.Errorf("error creating sink transform: %v", err)
 	}

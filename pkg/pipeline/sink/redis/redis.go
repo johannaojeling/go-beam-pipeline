@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/redisio"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/creds"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
 
 type Redis struct {
@@ -17,10 +19,15 @@ type Redis struct {
 	KeyField   string           `yaml:"key_field"`
 }
 
-func (redis Redis) Write(scope beam.Scope, col beam.PCollection) error {
+func (redis Redis) Write(
+	ctx context.Context,
+	secretReader *gcp.SecretReader,
+	scope beam.Scope,
+	col beam.PCollection,
+) error {
 	scope = scope.Scope("Write to Redis")
 
-	url, err := redis.URL.GetValue()
+	url, err := redis.URL.GetValue(ctx, secretReader)
 	if err != nil {
 		return fmt.Errorf("failed to get URL value: %v", err)
 	}

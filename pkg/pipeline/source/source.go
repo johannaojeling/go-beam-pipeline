@@ -1,6 +1,7 @@
 package source
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/file"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/firestore"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/redis"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
 
 type Source struct {
@@ -25,6 +27,8 @@ type Source struct {
 }
 
 func (source Source) Read(
+	ctx context.Context,
+	secretReader *gcp.SecretReader,
 	scope beam.Scope,
 	elemType reflect.Type,
 ) (beam.PCollection, error) {
@@ -33,15 +37,15 @@ func (source Source) Read(
 	case BigQuery:
 		return source.BigQuery.Read(scope, elemType), nil
 	case Elasticsearch:
-		return source.Elasticsearch.Read(scope, elemType)
+		return source.Elasticsearch.Read(ctx, secretReader, scope, elemType)
 	case File:
 		return source.File.Read(scope, elemType)
 	case Firestore:
 		return source.Firestore.Read(scope, elemType), nil
 	case Database:
-		return source.Database.Read(scope, elemType)
+		return source.Database.Read(ctx, secretReader, scope, elemType)
 	case Redis:
-		return source.Redis.Read(scope, elemType)
+		return source.Redis.Read(ctx, secretReader, scope, elemType)
 	default:
 		return beam.PCollection{}, fmt.Errorf("source format %q is not supported", format)
 	}

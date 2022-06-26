@@ -13,9 +13,12 @@ type Credential struct {
 	SecretName string `yaml:"secret_name"`
 }
 
-func (cred Credential) GetValue() (string, error) {
+func (cred Credential) GetValue(
+	ctx context.Context,
+	secretReader *gcp.SecretReader,
+) (string, error) {
 	if cred.SecretName != "" {
-		value, err := gcp.ReadSecret(context.Background(), cred.SecretName)
+		value, err := secretReader.ReadSecret(ctx, cred.SecretName)
 		if err != nil {
 			return "", fmt.Errorf("error retrieving secret: %v", err)
 		}

@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 
@@ -8,6 +9,7 @@ import (
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/redisio"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/creds"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
 
 type Redis struct {
@@ -16,10 +18,15 @@ type Redis struct {
 	BatchSize   int              `yaml:"batch_size"`
 }
 
-func (redis Redis) Read(scope beam.Scope, elemType reflect.Type) (beam.PCollection, error) {
+func (redis Redis) Read(
+	ctx context.Context,
+	secretReader *gcp.SecretReader,
+	scope beam.Scope,
+	elemType reflect.Type,
+) (beam.PCollection, error) {
 	scope = scope.Scope("Read from Redis")
 
-	url, err := redis.URL.GetValue()
+	url, err := redis.URL.GetValue(ctx, secretReader)
 	if err != nil {
 		return beam.PCollection{}, fmt.Errorf("failed to get URL value: %v", err)
 	}

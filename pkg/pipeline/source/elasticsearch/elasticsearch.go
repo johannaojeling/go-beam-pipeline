@@ -1,6 +1,7 @@
 package elasticsearch
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"strings"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/elasticsearchio"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/creds"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
 
 type Elasticsearch struct {
@@ -22,11 +24,13 @@ type Elasticsearch struct {
 }
 
 func (es Elasticsearch) Read(
+	ctx context.Context,
+	secretReader *gcp.SecretReader,
 	scope beam.Scope,
 	elemType reflect.Type) (beam.PCollection, error) {
 	scope = scope.Scope("Read from Elasticsearch")
 
-	urls, err := es.URLs.GetValue()
+	urls, err := es.URLs.GetValue(ctx, secretReader)
 	if err != nil {
 		return beam.PCollection{}, fmt.Errorf("failed to get URLs value: %v", err)
 	}
@@ -35,12 +39,12 @@ func (es Elasticsearch) Read(
 		addresses = strings.Split(urls, ",")
 	}
 
-	cloudId, err := es.CloudId.GetValue()
+	cloudId, err := es.CloudId.GetValue(ctx, secretReader)
 	if err != nil {
 		return beam.PCollection{}, fmt.Errorf("failed to get Cloud ID value: %v", err)
 	}
 
-	apiKey, err := es.ApiKey.GetValue()
+	apiKey, err := es.ApiKey.GetValue(ctx, secretReader)
 	if err != nil {
 		return beam.PCollection{}, fmt.Errorf("failed to get API key value: %v", err)
 	}

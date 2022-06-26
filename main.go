@@ -14,6 +14,7 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/config"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/file"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
 
 var (
@@ -60,8 +61,11 @@ func main() {
 		log.Fatalf("error parsing config to Options: %v", err)
 	}
 
+	secretReader := gcp.NewSecretReader()
+	defer secretReader.Close()
 	elemType := reflect.TypeOf(Event{})
-	beamPipeline, err := options.Construct(elemType)
+
+	beamPipeline, err := options.Construct(ctx, secretReader, elemType)
 	if err != nil {
 		log.Fatalf("error constructing pipeline: %v", err)
 	}

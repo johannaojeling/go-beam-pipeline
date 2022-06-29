@@ -22,7 +22,7 @@ func TestWrite(t *testing.T) {
 		batchSize  int
 		fieldKey   string
 		elemType   reflect.Type
-		input      []interface{}
+		input      []any
 		keyPrefix  string
 		expected   map[string]string
 	}{
@@ -30,7 +30,7 @@ func TestWrite(t *testing.T) {
 			reason:   "Should extract key and write to Redis from PCollection of type entry",
 			fieldKey: "Field1",
 			elemType: reflect.TypeOf(entry{}),
-			input: []interface{}{
+			input: []any{
 				entry{
 					Field1: "val1",
 					Field2: 1,
@@ -90,8 +90,8 @@ func TestWriteKV(t *testing.T) {
 		expiration time.Duration
 		batchSize  int
 		elemType   reflect.Type
-		unpackDoFn interface{}
-		input      []interface{}
+		unpackDoFn any
+		input      []any
 		keyPrefix  string
 		expected   map[string]string
 	}{
@@ -99,7 +99,7 @@ func TestWriteKV(t *testing.T) {
 			reason:     "Should write to Redis from PCollection of type KV<string, string>",
 			elemType:   reflect.TypeOf(stringKV{}),
 			unpackDoFn: unpackStringKV,
-			input: []interface{}{
+			input: []any{
 				stringKV{
 					Key:   "skey1",
 					Value: "val1",
@@ -119,7 +119,7 @@ func TestWriteKV(t *testing.T) {
 			reason:     "Should write to Redis from PCollection of type KV<string, entry>",
 			elemType:   reflect.TypeOf(entryKV{}),
 			unpackDoFn: unpackEntryKV,
-			input: []interface{}{
+			input: []any{
 				entryKV{
 					Key: "ekey1",
 					Value: entry{

@@ -1,13 +1,14 @@
 package avroio
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"testing"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	_ "github.com/apache/beam/sdks/v2/go/pkg/beam/io/filesystem/local"
-	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/x/beamx"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/fileutils"
@@ -29,17 +30,17 @@ func TestWrite(t *testing.T) {
 
 	testCases := []struct {
 		reason string
-		input  []interface{}
+		input  []any
 	}{
 		{
 			reason: "Should write to avro file from PCollection of type entry",
-			input:  []interface{}{entry{Key: "val1"}, entry{Key: "val2"}},
+			input:  []any{entry{Key: "val1"}, entry{Key: "val2"}},
 		},
 		{
 			reason: "Should write to avro file from PCollection of type map",
-			input: []interface{}{
-				map[string]interface{}{"key": "val1"},
-				map[string]interface{}{"key": "val2"},
+			input: []any{
+				map[string]any{"key": "val1"},
+				map[string]any{"key": "val2"},
 			},
 		},
 	}
@@ -59,7 +60,9 @@ func TestWrite(t *testing.T) {
 			col := beam.Create(scope, tc.input...)
 			Write(scope, config, col)
 
-			ptest.RunAndValidate(t, pipeline)
+			ctx := context.Background()
+			err := beamx.Run(ctx, pipeline)
+			assert.Nil(t, err)
 
 			actual, err := fileutils.ReadAvro(path)
 			if err != nil {

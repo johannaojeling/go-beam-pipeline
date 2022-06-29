@@ -32,28 +32,28 @@ func (s *ReadSuite) TestRead() {
 	testCases := []struct {
 		reason   string
 		elemType reflect.Type
-		records  []map[string]interface{}
-		expected []interface{}
+		records  []map[string]any
+		expected []any
 	}{
 		{
 			reason:   "Should read from Firestore collection to PCollection of type doc",
 			elemType: reflect.TypeOf(doc{}),
-			records: []map[string]interface{}{
+			records: []map[string]any{
 				{"key": "val1"},
 				{"key": "val2"},
 			},
-			expected: []interface{}{doc{Key: "val1"}, doc{Key: "val2"}},
+			expected: []any{doc{Key: "val1"}, doc{Key: "val2"}},
 		},
 		{
 			reason:   "Should read from Firestore collection to PCollection of type map",
-			elemType: reflect.TypeOf(map[string]interface{}{}),
-			records: []map[string]interface{}{
+			elemType: reflect.TypeOf(map[string]any{}),
+			records: []map[string]any{
 				{"key": "val1"},
 				{"key": "val2"},
 			},
-			expected: []interface{}{
-				map[string]interface{}{"key": "val1"},
-				map[string]interface{}{"key": "val2"},
+			expected: []any{
+				map[string]any{"key": "val1"},
+				map[string]any{"key": "val2"},
 			},
 		},
 	}

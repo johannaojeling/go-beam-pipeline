@@ -18,7 +18,7 @@ func TestMarshal(t *testing.T) {
 
 	testCases := []struct {
 		reason     string
-		input      interface{}
+		input      any
 		expected   string
 		expectsErr bool
 	}{
@@ -36,7 +36,7 @@ func TestMarshal(t *testing.T) {
 		},
 		{
 			reason: "Should return error as input is not a struct",
-			input: map[string]interface{}{
+			input: map[string]any{
 				"bool_field":   true,
 				"string_field": "test",
 				"int_field":    123,

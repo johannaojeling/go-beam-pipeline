@@ -12,27 +12,27 @@ the [examples/config](examples/config) folder.
 Supported sources:
 
 - BigQuery
-- Cloud Storage/File (Avro, Csv, Json, Parquet)
-- Cloud SQL/PostgreSQL
+- Cloud Storage (avro, csv, json, parquet)
+- Cloud SQL (PostgreSQL)
 - Elasticsearch
 - Firestore
-- Memorystore/Redis
+- Memorystore (Redis)
 
 Supported sinks:
 
 - BigQuery
-- Cloud Storage/File (Avro, Csv, Json, Parquet)
+- Cloud Storage (avro, csv, json, parquet)
 - Elasticsearch
 - Firestore
-- Memorystore/Redis
+- Memorystore (Redis)
 
-The image below shows a Dataflow pipeline that reads from File (Json) and writes to File (Csv).
+The image below shows a Dataflow pipeline that reads from Cloud Storage (json) and writes to Cloud Storage (csv).
 
 ![Dataflow pipeline](images/dataflow.png)
 
 ## Pre-requisites
 
-- Go version 1.16
+- Go version 1.18
 - Gcloud SDK
 
 ## Development

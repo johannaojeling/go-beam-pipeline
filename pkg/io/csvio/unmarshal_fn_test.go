@@ -20,7 +20,7 @@ func TestUnMarshalFn_ProcessElement(t *testing.T) {
 		reason   string
 		elemType reflect.Type
 		input    string
-		expected interface{}
+		expected any
 	}{
 		{
 			reason:   "Should parse csv line to type user",

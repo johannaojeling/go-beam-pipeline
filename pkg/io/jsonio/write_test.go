@@ -22,17 +22,17 @@ func TestWrite(t *testing.T) {
 
 	testCases := []struct {
 		reason string
-		input  []interface{}
+		input  []any
 	}{
 		{
 			reason: "Should write to json file from PCollection of type entry",
-			input:  []interface{}{entry{Key: "val1"}, entry{Key: "val2"}},
+			input:  []any{entry{Key: "val1"}, entry{Key: "val2"}},
 		},
 		{
 			reason: "Should write to json file from PCollection of type map",
-			input: []interface{}{
-				map[string]interface{}{"key": "val1"},
-				map[string]interface{}{"key": "val2"},
+			input: []any{
+				map[string]any{"key": "val1"},
+				map[string]any{"key": "val2"},
 			},
 		},
 	}

@@ -25,7 +25,7 @@ func TestRead(t *testing.T) {
 		batchSize   int
 		elemType    reflect.Type
 		input       map[string]string
-		expected    []interface{}
+		expected    []any
 	}{
 		{
 			reason:      "Should read from Redis to PCollection of type entry",
@@ -36,7 +36,7 @@ func TestRead(t *testing.T) {
 				"key2":           `{"field1":"val2","field2":2}`,
 				"nonMatchingKey": `{"field1":"val3","field2":3}`,
 			},
-			expected: []interface{}{
+			expected: []any{
 				entry{
 					Field1: "val1",
 					Field2: 1,
@@ -48,20 +48,20 @@ func TestRead(t *testing.T) {
 			},
 		},
 		{
-			reason:      "Should read from Redis to PCollection of type map[string]interface{}",
+			reason:      "Should read from Redis to PCollection of type map[string]any",
 			keyPatterns: []string{"key*"},
-			elemType:    reflect.TypeOf(map[string]interface{}{}),
+			elemType:    reflect.TypeOf(map[string]any{}),
 			input: map[string]string{
 				"key1":           `{"field1":"val1","field2":1}`,
 				"key2":           `{"field1":"val2","field2":2}`,
 				"nonMatchingKey": `{"field1":"val3","field2":3}`,
 			},
-			expected: []interface{}{
-				map[string]interface{}{
+			expected: []any{
+				map[string]any{
 					"field1": "val1",
 					"field2": 1,
 				},
-				map[string]interface{}{
+				map[string]any{
 					"field1": "val2",
 					"field2": 2,
 				},

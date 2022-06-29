@@ -42,7 +42,7 @@ func (s *ReadSuite) TestRead() {
 		}
 		elemType := reflect.TypeOf(doc{})
 
-		input := []map[string]interface{}{
+		input := []map[string]any{
 			{"key": "val1"},
 			{"key": "val2"},
 		}
@@ -68,7 +68,7 @@ func (s *ReadSuite) TestRead() {
 		pipeline, scope := beam.NewPipelineWithRoot()
 
 		actual := Read(scope, readCfg, elemType)
-		expected := []interface{}{doc{Key: "val1"}, doc{Key: "val2"}}
+		expected := []any{doc{Key: "val1"}, doc{Key: "val2"}}
 
 		passert.Equals(scope, actual, expected...)
 		ptest.RunAndValidate(t, pipeline)

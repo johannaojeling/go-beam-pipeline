@@ -20,13 +20,13 @@ func TestUnMarshalFn_ProcessElement(t *testing.T) {
 		reason   string
 		elemType reflect.Type
 		input    []byte
-		expected interface{}
+		expected any
 	}{
 		{
 			reason:   "Should parse json string to map",
-			elemType: reflect.TypeOf(map[string]interface{}{}),
+			elemType: reflect.TypeOf(map[string]any{}),
 			input:    []byte(`{"id":1,"name":"user1"}`),
-			expected: map[string]interface{}{
+			expected: map[string]any{
 				"id":   1,
 				"name": "user1",
 			},

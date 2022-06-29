@@ -19,7 +19,7 @@ func TestUnmarshal(t *testing.T) {
 	testCases := []struct {
 		reason     string
 		input      string
-		expected   interface{}
+		expected   any
 		expectsErr bool
 	}{
 		{

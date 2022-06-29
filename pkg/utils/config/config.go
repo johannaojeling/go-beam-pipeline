@@ -10,8 +10,8 @@ import (
 
 func ParseConfig(
 	content string,
-	fields interface{},
-	out interface{},
+	fields any,
+	out any,
 ) error {
 	parsed, err := parseTemplate(content, fields)
 	if err != nil {
@@ -26,7 +26,7 @@ func ParseConfig(
 	return nil
 }
 
-func parseTemplate(content string, data interface{}) ([]byte, error) {
+func parseTemplate(content string, data any) ([]byte, error) {
 	tmpl := template.New("template")
 	tmpl, err := tmpl.Parse(content)
 	if err != nil {

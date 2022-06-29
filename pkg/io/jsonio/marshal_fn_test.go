@@ -19,13 +19,13 @@ func TestMarshalFn_ProcessElement(t *testing.T) {
 	testCases := []struct {
 		reason   string
 		elemType reflect.Type
-		input    interface{}
+		input    any
 		expected []byte
 	}{
 		{
 			reason:   "Should parse element of type map to json string",
-			elemType: reflect.TypeOf(map[string]interface{}{}),
-			input: map[string]interface{}{
+			elemType: reflect.TypeOf(map[string]any{}),
+			input: map[string]any{
 				"id":   1,
 				"name": "user1",
 			},

@@ -30,24 +30,24 @@ func (s *WriteSuite) TestWrite() {
 
 	testCases := []struct {
 		reason   string
-		input    []interface{}
-		expected []map[string]interface{}
+		input    []any
+		expected []map[string]any
 	}{
 		{
 			reason: "Should write to Firestore collection from PCollection of type doc",
-			input:  []interface{}{doc{Key: "val1"}, doc{Key: "val2"}},
-			expected: []map[string]interface{}{
+			input:  []any{doc{Key: "val1"}, doc{Key: "val2"}},
+			expected: []map[string]any{
 				{"key": "val1"},
 				{"key": "val2"},
 			},
 		},
 		{
 			reason: "Should write to Firestore collection from PCollection of type map",
-			input: []interface{}{
-				map[string]interface{}{"key": "val1"},
-				map[string]interface{}{"key": "val2"},
+			input: []any{
+				map[string]any{"key": "val1"},
+				map[string]any{"key": "val2"},
 			},
-			expected: []map[string]interface{}{
+			expected: []map[string]any{
 				{"key": "val1"},
 				{"key": "val2"},
 			},

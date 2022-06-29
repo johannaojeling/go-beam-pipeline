@@ -23,13 +23,13 @@ func TestRead(t *testing.T) {
 		reason   string
 		elemType reflect.Type
 		input    string
-		expected []interface{}
+		expected []any
 	}{
 		{
 			reason:   "Should read from csv file to PCollection of type user",
 			elemType: reflect.TypeOf(user{}),
 			input:    "val1\nval2\n",
-			expected: []interface{}{user{Key: "val1"}, user{Key: "val2"}},
+			expected: []any{user{Key: "val1"}, user{Key: "val2"}},
 		},
 	}
 

@@ -23,21 +23,21 @@ func TestRead(t *testing.T) {
 		reason   string
 		elemType reflect.Type
 		input    string
-		expected []interface{}
+		expected []any
 	}{
 		{
 			reason:   "Should read from json file to PCollection of type entry",
 			elemType: reflect.TypeOf(entry{}),
 			input:    "{\"key\":\"val1\"}\n{\"key\":\"val2\"}\n",
-			expected: []interface{}{entry{Key: "val1"}, entry{Key: "val2"}},
+			expected: []any{entry{Key: "val1"}, entry{Key: "val2"}},
 		},
 		{
 			reason:   "Should read from json file to PCollection of type map",
-			elemType: reflect.TypeOf(map[string]interface{}{}),
+			elemType: reflect.TypeOf(map[string]any{}),
 			input:    "{\"key\":\"val1\"}\n{\"key\":\"val2\"}\n",
-			expected: []interface{}{
-				map[string]interface{}{"key": "val1"},
-				map[string]interface{}{"key": "val2"},
+			expected: []any{
+				map[string]any{"key": "val1"},
+				map[string]any{"key": "val2"},
 			},
 		},
 	}

@@ -19,7 +19,7 @@ func TestMarshalFn_ProcessElement(t *testing.T) {
 	testCases := []struct {
 		reason   string
 		elemType reflect.Type
-		input    interface{}
+		input    any
 		expected string
 	}{
 		{

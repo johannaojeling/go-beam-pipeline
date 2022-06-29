@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func Unmarshal(line string, out interface{}) error {
+func Unmarshal(line string, out any) error {
 	structValPtr := reflect.ValueOf(out)
 
 	structValPtrKind := structValPtr.Kind()

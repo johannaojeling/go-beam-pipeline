@@ -42,7 +42,7 @@ func SetEntries(url string, entries map[string]string) error {
 	defer client.Close()
 
 	size := len(entries) * 2
-	args := make([]interface{}, 0, size)
+	args := make([]any, 0, size)
 	for key, value := range entries {
 		args = append(args, key)
 		args = append(args, value)

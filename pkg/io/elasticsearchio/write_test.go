@@ -38,7 +38,7 @@ func (s *WriteSuite) TestWrite() {
 			Index:     index,
 		}
 
-		input := []interface{}{doc{Key: "val1"}, doc{Key: "val2"}}
+		input := []any{doc{Key: "val1"}, doc{Key: "val2"}}
 
 		beam.Init()
 		pipeline, scope := beam.NewPipelineWithRoot()
@@ -65,7 +65,7 @@ func (s *WriteSuite) TestWrite() {
 		if err != nil {
 			t.Fatalf("failed to read documents %v", err)
 		}
-		expected := []map[string]interface{}{
+		expected := []map[string]any{
 			{"key": "val1"},
 			{"key": "val2"},
 		}

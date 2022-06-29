@@ -67,7 +67,7 @@ func IndexDocuments(
 	ctx context.Context,
 	client *elasticsearch.Client,
 	index string,
-	documents []map[string]interface{},
+	documents []map[string]any,
 ) error {
 	config := esutil.BulkIndexerConfig{
 		Client: client,
@@ -100,7 +100,7 @@ func IndexDocuments(
 func addDocument(
 	ctx context.Context,
 	bulkIndexer esutil.BulkIndexer,
-	document map[string]interface{},
+	document map[string]any,
 ) error {
 	data, err := json.Marshal(document)
 	if err != nil {
@@ -126,13 +126,13 @@ func SearchDocuments(
 	client *elasticsearch.Client,
 	index string,
 	query string,
-) ([]map[string]interface{}, error) {
+) ([]map[string]any, error) {
 	searchBody := &SearchBody{
 		Query: []byte(query),
 	}
 	from := 0
 	size := 10
-	var records []map[string]interface{}
+	var records []map[string]any
 
 	err := search(ctx, client, index, searchBody, from, size, true, &records)
 	if err != nil {
@@ -150,7 +150,7 @@ func search(
 	from int,
 	size int,
 	trackTotal bool,
-	records *[]map[string]interface{},
+	records *[]map[string]any,
 ) error {
 	body := esutil.NewJSONReader(searchBody)
 	response, err := client.Search(
@@ -180,11 +180,11 @@ func search(
 
 	if len(*records) == 0 {
 		total := searchResponse.Hits.Total.Value
-		*records = make([]map[string]interface{}, 0, total)
+		*records = make([]map[string]any, 0, total)
 	}
 
 	for _, hit := range hits {
-		var record map[string]interface{}
+		var record map[string]any
 		err := json.Unmarshal(hit.Source, &record)
 		if err != nil {
 			return fmt.Errorf("failed to unmarshal source: %v", err)

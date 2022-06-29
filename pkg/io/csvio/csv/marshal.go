@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func Marshal(val interface{}) (string, error) {
+func Marshal(val any) (string, error) {
 	structVal := reflect.ValueOf(val)
 
 	structValKind := structVal.Kind()

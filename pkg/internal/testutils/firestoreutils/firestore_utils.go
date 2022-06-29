@@ -8,7 +8,7 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-func ReadDocuments(project string, collection string) ([]map[string]interface{}, error) {
+func ReadDocuments(project string, collection string) ([]map[string]any, error) {
 	ctx := context.Background()
 	client, err := firestore.NewClient(ctx, project)
 	if err != nil {
@@ -20,7 +20,7 @@ func ReadDocuments(project string, collection string) ([]map[string]interface{},
 	iter := collectionRef.Documents(ctx)
 	defer iter.Stop()
 
-	records := make([]map[string]interface{}, 0)
+	records := make([]map[string]any, 0)
 
 	for {
 		docSnap, err := iter.Next()
@@ -31,7 +31,7 @@ func ReadDocuments(project string, collection string) ([]map[string]interface{},
 			return nil, fmt.Errorf("error iterating: %v", err)
 		}
 
-		var record map[string]interface{}
+		var record map[string]any
 		err = docSnap.DataTo(&record)
 		if err != nil {
 			return nil, fmt.Errorf("error parsing document to map: %v", err)
@@ -42,7 +42,7 @@ func ReadDocuments(project string, collection string) ([]map[string]interface{},
 	return records, nil
 }
 
-func WriteDocuments(project string, collection string, records []map[string]interface{}) error {
+func WriteDocuments(project string, collection string, records []map[string]any) error {
 	ctx := context.Background()
 	client, err := firestore.NewClient(ctx, project)
 	if err != nil {

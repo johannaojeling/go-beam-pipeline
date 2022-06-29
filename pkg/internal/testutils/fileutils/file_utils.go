@@ -11,7 +11,7 @@ import (
 	"github.com/linkedin/goavro"
 )
 
-func ReadAvro(path string) ([]map[string]interface{}, error) {
+func ReadAvro(path string) ([]map[string]any, error) {
 	avroBytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file: %v", err)
@@ -23,7 +23,7 @@ func ReadAvro(path string) ([]map[string]interface{}, error) {
 		return nil, fmt.Errorf("error initializing OCF reader: %v", err)
 	}
 
-	records := make([]map[string]interface{}, 0)
+	records := make([]map[string]any, 0)
 
 	for ocfReader.Scan() {
 		datum, err := ocfReader.Read()
@@ -36,7 +36,7 @@ func ReadAvro(path string) ([]map[string]interface{}, error) {
 			return nil, fmt.Errorf("error marshaling datum to json: %v", err)
 		}
 
-		var record map[string]interface{}
+		var record map[string]any
 		err = json.Unmarshal(jsonBytes, &record)
 		if err != nil {
 			return nil, fmt.Errorf("error unmarshaling json to map: %v", err)
@@ -53,16 +53,16 @@ func ReadAvro(path string) ([]map[string]interface{}, error) {
 	return records, nil
 }
 
-func ReadJson(path string) ([]map[string]interface{}, error) {
+func ReadJson(path string) ([]map[string]any, error) {
 	lines, err := ReadLines(path)
 	if err != nil {
 		return nil, fmt.Errorf("error reading lines: %v", err)
 	}
 
-	records := make([]map[string]interface{}, len(lines))
+	records := make([]map[string]any, len(lines))
 
 	for _, line := range lines {
-		var record map[string]interface{}
+		var record map[string]any
 		err = json.Unmarshal([]byte(line), &record)
 		if err != nil {
 			return nil, fmt.Errorf("error unmarhaling json to map: %v", err)

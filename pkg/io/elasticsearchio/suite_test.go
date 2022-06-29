@@ -66,11 +66,10 @@ func getContainerUrl(ctx context.Context, container testcontainers.Container) (s
 
 func createContainer(ctx context.Context, networkName string) (testcontainers.Container, error) {
 	containerRequest := testcontainers.ContainerRequest{
-		Image: "elasticsearch:8.2.2",
+		Image: "elasticsearch:8.2.3",
 		Env: map[string]string{
 			"discovery.type":         "single-node",
 			"xpack.security.enabled": "false",
-			"ES_JAVA_OPTS":           "-Xms1g -Xmx1g",
 		},
 		ExposedPorts: []string{"9200/tcp"},
 		Networks:     []string{networkName},

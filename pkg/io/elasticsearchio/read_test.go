@@ -50,18 +50,18 @@ func (s *ReadSuite) TestRead() {
 		esCfg := elasticsearch.Config{Addresses: addresses}
 		client, err := elasticsearch.NewClient(esCfg)
 		if err != nil {
-			t.Fatalf("failed to initialize client: %v", err)
+			t.Fatalf("error initializing client: %v", err)
 		}
 
 		ctx := context.Background()
 		err = esutils.IndexDocuments(ctx, client, index, input)
 		if err != nil {
-			t.Fatalf("failed to index documents: %v", err)
+			t.Fatalf("error indexing documents: %v", err)
 		}
 
 		err = esutils.RefreshIndices(ctx, client, []string{index})
 		if err != nil {
-			t.Fatalf("failed to refresh index: %v", err)
+			t.Fatalf("error refreshing index: %v", err)
 		}
 
 		beam.Init()

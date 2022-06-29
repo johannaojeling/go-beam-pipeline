@@ -32,7 +32,7 @@ func RefreshIndices(ctx context.Context, client *elasticsearch.Client, indices [
 	}
 	response, err := refreshRequest.Do(ctx, client)
 	if err != nil {
-		return fmt.Errorf("failed to call Refresh API: %v", err)
+		return fmt.Errorf("error calling Refresh API: %v", err)
 	}
 
 	defer response.Body.Close()
@@ -53,7 +53,7 @@ func DeleteIndices(
 		client.Indices.Delete.WithIgnoreUnavailable(true),
 	)
 	if err != nil {
-		return fmt.Errorf("failed to call Delete API: %v", err)
+		return fmt.Errorf("error calling Delete API: %v", err)
 	}
 
 	defer response.Body.Close()
@@ -75,23 +75,23 @@ func IndexDocuments(
 	}
 	bulkIndexer, err := esutil.NewBulkIndexer(config)
 	if err != nil {
-		return fmt.Errorf("failed to initialize bulk indexer: %v", err)
+		return fmt.Errorf("error initializing bulk indexer: %v", err)
 	}
 
 	for _, doc := range documents {
 		err := addDocument(ctx, bulkIndexer, doc)
 		if err != nil {
-			return fmt.Errorf("failed to add document to bulk indexer: %v", err)
+			return fmt.Errorf("error adding document to bulk indexer: %v", err)
 		}
 	}
 	err = bulkIndexer.Close(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to close bulk indexer: %v", err)
+		return fmt.Errorf("error closing bulk indexer: %v", err)
 	}
 
 	stats := bulkIndexer.Stats()
 	if numFailed := stats.NumFailed; numFailed > 0 {
-		return fmt.Errorf("failed to index %d document", numFailed)
+		return fmt.Errorf("error indexing %d document(s)", numFailed)
 	}
 
 	return nil
@@ -104,7 +104,7 @@ func addDocument(
 ) error {
 	data, err := json.Marshal(document)
 	if err != nil {
-		return fmt.Errorf("failed to encode document: %v", err)
+		return fmt.Errorf("error encoding document: %v", err)
 	}
 	body := bytes.NewReader(data)
 
@@ -116,7 +116,7 @@ func addDocument(
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("failed to add item: %v", err)
+		return fmt.Errorf("error adding item: %v", err)
 	}
 	return nil
 }
@@ -136,7 +136,7 @@ func SearchDocuments(
 
 	err := search(ctx, client, index, searchBody, from, size, true, &records)
 	if err != nil {
-		return nil, fmt.Errorf("failed to search index: %v", err)
+		return nil, fmt.Errorf("error searching index: %v", err)
 	}
 
 	return records, nil
@@ -162,7 +162,7 @@ func search(
 		client.Search.WithTrackTotalHits(trackTotal),
 	)
 	if err != nil {
-		return fmt.Errorf("failed to call Search API: %v", err)
+		return fmt.Errorf("error calling Search API: %v", err)
 	}
 
 	defer response.Body.Close()
@@ -173,7 +173,7 @@ func search(
 	searchResponse := new(SearchResponse)
 	err = json.NewDecoder(response.Body).Decode(searchResponse)
 	if err != nil {
-		return fmt.Errorf("failed to parse response body: %v", err)
+		return fmt.Errorf("error parsing response body: %v", err)
 	}
 
 	hits := searchResponse.Hits.Hits
@@ -187,7 +187,7 @@ func search(
 		var record map[string]any
 		err := json.Unmarshal(hit.Source, &record)
 		if err != nil {
-			return fmt.Errorf("failed to unmarshal source: %v", err)
+			return fmt.Errorf("error unmarshaling source: %v", err)
 		}
 		*records = append(*records, record)
 	}
@@ -195,7 +195,7 @@ func search(
 	if len(hits) == size {
 		err := search(ctx, client, index, searchBody, from+size, size, false, records)
 		if err != nil {
-			return fmt.Errorf("failed to search: %v", err)
+			return fmt.Errorf("error searching: %v", err)
 		}
 	}
 	return nil

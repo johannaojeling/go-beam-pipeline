@@ -51,19 +51,19 @@ func (s *WriteSuite) TestWrite() {
 		esCfg := elasticsearch.Config{Addresses: addresses}
 		client, err := elasticsearch.NewClient(esCfg)
 		if err != nil {
-			t.Fatalf("failed to initialize client: %v", err)
+			t.Fatalf("error initializing client: %v", err)
 		}
 
 		ctx := context.Background()
 		err = esutils.RefreshIndices(ctx, client, []string{index})
 		if err != nil {
-			t.Fatalf("failed to refresh index: %v", err)
+			t.Fatalf("error refreshing index: %v", err)
 		}
 
 		query := `{"match_all": {}}`
 		actual, err := esutils.SearchDocuments(ctx, client, index, query)
 		if err != nil {
-			t.Fatalf("failed to read documents %v", err)
+			t.Fatalf("error reading documents %v", err)
 		}
 		expected := []map[string]any{
 			{"key": "val1"},

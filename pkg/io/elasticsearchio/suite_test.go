@@ -27,24 +27,24 @@ func (s *Suite) SetupSuite() {
 	networkName := "test-network"
 	network, err := createNetwork(ctx, networkName)
 	if err != nil {
-		s.T().Fatalf("failed to create network: %v", err)
+		s.T().Fatalf("error creating network: %v", err)
 	}
 	s.network = network
 
 	container, err := createContainer(ctx, networkName)
 	if err != nil {
-		s.T().Fatalf("failed to create Elasticsearch container: %v", err)
+		s.T().Fatalf("error creating Elasticsearch container: %v", err)
 	}
 	s.container = container
 
 	url, err := getContainerUrl(ctx, container)
 	if err != nil {
-		s.T().Fatalf("failed to get container url: %v", err)
+		s.T().Fatalf("error getting container url: %v", err)
 	}
 
 	err = waitUntilHealthy(url)
 	if err != nil {
-		s.T().Fatalf("failed to wait for Elasticsearch to get into a healthy state: %v", err)
+		s.T().Fatalf("error waiting for Elasticsearch to get into a healthy state: %v", err)
 	}
 	s.URL = url
 }
@@ -52,12 +52,12 @@ func (s *Suite) SetupSuite() {
 func getContainerUrl(ctx context.Context, container testcontainers.Container) (string, error) {
 	host, err := container.Host(ctx)
 	if err != nil {
-		return "", fmt.Errorf("failed to get container host: %v", err)
+		return "", fmt.Errorf("error getting container host: %v", err)
 	}
 
 	port, err := container.MappedPort(ctx, "9200")
 	if err != nil {
-		return "", fmt.Errorf("failed to get container port: %v", err)
+		return "", fmt.Errorf("error getting container port: %v", err)
 	}
 
 	url := fmt.Sprintf("http://%s:%s", host, port.Port())
@@ -119,18 +119,18 @@ func (s *Suite) TearDownSuite() {
 	ctx := context.Background()
 	err := s.container.Terminate(ctx)
 	if err != nil {
-		s.T().Errorf("failed to terminate container: %v", err)
+		s.T().Errorf("error terminating container: %v", err)
 	}
 
 	err = s.network.Remove(ctx)
 	if err != nil {
-		s.T().Errorf("failed to remove netowrk: %v", err)
+		s.T().Errorf("error removing netowrk: %v", err)
 	}
 }
 
 func (s *Suite) TearDownTest(ctx context.Context, client *elasticsearch.Client, index string) {
 	err := esutils.DeleteIndices(ctx, client, []string{index})
 	if err != nil {
-		s.T().Fatalf("failed to delete index %q: %v", index, err)
+		s.T().Fatalf("error deleting index %q: %v", index, err)
 	}
 }

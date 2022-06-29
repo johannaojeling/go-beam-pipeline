@@ -86,7 +86,7 @@ func (fn *readFn) ProcessElement(
 ) error {
 	pitResponse, err := fn.openPIT(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to open Point In Time: %v", err)
+		return fmt.Errorf("error opening Point In Time: %v", err)
 	}
 
 	pit := &PointInTime{
@@ -103,12 +103,12 @@ func (fn *readFn) ProcessElement(
 
 	pitId, err := fn.search(ctx, searchRequest, sort, emit)
 	if err != nil {
-		return fmt.Errorf("failed to search: %v", err)
+		return fmt.Errorf("error searching: %v", err)
 	}
 
 	err = fn.closePIT(ctx, pitId)
 	if err != nil {
-		return fmt.Errorf("failed to close Point In Time: %v", err)
+		return fmt.Errorf("error closing Point In Time: %v", err)
 	}
 	return nil
 }
@@ -128,7 +128,7 @@ func (fn *readFn) search(
 		fn.client.Search.WithTrackTotalHits(false),
 	)
 	if err != nil {
-		return "", fmt.Errorf("failed to call Search API: %v", err)
+		return "", fmt.Errorf("error calling Search API: %v", err)
 	}
 
 	defer response.Body.Close()
@@ -139,7 +139,7 @@ func (fn *readFn) search(
 	searchResponse := new(SearchResponse)
 	err = json.NewDecoder(response.Body).Decode(searchResponse)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse response body: %v", err)
+		return "", fmt.Errorf("error parsing response body: %v", err)
 	}
 
 	hits := searchResponse.Hits.Hits
@@ -147,7 +147,7 @@ func (fn *readFn) search(
 		out := reflect.New(fn.Type.T).Interface()
 		err := json.Unmarshal(hit.Source, out)
 		if err != nil {
-			return "", fmt.Errorf("failed to unmarshal document: %v", err)
+			return "", fmt.Errorf("error unmarshaling document: %v", err)
 		}
 
 		newElem := reflect.ValueOf(out).Elem().Interface()
@@ -184,7 +184,7 @@ func (fn *readFn) openPIT(ctx context.Context) (*OpenPITResponse, error) {
 		fn.client.OpenPointInTime.WithContext(ctx),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to call PIT API: %v", err)
+		return nil, fmt.Errorf("error calling PIT API: %v", err)
 	}
 
 	defer response.Body.Close()
@@ -195,7 +195,7 @@ func (fn *readFn) openPIT(ctx context.Context) (*OpenPITResponse, error) {
 	openPitResponse := new(OpenPITResponse)
 	err = json.NewDecoder(response.Body).Decode(openPitResponse)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse response body: %v", err)
+		return nil, fmt.Errorf("error parsing response body: %v", err)
 	}
 
 	return openPitResponse, nil
@@ -213,7 +213,7 @@ func (fn *readFn) closePIT(
 		fn.client.ClosePointInTime.WithBody(body),
 	)
 	if err != nil {
-		return fmt.Errorf("failed to call PIT API: %v", err)
+		return fmt.Errorf("error calling PIT API: %v", err)
 	}
 
 	defer response.Body.Close()

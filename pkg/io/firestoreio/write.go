@@ -128,7 +128,7 @@ func (fn *writeFn) FinishBundle(ctx context.Context, _ func(string)) error {
 func (fn *writeFn) flush(ctx context.Context) error {
 	_, err := fn.batch.Commit(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to commit batch: %v", err)
+		return fmt.Errorf("error committing batch: %v", err)
 	}
 	fn.batch = nil
 	fn.batchCount = 0

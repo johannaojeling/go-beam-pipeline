@@ -32,7 +32,7 @@ func (es Elasticsearch) Read(
 
 	urls, err := es.URLs.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("failed to get URLs value: %v", err)
+		return beam.PCollection{}, fmt.Errorf("error getting URLs value: %v", err)
 	}
 	var addresses []string
 	if urls != "" {
@@ -41,12 +41,12 @@ func (es Elasticsearch) Read(
 
 	cloudId, err := es.CloudId.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("failed to get Cloud ID value: %v", err)
+		return beam.PCollection{}, fmt.Errorf("error getting Cloud ID value: %v", err)
 	}
 
 	apiKey, err := es.ApiKey.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("failed to get API key value: %v", err)
+		return beam.PCollection{}, fmt.Errorf("error getting API key value: %v", err)
 	}
 
 	cfg := elasticsearchio.ReadConfig{

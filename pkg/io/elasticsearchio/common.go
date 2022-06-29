@@ -26,7 +26,7 @@ type esFn struct {
 func (fn *esFn) Setup() error {
 	client, err := newClient(fn.Addresses, fn.CloudId, fn.ApiKey)
 	if err != nil {
-		return fmt.Errorf("failed to initialize Elasticsearch client: %v", err)
+		return fmt.Errorf("error initializing Elasticsearch client: %v", err)
 	}
 	fn.client = client
 	return nil

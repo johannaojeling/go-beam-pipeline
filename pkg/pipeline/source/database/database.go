@@ -27,7 +27,7 @@ func (database Database) Read(
 ) (beam.PCollection, error) {
 	dsn, err := database.DSN.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("failed to get DSN value: %v", err)
+		return beam.PCollection{}, fmt.Errorf("error getting DSN value: %v", err)
 	}
 
 	return databaseio.Read(scope, database.Driver, dsn, database.Table, elemType), nil

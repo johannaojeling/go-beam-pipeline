@@ -68,7 +68,7 @@ func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
 	}
 	bulkIndexer, err := esutil.NewBulkIndexer(config)
 	if err != nil {
-		return fmt.Errorf("failed to initialize bulk indexer: %v", err)
+		return fmt.Errorf("error initializing bulk indexer: %v", err)
 	}
 	fn.bulkIndexer = bulkIndexer
 	return nil
@@ -81,7 +81,7 @@ func (fn *writeFn) ProcessElement(
 ) error {
 	data, err := json.Marshal(elem)
 	if err != nil {
-		return fmt.Errorf("failed to encode document: %v", err)
+		return fmt.Errorf("error encoding document: %v", err)
 	}
 	body := bytes.NewReader(data)
 
@@ -99,7 +99,7 @@ func (fn *writeFn) ProcessElement(
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("failed to add bulk indexer item: %v", err)
+		return fmt.Errorf("error adding bulk indexer item: %v", err)
 	}
 	return nil
 }
@@ -107,12 +107,12 @@ func (fn *writeFn) ProcessElement(
 func (fn *writeFn) FinishBundle(ctx context.Context, _ func(string)) error {
 	err := fn.bulkIndexer.Close(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to close bulk indexer: %v", err)
+		return fmt.Errorf("error closing bulk indexer: %v", err)
 	}
 
 	stats := fn.bulkIndexer.Stats()
 	if numFailed := stats.NumFailed; numFailed > 0 {
-		return fmt.Errorf("failed to index %d document(s)", numFailed)
+		return fmt.Errorf("error indexing %d document(s)", numFailed)
 	}
 
 	fn.bulkIndexer = nil
@@ -126,11 +126,11 @@ func onFailureFn(
 	err error,
 ) {
 	if err != nil {
-		log.Errorf(ctx, "failed to index document: %v", err)
+		log.Errorf(ctx, "error indexing document: %v", err)
 	} else {
 		log.Errorf(
 			ctx,
-			"failed to index document, type: %v, reason: %v",
+			"error indexing document, type: %v, reason: %v",
 			responseItem.Error.Type,
 			responseItem.Error.Reason,
 		)

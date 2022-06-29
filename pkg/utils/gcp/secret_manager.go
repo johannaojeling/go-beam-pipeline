@@ -10,12 +10,14 @@ import (
 )
 
 type SecretReader struct {
-	once   sync.Once
-	client *secretmanager.Client
+	clientOnce *sync.Once
+	client     *secretmanager.Client
 }
 
 func NewSecretReader() *SecretReader {
-	return &SecretReader{}
+	return &SecretReader{
+		clientOnce: &sync.Once{},
+	}
 }
 
 func (reader *SecretReader) ReadSecret(ctx context.Context, secret string) (string, error) {
@@ -36,7 +38,7 @@ func (reader *SecretReader) ReadSecret(ctx context.Context, secret string) (stri
 
 func (reader *SecretReader) getClient(ctx context.Context) (*secretmanager.Client, error) {
 	var initErr error
-	reader.once.Do(func() {
+	reader.clientOnce.Do(func() {
 		client, err := secretmanager.NewClient(ctx)
 		if err != nil {
 			initErr = fmt.Errorf("error initializing Secret Manager client: %v", err)

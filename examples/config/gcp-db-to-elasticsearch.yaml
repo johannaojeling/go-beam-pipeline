@@ -1,8 +1,10 @@
 source:
-  format: "FILE"
-  file:
-    format: "CSV"
-    path: "gs://{{ .Bucket }}/input/events.csv"
+  format: "DATABASE"
+  database:
+    driver: "mysql"
+    dsn:
+      secret_name: "projects/{{ .Project }}/secrets/cloud-sql-dsn/versions/latest"
+    table: "events"
 sink:
   format: "ELASTICSEARCH"
   elasticsearch:

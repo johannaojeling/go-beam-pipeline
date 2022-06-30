@@ -10,6 +10,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/elastic/go-elasticsearch/v8 v8.3.0
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/lib/pq v1.10.6
 	github.com/linkedin/goavro v2.1.0+incompatible
 	github.com/stretchr/testify v1.7.0

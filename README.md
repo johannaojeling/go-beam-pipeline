@@ -13,7 +13,7 @@ Supported sources:
 
 - BigQuery
 - Cloud Storage (avro, csv, json, parquet)
-- Cloud SQL (PostgreSQL)
+- Cloud SQL (MySQL, PostgreSQL)
 - Elasticsearch
 - Firestore
 - Memorystore (Redis)
@@ -22,6 +22,7 @@ Supported sinks:
 
 - BigQuery
 - Cloud Storage (avro, csv, json, parquet)
+- Cloud SQL (MySQL)
 - Elasticsearch
 - Firestore
 - Memorystore (Redis)

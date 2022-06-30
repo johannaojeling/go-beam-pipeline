@@ -1,13 +1,12 @@
 source:
+  format: "FILE"
+  file:
+    format: "CSV"
+    path: "gs://{{ .Bucket }}/input/events.csv"
+sink:
   format: "DATABASE"
   database:
-    driver: "postgres"
+    driver: "mysql"
     dsn:
       secret_name: "projects/{{ .Project }}/secrets/cloud-sql-dsn/versions/latest"
-    table: "events"
-sink:
-  format: "BIGQUERY"
-  bigquery:
-    project: "{{ .Project }}"
-    dataset: "raw"
     table: "events"

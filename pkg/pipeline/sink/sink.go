@@ -7,6 +7,7 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/bigquery"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/database"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/elasticsearch"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/file"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/firestore"
@@ -17,6 +18,7 @@ import (
 type Sink struct {
 	Format        Format                      `yaml:"format"`
 	BigQuery      bigquery.BigQuery           `yaml:"bigquery"`
+	Database      database.Database           `yaml:"database"`
 	Elasticsearch elasticsearch.Elasticsearch `yaml:"elasticsearch"`
 	File          file.File                   `yaml:"file"`
 	Firestore     firestore.Firestore         `yaml:"firestore"`
@@ -34,6 +36,8 @@ func (sink Sink) Write(
 	case BigQuery:
 		sink.BigQuery.Write(scope, col)
 		return nil
+	case Database:
+		return sink.Database.Write(ctx, secretReader, scope, col)
 	case Elasticsearch:
 		return sink.Elasticsearch.Write(ctx, secretReader, scope, col)
 	case File:

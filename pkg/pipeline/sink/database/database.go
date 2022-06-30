@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/io/databaseio"
@@ -15,21 +14,29 @@ import (
 )
 
 type Database struct {
-	Driver string           `yaml:"driver"`
-	DSN    creds.Credential `yaml:"dsn"`
-	Table  string           `yaml:"table"`
+	Driver  string           `yaml:"driver"`
+	DSN     creds.Credential `yaml:"dsn"`
+	Table   string           `yaml:"table"`
+	Columns []string         `yaml:"columns"`
 }
 
-func (database Database) Read(
+func (database Database) Write(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	scope beam.Scope,
-	elemType reflect.Type,
-) (beam.PCollection, error) {
+	col beam.PCollection,
+) error {
+	scope = scope.Scope("Write to database")
 	dsn, err := database.DSN.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("error getting DSN value: %v", err)
+		return fmt.Errorf("error getting DSN value: %v", err)
 	}
 
-	return databaseio.Read(scope, database.Driver, dsn, database.Table, elemType), nil
+	columns := database.Columns
+	if columns == nil {
+		columns = []string{}
+	}
+
+	databaseio.Write(scope, database.Driver, dsn, database.Table, columns, col)
+	return nil
 }

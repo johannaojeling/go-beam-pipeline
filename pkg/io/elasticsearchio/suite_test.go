@@ -2,18 +2,21 @@ package elasticsearchio
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/esutils"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/esutils"
 )
+
+const ESVersion = "8.3.1"
 
 type Suite struct {
 	suite.Suite
@@ -49,24 +52,20 @@ func (s *Suite) SetupSuite() {
 	s.URL = url
 }
 
-func getContainerUrl(ctx context.Context, container testcontainers.Container) (string, error) {
-	host, err := container.Host(ctx)
-	if err != nil {
-		return "", fmt.Errorf("error getting container host: %v", err)
+func createNetwork(ctx context.Context, name string) (testcontainers.Network, error) {
+	networkRequest := testcontainers.NetworkRequest{
+		Name:           name,
+		CheckDuplicate: true,
 	}
-
-	port, err := container.MappedPort(ctx, "9200")
-	if err != nil {
-		return "", fmt.Errorf("error getting container port: %v", err)
+	genericNetworkRequest := testcontainers.GenericNetworkRequest{
+		NetworkRequest: networkRequest,
 	}
-
-	url := fmt.Sprintf("http://%s:%s", host, port.Port())
-	return url, nil
+	return testcontainers.GenericNetwork(ctx, genericNetworkRequest)
 }
 
 func createContainer(ctx context.Context, networkName string) (testcontainers.Container, error) {
 	containerRequest := testcontainers.ContainerRequest{
-		Image: "elasticsearch:8.2.3",
+		Image: fmt.Sprintf("elasticsearch:%s", ESVersion),
 		Env: map[string]string{
 			"discovery.type":         "single-node",
 			"xpack.security.enabled": "false",
@@ -82,35 +81,38 @@ func createContainer(ctx context.Context, networkName string) (testcontainers.Co
 	return testcontainers.GenericContainer(ctx, genericContainerRequest)
 }
 
-func createNetwork(ctx context.Context, name string) (testcontainers.Network, error) {
-	networkRequest := testcontainers.NetworkRequest{
-		Name:           name,
-		CheckDuplicate: true,
+func getContainerUrl(ctx context.Context, container testcontainers.Container) (string, error) {
+	host, err := container.Host(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error getting container host: %v", err)
 	}
-	genericNetworkRequest := testcontainers.GenericNetworkRequest{
-		NetworkRequest: networkRequest,
+
+	port, err := container.MappedPort(ctx, "9200")
+	if err != nil {
+		return "", fmt.Errorf("error getting container port: %v", err)
 	}
-	return testcontainers.GenericNetwork(ctx, genericNetworkRequest)
+
+	url := fmt.Sprintf("http://%s:%s", host, port.Port())
+	return url, nil
 }
 
 func waitUntilHealthy(url string) error {
 	healthUrl := url + "/_cluster/health"
-	retries := 0
-	maxRetries := 5
-	delay := 1
 
-	for {
+	backOff := backoff.NewExponentialBackOff()
+	backOff.MaxElapsedTime = 30 * time.Second
+
+	retryable := func() error {
 		_, err := http.Get(healthUrl)
-		if err == nil {
-			break
+		if err != nil {
+			log.Printf("Waiting for Elasticsearch to get healthy, retrying...")
 		}
-		if retries > maxRetries {
-			return errors.New("timed out")
-		}
-		log.Printf("Waiting for Elasticsearch to get healthy, sleeping for %d second(s)...", delay)
-		time.Sleep(time.Duration(delay) * time.Second)
-		retries++
-		delay = delay * 2
+		return err
+	}
+
+	err := backoff.Retry(retryable, backOff)
+	if err != nil {
+		return fmt.Errorf("timed out: %v", err)
 	}
 	return nil
 }

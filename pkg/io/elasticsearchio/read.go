@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	DefaultReadBatchSize = 100
-	DefaultReadKeepAlive = "5m"
+	defaultReadBatchSize = 100
+	defaultReadKeepAlive = "5m"
 )
 
 func init() {
@@ -58,11 +58,11 @@ func newReadFn(
 ) *readFn {
 	batchSize := cfg.BatchSize
 	if batchSize <= 0 {
-		batchSize = DefaultReadBatchSize
+		batchSize = defaultReadBatchSize
 	}
 	keepAlive := cfg.KeepAlive
 	if keepAlive == "" {
-		keepAlive = DefaultReadKeepAlive
+		keepAlive = defaultReadKeepAlive
 	}
 
 	return &readFn{

@@ -16,7 +16,10 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/esutils"
 )
 
-const ESVersion = "8.3.1"
+const (
+	esImage = "elasticsearch:8.3.1"
+	esPort  = "9200"
+)
 
 type Suite struct {
 	suite.Suite
@@ -65,12 +68,12 @@ func createNetwork(ctx context.Context, name string) (testcontainers.Network, er
 
 func createContainer(ctx context.Context, networkName string) (testcontainers.Container, error) {
 	containerRequest := testcontainers.ContainerRequest{
-		Image: fmt.Sprintf("elasticsearch:%s", ESVersion),
+		Image: esImage,
 		Env: map[string]string{
 			"discovery.type":         "single-node",
 			"xpack.security.enabled": "false",
 		},
-		ExposedPorts: []string{"9200/tcp"},
+		ExposedPorts: []string{esPort + "/tcp"},
 		Networks:     []string{networkName},
 		WaitingFor:   wait.ForLog("started"),
 	}
@@ -87,7 +90,7 @@ func getContainerUrl(ctx context.Context, container testcontainers.Container) (s
 		return "", fmt.Errorf("error getting container host: %v", err)
 	}
 
-	port, err := container.MappedPort(ctx, "9200")
+	port, err := container.MappedPort(ctx, esPort)
 	if err != nil {
 		return "", fmt.Errorf("error getting container port: %v", err)
 	}

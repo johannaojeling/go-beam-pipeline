@@ -12,7 +12,7 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/dofns"
 )
 
-const DefaultWriteBatchSize = 1000
+const defaultWriteBatchSize = 1000
 
 func init() {
 	beam.RegisterType(reflect.TypeOf((*writeFn)(nil)))
@@ -76,7 +76,7 @@ func newWriteFn(
 ) *writeFn {
 	batchSize := cfg.BatchSize
 	if batchSize <= 0 {
-		batchSize = DefaultWriteBatchSize
+		batchSize = defaultWriteBatchSize
 	}
 
 	return &writeFn{

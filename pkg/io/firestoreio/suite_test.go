@@ -18,10 +18,10 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/portutils"
 )
 
-const TestProject = "test-project"
-const EmulatorHost = "FIRESTORE_EMULATOR_HOST"
-const EmulatorRunningMessage = "Dev App Server is now running"
-const EmulatorFlushEndpoint = "http://%s/emulator/v1/projects/%s/databases/(default)/documents"
+const testProject = "test-project"
+const emulatorHost = "FIRESTORE_EMULATOR_HOST"
+const emulatorRunningMessage = "Dev App Server is now running"
+const emulatorFlushEndpoint = "http://%s/emulator/v1/projects/%s/databases/(default)/documents"
 
 type Suite struct {
 	suite.Suite
@@ -36,11 +36,11 @@ func (s *Suite) SetupSuite() {
 	}
 
 	host := net.JoinHostPort("localhost", strconv.Itoa(port))
-	s.T().Logf("setting %s to %s", EmulatorHost, host)
+	s.T().Logf("setting %s to %s", emulatorHost, host)
 
-	err = os.Setenv(EmulatorHost, host)
+	err = os.Setenv(emulatorHost, host)
 	if err != nil {
-		s.T().Fatalf("error setting %s: %v", EmulatorHost, err)
+		s.T().Fatalf("error setting %s: %v", emulatorHost, err)
 	}
 	s.host = host
 
@@ -85,7 +85,7 @@ func readUntilRunning(stderr io.ReadCloser, wg *sync.WaitGroup) {
 			output := string(data[:n])
 			log.Print(output)
 
-			if strings.Contains(output, EmulatorRunningMessage) {
+			if strings.Contains(output, emulatorRunningMessage) {
 				wg.Done()
 			}
 		}
@@ -99,15 +99,15 @@ func (s *Suite) TearDownSuite() {
 		s.T().Fatalf("error killing process for emulator: %v", err)
 	}
 
-	s.T().Logf("unsetting %s", EmulatorHost)
-	err = os.Unsetenv(EmulatorHost)
+	s.T().Logf("unsetting %s", emulatorHost)
+	err = os.Unsetenv(emulatorHost)
 	if err != nil {
-		s.T().Fatalf("error unsetting %s: %v", EmulatorHost, err)
+		s.T().Fatalf("error unsetting %s: %v", emulatorHost, err)
 	}
 }
 
 func (s *Suite) TearDownTest() {
-	url := fmt.Sprintf(EmulatorFlushEndpoint, s.host, TestProject)
+	url := fmt.Sprintf(emulatorFlushEndpoint, s.host, testProject)
 	request, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		s.T().Fatalf("error creating http DELETE request: %v", err)

@@ -56,7 +56,7 @@ func (s *WriteSuite) TestWrite() {
 
 	for i, tc := range testCases {
 		s.T().Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
-			project := TestProject
+			project := testProject
 			collection := "docs"
 
 			cfg := WriteConfig{

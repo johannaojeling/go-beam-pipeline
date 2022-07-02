@@ -13,7 +13,7 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/stringio"
 )
 
-const DefaultReadBatchSize = 1000
+const defaultReadBatchSize = 1000
 
 func init() {
 	beam.RegisterType(reflect.TypeOf((*readFn)(nil)))
@@ -63,7 +63,7 @@ type readFn struct {
 
 func newReadFn(url string, batchSize int) *readFn {
 	if batchSize <= 0 {
-		batchSize = DefaultReadBatchSize
+		batchSize = defaultReadBatchSize
 	}
 
 	return &readFn{

@@ -9,7 +9,7 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 )
 
-const DefaultWriteBatchSize = 500
+const defaultWriteBatchSize = 500
 
 func init() {
 	beam.RegisterType(reflect.TypeOf((*createIdFn)(nil)))
@@ -77,7 +77,7 @@ type writeFn struct {
 func newWriteFn(cfg WriteConfig, elemType reflect.Type) *writeFn {
 	batchSize := cfg.BatchSize
 	if batchSize <= 0 {
-		batchSize = DefaultWriteBatchSize
+		batchSize = defaultWriteBatchSize
 	}
 
 	return &writeFn{

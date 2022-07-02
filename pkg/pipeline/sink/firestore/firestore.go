@@ -12,12 +12,12 @@ type Firestore struct {
 	BatchSize  int    `yaml:"batch_size"`
 }
 
-func (firestore Firestore) Write(scope beam.Scope, col beam.PCollection) {
+func (fs *Firestore) Write(scope beam.Scope, col beam.PCollection) {
 	scope = scope.Scope("Write to Firestore")
 	cfg := firestoreio.WriteConfig{
-		Project:    firestore.Project,
-		Collection: firestore.Collection,
-		BatchSize:  firestore.BatchSize,
+		Project:    fs.Project,
+		Collection: fs.Collection,
+		BatchSize:  fs.BatchSize,
 	}
 	firestoreio.Write(scope, cfg, col)
 }

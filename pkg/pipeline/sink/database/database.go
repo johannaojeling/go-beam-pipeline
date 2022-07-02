@@ -20,23 +20,23 @@ type Database struct {
 	Columns []string         `yaml:"columns"`
 }
 
-func (database Database) Write(
+func (db *Database) Write(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	scope beam.Scope,
 	col beam.PCollection,
 ) error {
-	scope = scope.Scope("Write to database")
-	dsn, err := database.DSN.GetValue(ctx, secretReader)
+	scope = scope.Scope("Write to db")
+	dsn, err := db.DSN.GetValue(ctx, secretReader)
 	if err != nil {
 		return fmt.Errorf("error getting DSN value: %v", err)
 	}
 
-	columns := database.Columns
+	columns := db.Columns
 	if columns == nil {
 		columns = []string{}
 	}
 
-	databaseio.Write(scope, database.Driver, dsn, database.Table, columns, col)
+	databaseio.Write(scope, db.Driver, dsn, db.Table, columns, col)
 	return nil
 }

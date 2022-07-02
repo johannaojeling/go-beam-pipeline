@@ -13,15 +13,15 @@ type BigQuery struct {
 	Table   string `yaml:"table"`
 }
 
-func (bigquery BigQuery) Read(
+func (bq *BigQuery) Read(
 	scope beam.Scope,
 	elemType reflect.Type,
 ) beam.PCollection {
 	scope = scope.Scope("Read from BigQuery")
 	tableName := bigqueryio.QualifiedTableName{
-		Project: bigquery.Project,
-		Dataset: bigquery.Dataset,
-		Table:   bigquery.Table,
+		Project: bq.Project,
+		Dataset: bq.Dataset,
+		Table:   bq.Table,
 	}
-	return bigqueryio.Read(scope, bigquery.Project, tableName.String(), elemType)
+	return bigqueryio.Read(scope, bq.Project, tableName.String(), elemType)
 }

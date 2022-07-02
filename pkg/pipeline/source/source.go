@@ -17,16 +17,16 @@ import (
 )
 
 type Source struct {
-	Format        Format                      `yaml:"format"`
-	BigQuery      bigquery.BigQuery           `yaml:"bigquery"`
-	Elasticsearch elasticsearch.Elasticsearch `yaml:"elasticsearch"`
-	File          file.File                   `yaml:"file"`
-	Firestore     firestore.Firestore         `yaml:"firestore"`
-	Database      database.Database           `yaml:"database"`
-	Redis         redis.Redis                 `yaml:"redis"`
+	Format        Format                       `yaml:"format"`
+	BigQuery      *bigquery.BigQuery           `yaml:"bigquery"`
+	Elasticsearch *elasticsearch.Elasticsearch `yaml:"elasticsearch"`
+	File          *file.File                   `yaml:"file"`
+	Firestore     *firestore.Firestore         `yaml:"firestore"`
+	Database      *database.Database           `yaml:"database"`
+	Redis         *redis.Redis                 `yaml:"redis"`
 }
 
-func (source Source) Read(
+func (source *Source) Read(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	scope beam.Scope,

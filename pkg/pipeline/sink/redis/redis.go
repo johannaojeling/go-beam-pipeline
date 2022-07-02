@@ -19,7 +19,7 @@ type Redis struct {
 	KeyField   string           `yaml:"key_field"`
 }
 
-func (redis Redis) Write(
+func (redis *Redis) Write(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	scope beam.Scope,

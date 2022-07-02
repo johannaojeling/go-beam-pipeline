@@ -13,14 +13,14 @@ type Firestore struct {
 	Collection string `yaml:"collection"`
 }
 
-func (firestore Firestore) Read(
+func (fs *Firestore) Read(
 	scope beam.Scope,
 	elemType reflect.Type,
 ) beam.PCollection {
 	scope = scope.Scope("Read from Firestore")
 	cfg := firestoreio.ReadConfig{
-		Project:    firestore.Project,
-		Collection: firestore.Collection,
+		Project:    fs.Project,
+		Collection: fs.Collection,
 	}
 	return firestoreio.Read(scope, cfg, elemType)
 }

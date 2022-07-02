@@ -17,7 +17,7 @@ type File struct {
 	Path   string `yaml:"path"`
 }
 
-func (file File) Read(
+func (file *File) Read(
 	scope beam.Scope,
 	elemType reflect.Type,
 ) (beam.PCollection, error) {

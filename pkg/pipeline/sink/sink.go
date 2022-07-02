@@ -16,16 +16,16 @@ import (
 )
 
 type Sink struct {
-	Format        Format                      `yaml:"format"`
-	BigQuery      bigquery.BigQuery           `yaml:"bigquery"`
-	Database      database.Database           `yaml:"database"`
-	Elasticsearch elasticsearch.Elasticsearch `yaml:"elasticsearch"`
-	File          file.File                   `yaml:"file"`
-	Firestore     firestore.Firestore         `yaml:"firestore"`
-	Redis         redis.Redis                 `yaml:"redis"`
+	Format        Format                       `yaml:"format"`
+	BigQuery      *bigquery.BigQuery           `yaml:"bigquery"`
+	Database      *database.Database           `yaml:"database"`
+	Elasticsearch *elasticsearch.Elasticsearch `yaml:"elasticsearch"`
+	File          *file.File                   `yaml:"file"`
+	Firestore     *firestore.Firestore         `yaml:"firestore"`
+	Redis         *redis.Redis                 `yaml:"redis"`
 }
 
-func (sink Sink) Write(
+func (sink *Sink) Write(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	scope beam.Scope,

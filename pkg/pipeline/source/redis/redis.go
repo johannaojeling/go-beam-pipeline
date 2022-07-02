@@ -18,7 +18,7 @@ type Redis struct {
 	BatchSize   int              `yaml:"batch_size"`
 }
 
-func (redis Redis) Read(
+func (redis *Redis) Read(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	scope beam.Scope,

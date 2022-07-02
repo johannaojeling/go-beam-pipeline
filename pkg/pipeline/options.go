@@ -13,11 +13,11 @@ import (
 )
 
 type Options struct {
-	Source source.Source `yaml:"source"`
-	Sink   sink.Sink     `yaml:"sink"`
+	Source *source.Source `yaml:"source"`
+	Sink   *sink.Sink     `yaml:"sink"`
 }
 
-func (options Options) Construct(
+func (options *Options) Construct(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	elemType reflect.Type,

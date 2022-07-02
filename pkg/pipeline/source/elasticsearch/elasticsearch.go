@@ -23,7 +23,7 @@ type Elasticsearch struct {
 	KeepAlive string           `yaml:"keep_alive"`
 }
 
-func (es Elasticsearch) Read(
+func (es *Elasticsearch) Read(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	scope beam.Scope,

@@ -28,16 +28,16 @@ func TestParseConfig(t *testing.T) {
 		err = ParseConfig(string(content), fields, &actual)
 
 		expected := pipeline.Options{
-			Source: source.Source{
+			Source: &source.Source{
 				Format: "FILE",
-				File: sourcefile.File{
+				File: &sourcefile.File{
 					Format: "JSON",
 					Path:   "gs://test-bucket/input.json",
 				},
 			},
-			Sink: sink.Sink{
+			Sink: &sink.Sink{
 				Format: "FILE",
-				File: sinkfile.File{
+				File: &sinkfile.File{
 					Format: "JSON",
 					Path:   "gs://test-bucket/output.json",
 				},

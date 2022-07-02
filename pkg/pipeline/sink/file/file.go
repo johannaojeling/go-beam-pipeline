@@ -13,12 +13,12 @@ import (
 )
 
 type File struct {
-	Format Format    `yaml:"format"`
-	Path   string    `yaml:"path"`
-	Avro   avro.Avro `yaml:"avro"`
+	Format Format     `yaml:"format"`
+	Path   string     `yaml:"path"`
+	Avro   *avro.Avro `yaml:"avro"`
 }
 
-func (file File) Write(scope beam.Scope, col beam.PCollection) error {
+func (file *File) Write(scope beam.Scope, col beam.PCollection) error {
 	scope = scope.Scope("Write to file")
 	switch format := file.Format; format {
 	case Avro:

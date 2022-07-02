@@ -11,12 +11,12 @@ type BigQuery struct {
 	Table   string `yaml:"table"`
 }
 
-func (bigquery BigQuery) Write(scope beam.Scope, col beam.PCollection) {
+func (bq *BigQuery) Write(scope beam.Scope, col beam.PCollection) {
 	scope = scope.Scope("Write to BigQuery")
 	tableName := bigqueryio.QualifiedTableName{
-		Project: bigquery.Project,
-		Dataset: bigquery.Dataset,
-		Table:   bigquery.Table,
+		Project: bq.Project,
+		Dataset: bq.Dataset,
+		Table:   bq.Table,
 	}
-	bigqueryio.Write(scope, bigquery.Project, tableName.String(), col)
+	bigqueryio.Write(scope, bq.Project, tableName.String(), col)
 }

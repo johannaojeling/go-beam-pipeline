@@ -20,16 +20,16 @@ type Database struct {
 	Table  string           `yaml:"table"`
 }
 
-func (database Database) Read(
+func (db *Database) Read(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	scope beam.Scope,
 	elemType reflect.Type,
 ) (beam.PCollection, error) {
-	dsn, err := database.DSN.GetValue(ctx, secretReader)
+	dsn, err := db.DSN.GetValue(ctx, secretReader)
 	if err != nil {
 		return beam.PCollection{}, fmt.Errorf("error getting DSN value: %v", err)
 	}
 
-	return databaseio.Read(scope, database.Driver, dsn, database.Table, elemType), nil
+	return databaseio.Read(scope, db.Driver, dsn, db.Table, elemType), nil
 }

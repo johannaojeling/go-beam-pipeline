@@ -20,7 +20,7 @@ type Elasticsearch struct {
 	FlushBytes int              `yaml:"flush_bytes"`
 }
 
-func (es Elasticsearch) Write(
+func (es *Elasticsearch) Write(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	scope beam.Scope,

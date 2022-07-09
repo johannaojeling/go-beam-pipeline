@@ -35,10 +35,12 @@ func Write(
 		col,
 	)
 
-	keyedType := keyed.Type().Type()
+	shuffled := beam.Reshuffle(scope, keyed)
+	shuffledType := shuffled.Type().Type()
+
 	beam.ParDo(
 		scope,
-		newWriteFn(cfg, keyedType),
+		newWriteFn(cfg, shuffledType),
 		keyed,
 	)
 }

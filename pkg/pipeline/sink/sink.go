@@ -11,6 +11,7 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/elasticsearch"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/file"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/firestore"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/mongodb"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/redis"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
@@ -22,6 +23,7 @@ type Sink struct {
 	Elasticsearch *elasticsearch.Elasticsearch `yaml:"elasticsearch"`
 	File          *file.File                   `yaml:"file"`
 	Firestore     *firestore.Firestore         `yaml:"firestore"`
+	MongoDB       *mongodb.MongoDB             `yaml:"mongodb"`
 	Redis         *redis.Redis                 `yaml:"redis"`
 }
 
@@ -45,6 +47,8 @@ func (sink *Sink) Write(
 	case Firestore:
 		sink.Firestore.Write(scope, col)
 		return nil
+	case MongoDB:
+		return sink.MongoDB.Write(ctx, secretReader, scope, col)
 	case Redis:
 		return sink.Redis.Write(ctx, secretReader, scope, col)
 	default:

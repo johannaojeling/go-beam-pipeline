@@ -36,9 +36,9 @@ jobs:
         run: pip install -U pre-commit
       - name: Install goimports, golangci-lint, golines
         run: |
-          go install golang.org/x/tools/cmd/goimports@v0.1.10
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.2
-          go install github.com/segmentio/golines@v0.9.0
+          go install golang.org/x/tools/cmd/goimports@v0.1.12
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.49.0
+          go install github.com/segmentio/golines@v0.11.0
       - name: Run pre-commit checks
         run: pre-commit run -a
   test:

@@ -9,11 +9,13 @@ import (
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/log"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 )
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*writeFn)(nil)))
+	register.DoFn3x1[context.Context, beam.X, func(string), error](&writeFn{})
+	register.Emitter1[string]()
 }
 
 type WriteConfig struct {

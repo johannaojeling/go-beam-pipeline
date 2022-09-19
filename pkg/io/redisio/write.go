@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 	"github.com/go-redis/redis/v8"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/dofns"
@@ -15,7 +16,8 @@ import (
 const defaultWriteBatchSize = 1000
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*writeFn)(nil)))
+	register.DoFn4x1[context.Context, string, beam.X, func(string), error](&writeFn{})
+	register.Emitter1[string]()
 }
 
 type WriteConfig struct {

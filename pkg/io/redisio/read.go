@@ -7,6 +7,7 @@ import (
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/log"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/dofns"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/jsonio"
@@ -16,7 +17,8 @@ import (
 const defaultReadBatchSize = 1000
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*readFn)(nil)))
+	register.DoFn3x1[context.Context, string, func(string, string), error](&readFn{})
+	register.Emitter2[string, string]()
 }
 
 type ReadConfig struct {

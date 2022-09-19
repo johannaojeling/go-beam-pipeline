@@ -5,10 +5,12 @@ import (
 	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 )
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*DropKeyFn)(nil)))
+	register.DoFn4x0[context.Context, beam.X, beam.Y, func(beam.Y)](&DropKeyFn{})
+	register.Emitter1[beam.Y]()
 }
 
 type DropKeyFn struct {

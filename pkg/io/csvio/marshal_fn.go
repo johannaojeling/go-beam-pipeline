@@ -6,12 +6,14 @@ import (
 	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/csvio/csv"
 )
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*MarshalFn)(nil)))
+	register.DoFn3x1[context.Context, beam.X, func(string), error](&MarshalFn{})
+	register.Emitter1[string]()
 }
 
 type MarshalFn struct {

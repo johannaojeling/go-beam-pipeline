@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 )
 
@@ -16,7 +17,8 @@ const (
 )
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*readFn)(nil)))
+	register.DoFn3x1[context.Context, []byte, func(beam.X), error](&readFn{})
+	register.Emitter1[beam.X]()
 }
 
 type ReadConfig struct {

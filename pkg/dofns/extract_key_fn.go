@@ -6,10 +6,12 @@ import (
 	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 )
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*ExtractKeyFn)(nil)))
+	register.DoFn3x1[context.Context, beam.X, func(string, beam.X), error](&ExtractKeyFn{})
+	register.Emitter2[string, beam.X]()
 }
 
 type ExtractKeyFn struct {

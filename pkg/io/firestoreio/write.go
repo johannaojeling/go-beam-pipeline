@@ -7,13 +7,16 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 )
 
 const defaultWriteBatchSize = 500
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*createIdFn)(nil)))
-	beam.RegisterType(reflect.TypeOf((*writeFn)(nil)))
+	register.DoFn3x1[context.Context, beam.X, func(string, beam.X), error](&createIdFn{})
+	register.Emitter2[string, beam.X]()
+	register.DoFn4x1[context.Context, string, beam.X, func(string), error](&writeFn{})
+	register.Emitter1[string]()
 }
 
 type WriteConfig struct {

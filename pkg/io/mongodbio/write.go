@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,8 +16,12 @@ import (
 const defaultWriteBatchSize = 500
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*createIdFn)(nil)))
-	beam.RegisterType(reflect.TypeOf((*writeFn)(nil)))
+	register.DoFn3x1[context.Context, beam.X, func(primitive.ObjectID, beam.X), error](
+		&createIdFn{},
+	)
+	register.Emitter2[primitive.ObjectID, beam.X]()
+	register.DoFn4x1[context.Context, primitive.ObjectID, beam.X, func(string), error](&writeFn{})
+	register.Emitter1[string]()
 }
 
 type WriteConfig struct {

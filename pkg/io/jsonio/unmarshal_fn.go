@@ -7,10 +7,12 @@ import (
 	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 )
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*UnMarshalFn)(nil)))
+	register.DoFn3x1[context.Context, []byte, func(beam.X), error](&UnMarshalFn{})
+	register.Emitter1[beam.X]()
 }
 
 type UnMarshalFn struct {

@@ -2,13 +2,13 @@ package stringio
 
 import (
 	"context"
-	"reflect"
 
-	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
 )
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*DecodeFn)(nil)))
+	register.DoFn3x0[context.Context, []byte, func(string)](&DecodeFn{})
+	register.Emitter1[string]()
 }
 
 type DecodeFn struct{}

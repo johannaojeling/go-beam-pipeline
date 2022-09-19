@@ -1,14 +1,13 @@
 package avroio
 
 import (
-	"context"
 	"fmt"
 	"path/filepath"
 	"testing"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	_ "github.com/apache/beam/sdks/v2/go/pkg/beam/io/filesystem/local"
-	"github.com/apache/beam/sdks/v2/go/pkg/beam/x/beamx"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/fileutils"
@@ -60,9 +59,7 @@ func TestWrite(t *testing.T) {
 			col := beam.Create(scope, tc.input...)
 			Write(scope, config, col)
 
-			ctx := context.Background()
-			err := beamx.Run(ctx, pipeline)
-			assert.Nil(t, err)
+			ptest.RunAndValidate(t, pipeline)
 
 			actual, err := fileutils.ReadAvro(path)
 			if err != nil {

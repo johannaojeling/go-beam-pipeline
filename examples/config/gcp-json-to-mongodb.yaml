@@ -1,0 +1,12 @@
+source:
+  format: "FILE"
+  file:
+    format: "JSON"
+    path: "gs://{{ .Bucket }}/input/events.json"
+sink:
+  format: "MONGODB"
+  mongodb:
+    url:
+      secret_name: "projects/{{ .Project }}/secrets/mongodb-url/versions/latest"
+    database: testdb
+    collection: events

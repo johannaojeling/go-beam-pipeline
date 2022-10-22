@@ -16,6 +16,7 @@ type MongoDB struct {
 	URL        creds.Credential `yaml:"url"`
 	Database   string           `yaml:"database"`
 	Collection string           `yaml:"collection"`
+	Filter     string           `yaml:"filter"`
 }
 
 func (mongodb *MongoDB) Read(
@@ -35,6 +36,7 @@ func (mongodb *MongoDB) Read(
 		URL:        url,
 		Database:   mongodb.Database,
 		Collection: mongodb.Collection,
+		Filter:     mongodb.Filter,
 	}
 	return mongodbio.Read(scope, cfg, elemType), nil
 }

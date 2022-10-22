@@ -2,12 +2,12 @@ package mongodbio
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 func init() {
@@ -19,6 +19,7 @@ type ReadConfig struct {
 	URL        string
 	Database   string
 	Collection string
+	Filter     string
 }
 
 func Read(
@@ -37,6 +38,7 @@ func Read(
 }
 
 type readFn struct {
+	Filter string
 	mongoDbFn
 }
 
@@ -44,7 +46,13 @@ func newReadFn(
 	cfg ReadConfig,
 	elemType reflect.Type,
 ) *readFn {
+	filter := cfg.Filter
+	if filter == "" {
+		filter = "{}"
+	}
+
 	return &readFn{
+		Filter: filter,
 		mongoDbFn: mongoDbFn{
 			URL:        cfg.URL,
 			Database:   cfg.Database,
@@ -59,7 +67,13 @@ func (fn *readFn) ProcessElement(
 	_ []byte,
 	emit func(beam.X),
 ) error {
-	cursor, err := fn.coll.Find(ctx, bson.M{})
+	var filter interface{}
+	err := json.Unmarshal([]byte(fn.Filter), &filter)
+	if err != nil {
+		return fmt.Errorf("error unmarshaling filter to json: %v", err)
+	}
+
+	cursor, err := fn.coll.Find(ctx, filter)
 	if err != nil {
 		return fmt.Errorf("error finding documents: %v", err)
 	}

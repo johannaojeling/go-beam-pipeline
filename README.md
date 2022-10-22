@@ -22,7 +22,7 @@ Supported sinks:
 
 - BigQuery
 - Cloud Storage (avro, csv, json, parquet)
-- Cloud SQL (MySQL)
+- Cloud SQL (MySQL, PostgreSQL
 - Elasticsearch
 - Firestore
 - Memorystore (Redis)

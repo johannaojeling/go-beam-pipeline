@@ -22,12 +22,13 @@ Supported sinks:
 
 - BigQuery
 - Cloud Storage (avro, csv, json, parquet)
-- Cloud SQL (MySQL, PostgreSQL
+- Cloud SQL (MySQL, PostgreSQL)
 - Elasticsearch
 - Firestore
 - Memorystore (Redis)
+- MongoDB
 
-The image below shows a Dataflow pipeline that reads from Cloud Storage (json) and writes to Cloud Storage (csv).
+The image below shows a Dataflow pipeline that reads from Cloud Storage (json) and writes to MongoDB Atlas.
 
 ![Dataflow pipeline](images/dataflow.png)
 

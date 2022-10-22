@@ -17,6 +17,7 @@ Supported sources:
 - Elasticsearch
 - Firestore
 - Memorystore (Redis)
+- MongoDB
 
 Supported sinks:
 
@@ -28,7 +29,7 @@ Supported sinks:
 - Memorystore (Redis)
 - MongoDB
 
-The image below shows a Dataflow pipeline that reads from Cloud Storage (json) and writes to MongoDB Atlas.
+The image below shows a Dataflow pipeline that reads from MongoDB Atlas and writes to Cloud Storage (csv).
 
 ![Dataflow pipeline](images/dataflow.png)
 

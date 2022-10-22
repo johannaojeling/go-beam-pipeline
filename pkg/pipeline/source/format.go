@@ -8,5 +8,6 @@ const (
 	Elasticsearch Format = "ELASTICSEARCH"
 	File          Format = "FILE"
 	Firestore     Format = "FIRESTORE"
+	MongoDB       Format = "MONGODB"
 	Redis         Format = "REDIS"
 )

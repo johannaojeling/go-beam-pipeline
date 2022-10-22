@@ -44,7 +44,7 @@ func Write(
 	beam.ParDo(
 		scope,
 		newWriteFn(cfg, shuffledType),
-		keyed,
+		shuffled,
 	)
 }
 

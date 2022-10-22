@@ -2,7 +2,6 @@ package mongodbio
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"reflect"
 
@@ -104,15 +103,9 @@ func (fn *writeFn) ProcessElement(
 	emit func(string),
 ) error {
 	filter := bson.M{"_id": id}
-	replacement, err := structToMap(elem)
-	if err != nil {
-		return fmt.Errorf("error parsing element to map: %v", err)
-	}
-	replacement["_id"] = id
-
 	model := mongo.NewReplaceOneModel().
 		SetFilter(filter).
-		SetReplacement(replacement).
+		SetReplacement(elem).
 		SetUpsert(true)
 
 	fn.writeModels = append(fn.writeModels, model)
@@ -142,18 +135,4 @@ func (fn *writeFn) flush(ctx context.Context) error {
 	}
 	fn.writeModels = []mongo.WriteModel(nil)
 	return nil
-}
-
-func structToMap(value any) (map[string]any, error) {
-	jsonBytes, err := json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling json: %v", err)
-	}
-
-	var structMap map[string]any
-	err = json.Unmarshal(jsonBytes, &structMap)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling json: %v", err)
-	}
-	return structMap, nil
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/register"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func init() {
@@ -19,6 +20,7 @@ type ReadConfig struct {
 	URL        string
 	Database   string
 	Collection string
+	BatchSize  int
 	Filter     string
 }
 
@@ -38,8 +40,9 @@ func Read(
 }
 
 type readFn struct {
-	Filter string
 	mongoDbFn
+	BatchSize int
+	Filter    string
 }
 
 func newReadFn(
@@ -52,13 +55,14 @@ func newReadFn(
 	}
 
 	return &readFn{
-		Filter: filter,
 		mongoDbFn: mongoDbFn{
 			URL:        cfg.URL,
 			Database:   cfg.Database,
 			Collection: cfg.Collection,
 			Type:       beam.EncodedType{T: elemType},
 		},
+		BatchSize: cfg.BatchSize,
+		Filter:    filter,
 	}
 }
 
@@ -73,7 +77,12 @@ func (fn *readFn) ProcessElement(
 		return fmt.Errorf("error unmarshaling filter to json: %v", err)
 	}
 
-	cursor, err := fn.coll.Find(ctx, filter)
+	var findOptions []*options.FindOptions
+	if fn.BatchSize > 0 {
+		findOptions = append(findOptions, options.Find().SetBatchSize(int32(fn.BatchSize)))
+	}
+
+	cursor, err := fn.coll.Find(ctx, filter, findOptions...)
 	if err != nil {
 		return fmt.Errorf("error finding documents: %v", err)
 	}

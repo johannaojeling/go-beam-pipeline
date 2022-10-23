@@ -1,6 +1,7 @@
 package redisio
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -86,7 +87,14 @@ func TestRead(t *testing.T) {
 				BatchSize:   tc.batchSize,
 			}
 
-			err = redisutils.SetEntries(url, tc.input)
+			ctx := context.Background()
+			client, err := redisutils.NewClient(ctx, url)
+			if err != nil {
+				t.Fatalf("error intializing Redis client: %v", err)
+			}
+			defer client.Close()
+
+			err = redisutils.SetEntries(ctx, client, tc.input)
 			if err != nil {
 				t.Fatalf("error setting Redis values: %v", err)
 			}

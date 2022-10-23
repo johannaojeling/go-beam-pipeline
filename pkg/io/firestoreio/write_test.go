@@ -1,6 +1,7 @@
 package firestoreio
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -72,7 +73,14 @@ func (s *WriteSuite) TestWrite() {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := firestoreutils.ReadDocuments(project, collection)
+			ctx := context.Background()
+			client, err := firestoreutils.NewClient(ctx, project)
+			if err != nil {
+				t.Fatalf("error creating Firestore client: %v", err)
+			}
+			defer client.Close()
+
+			actual, err := firestoreutils.ReadDocuments(ctx, client, collection)
 			if err != nil {
 				t.Fatalf("error reading documents %v", err)
 			}

@@ -7,14 +7,25 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-func GetEntries(url string, prefix string) (map[string]string, error) {
-	ctx := context.Background()
-	client, err := newClient(ctx, url)
+func NewClient(ctx context.Context, url string) (*redis.Client, error) {
+	opt, err := redis.ParseURL(url)
 	if err != nil {
-		return nil, fmt.Errorf("error intializing Redis client: %v", err)
+		return nil, fmt.Errorf("error parsing URL: %v", err)
 	}
-	defer client.Close()
 
+	client := redis.NewClient(opt)
+	_, err = client.Ping(ctx).Result()
+	if err != nil {
+		return nil, fmt.Errorf("error pinging Redis: %v", err)
+	}
+	return client, nil
+}
+
+func GetEntries(
+	ctx context.Context,
+	client *redis.Client,
+	prefix string,
+) (map[string]string, error) {
 	keys, err := getKeys(ctx, client, prefix)
 	if err != nil {
 		return nil, fmt.Errorf("error getting keys: %v", err)
@@ -33,14 +44,7 @@ func GetEntries(url string, prefix string) (map[string]string, error) {
 	return entries, nil
 }
 
-func SetEntries(url string, entries map[string]string) error {
-	ctx := context.Background()
-	client, err := newClient(ctx, url)
-	if err != nil {
-		return fmt.Errorf("error intializing Redis client: %v", err)
-	}
-	defer client.Close()
-
+func SetEntries(ctx context.Context, client *redis.Client, entries map[string]string) error {
 	size := len(entries) * 2
 	args := make([]any, 0, size)
 	for key, value := range entries {
@@ -48,25 +52,11 @@ func SetEntries(url string, entries map[string]string) error {
 		args = append(args, value)
 	}
 
-	err = client.MSet(ctx, args...).Err()
+	err := client.MSet(ctx, args...).Err()
 	if err != nil {
 		return fmt.Errorf("error executing MSET: %v", err)
 	}
 	return nil
-}
-
-func newClient(ctx context.Context, url string) (*redis.Client, error) {
-	opt, err := redis.ParseURL(url)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing URL: %v", err)
-	}
-
-	client := redis.NewClient(opt)
-	_, err = client.Ping(ctx).Result()
-	if err != nil {
-		return nil, fmt.Errorf("error pinging Redis: %v", err)
-	}
-	return client, nil
 }
 
 func getKeys(ctx context.Context, client *redis.Client, prefix string) ([]string, error) {

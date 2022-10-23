@@ -1,6 +1,7 @@
 package stringio
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
@@ -9,20 +10,32 @@ import (
 )
 
 func TestEncodeFn_ProcessElement(t *testing.T) {
-	t.Run("Should encode string to bytes", func(t *testing.T) {
-		beam.Init()
-		pipeline, scope := beam.NewPipelineWithRoot()
+	testCases := []struct {
+		reason   string
+		input    string
+		expected []byte
+	}{
+		{
+			"Should encode string to bytes",
+			"test",
+			[]byte("test"),
+		},
+	}
 
-		input := "test"
-		col := beam.Create(scope, input)
-		actual := beam.ParDo(
-			scope,
-			NewEncodeFn(),
-			col,
-		)
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
+			beam.Init()
+			pipeline, scope := beam.NewPipelineWithRoot()
 
-		expected := []byte("test")
-		passert.Equals(scope, actual, expected)
-		ptest.RunAndValidate(t, pipeline)
-	})
+			col := beam.Create(scope, tc.input)
+			actual := beam.ParDo(
+				scope,
+				NewEncodeFn(),
+				col,
+			)
+
+			passert.Equals(scope, actual, tc.expected)
+			ptest.RunAndValidate(t, pipeline)
+		})
+	}
 }

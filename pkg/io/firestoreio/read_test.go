@@ -1,16 +1,17 @@
 package firestoreio
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/firestoreutils"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/passert"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/firestoreutils"
 )
 
 type ReadSuite struct {
@@ -68,9 +69,16 @@ func (s *ReadSuite) TestRead() {
 				Collection: collection,
 			}
 
-			err := firestoreutils.WriteDocuments(project, collection, tc.records)
+			ctx := context.Background()
+			client, err := firestoreutils.NewClient(ctx, project)
 			if err != nil {
-				t.Fatalf("error writing records to collection %v", err)
+				t.Fatalf("error creating Firestore client: %v", err)
+			}
+			defer client.Close()
+
+			err = firestoreutils.WriteDocuments(ctx, client, collection, tc.records)
+			if err != nil {
+				t.Fatalf("error writing records to collection: %v", err)
 			}
 
 			beam.Init()

@@ -1,6 +1,7 @@
 package redisio
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -74,7 +75,14 @@ func TestWrite(t *testing.T) {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := redisutils.GetEntries(url, tc.keyPrefix)
+			ctx := context.Background()
+			client, err := redisutils.NewClient(ctx, url)
+			if err != nil {
+				t.Fatalf("error intializing Redis client: %v", err)
+			}
+			defer client.Close()
+
+			actual, err := redisutils.GetEntries(ctx, client, tc.keyPrefix)
 			if err != nil {
 				t.Fatalf("error getting values: %v", err)
 			}
@@ -174,7 +182,14 @@ func TestWriteKV(t *testing.T) {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := redisutils.GetEntries(url, tc.keyPrefix)
+			ctx := context.Background()
+			client, err := redisutils.NewClient(ctx, url)
+			if err != nil {
+				t.Fatalf("error intializing Redis client: %v", err)
+			}
+			defer client.Close()
+
+			actual, err := redisutils.GetEntries(ctx, client, tc.keyPrefix)
 			if err != nil {
 				t.Fatalf("error getting values: %v", err)
 			}

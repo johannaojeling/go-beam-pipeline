@@ -26,6 +26,18 @@ type SearchResponse struct {
 	} `json:"hits"`
 }
 
+func NewClient(ctx context.Context, addresses []string) (*elasticsearch.Client, error) {
+	config := elasticsearch.Config{
+		Addresses: addresses,
+	}
+	client, err := elasticsearch.NewClient(config)
+	if err != nil {
+		return nil, fmt.Errorf("error creating client: %v", err)
+	}
+
+	return client, nil
+}
+
 func RefreshIndices(ctx context.Context, client *elasticsearch.Client, indices []string) error {
 	refreshRequest := esapi.IndicesRefreshRequest{
 		Index: indices,

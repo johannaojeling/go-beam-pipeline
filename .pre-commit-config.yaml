@@ -1,11 +1,11 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.3.0
     hooks:
       - id: trailing-whitespace
       - id: check-yaml
   - repo: https://github.com/dnephin/pre-commit-golang
-    rev: v0.5.0
+    rev: v0.5.1
     hooks:
       - id: go-imports
       - id: golangci-lint
@@ -16,6 +16,6 @@ repos:
       - id: golines
         name: go lines
         description: Go line formatting
-        entry: .git-hooks/golines.sh
-        language: script
+        entry: golines -w .
+        language: golang
         pass_filenames: false

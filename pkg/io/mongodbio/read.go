@@ -71,7 +71,7 @@ func (fn *readFn) ProcessElement(
 	_ []byte,
 	emit func(beam.X),
 ) error {
-	var filter interface{}
+	var filter any
 	err := json.Unmarshal([]byte(fn.Filter), &filter)
 	if err != nil {
 		return fmt.Errorf("error unmarshaling filter to json: %v", err)

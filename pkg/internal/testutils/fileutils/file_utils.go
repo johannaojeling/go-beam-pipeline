@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -12,7 +11,7 @@ import (
 )
 
 func ReadAvro(path string) ([]map[string]any, error) {
-	avroBytes, err := ioutil.ReadFile(path)
+	avroBytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file: %v", err)
 	}

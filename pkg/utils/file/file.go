@@ -3,7 +3,7 @@ package file
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/io/filesystem"
 )
@@ -21,5 +21,5 @@ func ReadFile(ctx context.Context, path string) ([]byte, error) {
 	}
 	defer reader.Close()
 
-	return ioutil.ReadAll(reader)
+	return io.ReadAll(reader)
 }

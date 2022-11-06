@@ -1,7 +1,7 @@
 package config
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +15,7 @@ import (
 
 func TestParseConfig(t *testing.T) {
 	t.Run("Should parse yaml config with templated fields to Options", func(t *testing.T) {
-		content, err := ioutil.ReadFile("./testdata/config.yaml")
+		content, err := os.ReadFile("./testdata/config.yaml")
 		if err != nil {
 			t.Fatalf("error reading config file: %v", err)
 		}

@@ -31,7 +31,7 @@ func Write(
 	cfg WriteConfig,
 	col beam.PCollection,
 ) {
-	scope = scope.Scope("firestoreio.Write")
+	scope = scope.Scope("elasticsearchio.Write")
 	elemType := col.Type().Type()
 	beam.ParDo(
 		scope,

@@ -11,15 +11,22 @@ import (
 func ReadFile(ctx context.Context, path string) ([]byte, error) {
 	fs, err := filesystem.New(ctx, path)
 	if err != nil {
-		return nil, fmt.Errorf("error initializing filesystem: %v", err)
+		return nil, fmt.Errorf("error initializing filesystem: %w", err)
 	}
+
 	defer fs.Close()
 
 	reader, err := fs.OpenRead(ctx, path)
 	if err != nil {
-		return nil, fmt.Errorf("error opening file for reading: %v", err)
+		return nil, fmt.Errorf("error opening file for reading: %w", err)
 	}
+
 	defer reader.Close()
 
-	return io.ReadAll(reader)
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, fmt.Errorf("error reading file: %w", err)
+	}
+
+	return data, nil
 }

@@ -14,8 +14,8 @@ import (
 
 type Elasticsearch struct {
 	URLs       creds.Credential `yaml:"urls"`
-	CloudId    creds.Credential `yaml:"cloud_id"`
-	ApiKey     creds.Credential `yaml:"api_key"`
+	CloudID    creds.Credential `yaml:"cloud_id"`
+	APIKey     creds.Credential `yaml:"api_key"`
 	Index      string           `yaml:"index"`
 	FlushBytes int              `yaml:"flush_bytes"`
 }
@@ -30,30 +30,33 @@ func (es *Elasticsearch) Write(
 
 	urls, err := es.URLs.GetValue(ctx, secretReader)
 	if err != nil {
-		return fmt.Errorf("error getting URLs value: %v", err)
+		return fmt.Errorf("error getting URLs value: %w", err)
 	}
+
 	var addresses []string
+
 	if urls != "" {
 		addresses = strings.Split(urls, ",")
 	}
 
-	cloudId, err := es.CloudId.GetValue(ctx, secretReader)
+	cloudID, err := es.CloudID.GetValue(ctx, secretReader)
 	if err != nil {
-		return fmt.Errorf("error getting Cloud ID value: %v", err)
+		return fmt.Errorf("error getting Cloud ID value: %w", err)
 	}
 
-	apiKey, err := es.ApiKey.GetValue(ctx, secretReader)
+	apiKey, err := es.APIKey.GetValue(ctx, secretReader)
 	if err != nil {
-		return fmt.Errorf("error getting API key value: %v", err)
+		return fmt.Errorf("error getting API key value: %w", err)
 	}
 
 	cfg := elasticsearchio.WriteConfig{
 		Addresses:  addresses,
-		CloudId:    cloudId,
-		ApiKey:     apiKey,
+		CloudID:    cloudID,
+		APIKey:     apiKey,
 		Index:      es.Index,
 		FlushBytes: es.FlushBytes,
 	}
 	elasticsearchio.Write(scope, cfg, col)
+
 	return nil
 }

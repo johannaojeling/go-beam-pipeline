@@ -16,34 +16,37 @@ func init() {
 
 type esFn struct {
 	Addresses []string
-	CloudId   string
-	ApiKey    string
+	CloudID   string
+	APIKey    string
 	Index     string
 	Type      beam.EncodedType
 	client    *elasticsearch.Client
 }
 
 func (fn *esFn) Setup() error {
-	client, err := newClient(fn.Addresses, fn.CloudId, fn.ApiKey)
+	client, err := newClient(fn.Addresses, fn.CloudID, fn.APIKey)
 	if err != nil {
-		return fmt.Errorf("error initializing Elasticsearch client: %v", err)
+		return fmt.Errorf("error initializing Elasticsearch client: %w", err)
 	}
+
 	fn.client = client
+
 	return nil
 }
 
-func newClient(addresses []string, cloudId string, apiKey string) (*elasticsearch.Client, error) {
+func newClient(addresses []string, cloudID string, apiKey string) (*elasticsearch.Client, error) {
 	retryBackoff := backoff.NewExponentialBackOff()
 	retryBackoffFn := func(i int) time.Duration {
 		if i == 1 {
 			retryBackoff.Reset()
 		}
+
 		return retryBackoff.NextBackOff()
 	}
 
 	cfg := elasticsearch.Config{
 		Addresses:     addresses,
-		CloudID:       cloudId,
+		CloudID:       cloudID,
 		APIKey:        apiKey,
 		RetryOnStatus: []int{502, 503, 504, 429},
 		RetryBackoff:  retryBackoffFn,
@@ -54,5 +57,6 @@ func newClient(addresses []string, cloudId string, apiKey string) (*elasticsearc
 	if err != nil {
 		return nil, fmt.Errorf("error initializing client")
 	}
+
 	return client, nil
 }

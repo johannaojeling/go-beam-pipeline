@@ -19,7 +19,7 @@ func Marshal(val any) (string, error) {
 
 	row, err := marshalRow(structVal)
 	if err != nil {
-		return "", fmt.Errorf("error marshaling value to row: %v", err)
+		return "", fmt.Errorf("error marshaling value to row: %w", err)
 	}
 
 	line, err := convertToLine(row)
@@ -44,6 +44,7 @@ func marshalRow(val reflect.Value) ([]string, error) {
 
 		row = append(row, rowVal)
 	}
+
 	return row, nil
 }
 
@@ -70,12 +71,11 @@ func parseFieldValue(fieldVal reflect.Value) (string, error) {
 }
 
 func convertToLine(row []string) (string, error) {
-	buffer := new(bytes.Buffer)
+	buffer := &bytes.Buffer{}
 	csvWriter := csv.NewWriter(buffer)
 
-	err := csvWriter.Write(row)
-	if err != nil {
-		return "", fmt.Errorf("error writing csv row to line: %v", err)
+	if err := csvWriter.Write(row); err != nil {
+		return "", fmt.Errorf("error writing csv row to line: %w", err)
 	}
 
 	csvWriter.Flush()

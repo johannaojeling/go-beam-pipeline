@@ -7,8 +7,6 @@ import (
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/io/databaseio"
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/creds"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
@@ -28,7 +26,7 @@ func (db *Database) Read(
 ) (beam.PCollection, error) {
 	dsn, err := db.DSN.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("error getting DSN value: %v", err)
+		return beam.PCollection{}, fmt.Errorf("error getting DSN value: %w", err)
 	}
 
 	return databaseio.Read(scope, db.Driver, dsn, db.Table, elemType), nil

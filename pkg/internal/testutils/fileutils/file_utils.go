@@ -13,13 +13,14 @@ import (
 func ReadAvro(path string) ([]map[string]any, error) {
 	avroBytes, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file: %v", err)
+		return nil, fmt.Errorf("error reading file: %w", err)
 	}
 
 	reader := bytes.NewReader(avroBytes)
+
 	ocfReader, err := goavro.NewOCFReader(reader)
 	if err != nil {
-		return nil, fmt.Errorf("error initializing OCF reader: %v", err)
+		return nil, fmt.Errorf("error initializing OCF reader: %w", err)
 	}
 
 	records := make([]map[string]any, 0)
@@ -27,47 +28,44 @@ func ReadAvro(path string) ([]map[string]any, error) {
 	for ocfReader.Scan() {
 		datum, err := ocfReader.Read()
 		if err != nil {
-			return nil, fmt.Errorf("error reading datum: %v", err)
+			return nil, fmt.Errorf("error reading datum: %w", err)
 		}
 
 		jsonBytes, err := json.Marshal(datum)
 		if err != nil {
-			return nil, fmt.Errorf("error marshaling datum to json: %v", err)
+			return nil, fmt.Errorf("error marshaling datum to json: %w", err)
 		}
 
 		var record map[string]any
-		err = json.Unmarshal(jsonBytes, &record)
-		if err != nil {
-			return nil, fmt.Errorf("error unmarshaling json to map: %v", err)
+		if err := json.Unmarshal(jsonBytes, &record); err != nil {
+			return nil, fmt.Errorf("error unmarshaling json to map: %w", err)
 		}
 
 		records = append(records, record)
 	}
 
-	err = ocfReader.Err()
-	if err != nil {
-		return nil, fmt.Errorf("error from OCF reader: %v", err)
+	if err := ocfReader.Err(); err != nil {
+		return nil, fmt.Errorf("error from OCF reader: %w", err)
 	}
 
 	return records, nil
 }
 
-func ReadJson(path string) ([]map[string]any, error) {
+func ReadJSON(path string) ([]map[string]any, error) {
 	lines, err := ReadLines(path)
 	if err != nil {
-		return nil, fmt.Errorf("error reading lines: %v", err)
+		return nil, fmt.Errorf("error reading lines: %w", err)
 	}
 
 	records := make([]map[string]any, len(lines))
 
-	for _, line := range lines {
+	for i, line := range lines {
 		var record map[string]any
-		err = json.Unmarshal([]byte(line), &record)
-		if err != nil {
-			return nil, fmt.Errorf("error unmarhaling json to map: %v", err)
+		if err := json.Unmarshal([]byte(line), &record); err != nil {
+			return nil, fmt.Errorf("error unmarhaling json to map: %w", err)
 		}
 
-		records = append(records, record)
+		records[i] = record
 	}
 
 	return records, nil
@@ -76,7 +74,7 @@ func ReadJson(path string) ([]map[string]any, error) {
 func ReadLines(path string) ([]string, error) {
 	content, err := ReadText(path)
 	if err != nil {
-		return nil, fmt.Errorf("error reading text: %v", err)
+		return nil, fmt.Errorf("error reading text: %w", err)
 	}
 
 	trimmed := strings.TrimRight(content, "\n")
@@ -88,27 +86,26 @@ func ReadLines(path string) ([]string, error) {
 func ReadText(path string) (string, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
-		return "", fmt.Errorf("error reading file: %v", err)
+		return "", fmt.Errorf("error reading file: %w", err)
 	}
+
 	return string(content), nil
 }
 
 func WriteText(path string, content string) error {
 	file, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf("error creating file: %v", err)
+		return fmt.Errorf("error creating file: %w", err)
 	}
 
 	defer file.Close()
 
-	_, err = file.WriteString(content)
-	if err != nil {
-		return fmt.Errorf("error writing to file: %v", err)
+	if _, err = file.WriteString(content); err != nil {
+		return fmt.Errorf("error writing to file: %w", err)
 	}
 
-	err = file.Sync()
-	if err != nil {
-		return fmt.Errorf("error syncing with file: %v", err)
+	if err := file.Sync(); err != nil {
+		return fmt.Errorf("error syncing with file: %w", err)
 	}
 
 	return nil

@@ -21,7 +21,8 @@ func TestWriteSuite(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	suite.Run(t, new(WriteSuite))
+
+	suite.Run(t, &WriteSuite{})
 }
 
 func (s *WriteSuite) TestWrite() {
@@ -71,8 +72,7 @@ func (s *WriteSuite) TestWrite() {
 				t.Fatalf("error initializing client: %v", err)
 			}
 
-			err = esutils.RefreshIndices(ctx, client, []string{index})
-			if err != nil {
+			if err := esutils.RefreshIndices(ctx, client, []string{index}); err != nil {
 				t.Fatalf("error refreshing index: %v", err)
 			}
 

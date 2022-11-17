@@ -12,7 +12,7 @@ import (
 
 func TestMarshalFn_ProcessElement(t *testing.T) {
 	type user struct {
-		Id   string `json:"id"`
+		ID   string `json:"id"`
 		Name string `json:"name"`
 	}
 
@@ -25,7 +25,7 @@ func TestMarshalFn_ProcessElement(t *testing.T) {
 		{
 			reason:   "Should parse element of type user to csv line",
 			elemType: reflect.TypeOf(user{}),
-			input:    user{Id: "1", Name: "user1"},
+			input:    user{ID: "1", Name: "user1"},
 			expected: `1,user1`,
 		},
 	}

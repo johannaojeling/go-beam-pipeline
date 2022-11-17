@@ -22,7 +22,8 @@ func TestReadSuite(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	suite.Run(t, new(ReadSuite))
+
+	suite.Run(t, &ReadSuite{})
 }
 
 func (s *ReadSuite) TestRead() {
@@ -70,14 +71,15 @@ func (s *ReadSuite) TestRead() {
 			}
 
 			ctx := context.Background()
+
 			client, err := firestoreutils.NewClient(ctx, project)
 			if err != nil {
 				t.Fatalf("error creating Firestore client: %v", err)
 			}
+
 			defer client.Close()
 
-			err = firestoreutils.WriteDocuments(ctx, client, collection, tc.records)
-			if err != nil {
+			if err := firestoreutils.WriteDocuments(ctx, client, collection, tc.records); err != nil {
 				t.Fatalf("error writing records to collection: %v", err)
 			}
 

@@ -30,9 +30,10 @@ func (fn *MarshalFn) ProcessElement(
 ) error {
 	jsonBytes, err := json.Marshal(elem)
 	if err != nil {
-		return fmt.Errorf("error marshaling json: %v", err)
+		return fmt.Errorf("error marshaling json: %w", err)
 	}
 
 	emit(jsonBytes)
+
 	return nil
 }

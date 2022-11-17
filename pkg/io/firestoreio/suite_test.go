@@ -1,12 +1,13 @@
 package firestoreio
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -18,10 +19,12 @@ import (
 	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/portutils"
 )
 
-const testProject = "test-project"
-const emulatorHost = "FIRESTORE_EMULATOR_HOST"
-const emulatorRunningMessage = "Dev App Server is now running"
-const emulatorFlushEndpoint = "http://%s/emulator/v1/projects/%s/databases/(default)/documents"
+const (
+	testProject            = "test-project"
+	emulatorHost           = "FIRESTORE_EMULATOR_HOST"
+	emulatorRunningMessage = "Dev App Server is now running"
+	emulatorFlushEndpoint  = "http://%s/emulator/v1/projects/%s/databases/(default)/documents"
+)
 
 type Suite struct {
 	suite.Suite
@@ -38,29 +41,30 @@ func (s *Suite) SetupSuite() {
 	host := net.JoinHostPort("localhost", strconv.Itoa(port))
 	s.T().Logf("setting %s to %s", emulatorHost, host)
 
-	err = os.Setenv(emulatorHost, host)
-	if err != nil {
-		s.T().Fatalf("error setting %s: %v", emulatorHost, err)
-	}
-	s.host = host
+	s.T().Setenv(emulatorHost, host)
 
+	s.host = host
 	s.cmd = exec.Command("gcloud", "beta", "emulators", "firestore", "start", "--host-port", host)
+
 	stderr, err := s.cmd.StderrPipe()
 	if err != nil {
 		s.T().Fatalf("error setting stderr: %v", err)
 	}
 
-	if err = s.cmd.Start(); err != nil {
+	if err := s.cmd.Start(); err != nil {
 		s.T().Fatalf("error starting process with emulator: %v", err)
 	}
+
 	s.T().Logf("started process with pid %v", s.cmd.Process.Pid)
 
 	s.cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
 	waitUntilRunning(stderr)
 }
 
 func waitUntilRunning(stderr io.ReadCloser) {
 	var wg sync.WaitGroup
+
 	wg.Add(1)
 
 	go func() {
@@ -72,11 +76,13 @@ func waitUntilRunning(stderr io.ReadCloser) {
 
 func readUntilRunning(stderr io.ReadCloser, wg *sync.WaitGroup) {
 	data := make([]byte, 512)
+
 	for {
 		n, err := stderr.Read(data)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
+
 		if err != nil {
 			log.Fatalf("error reading stderr %v", err)
 		}
@@ -94,33 +100,32 @@ func readUntilRunning(stderr io.ReadCloser, wg *sync.WaitGroup) {
 
 func (s *Suite) TearDownSuite() {
 	s.T().Logf("killing process with pid %v", s.cmd.Process.Pid)
-	err := syscall.Kill(-s.cmd.Process.Pid, syscall.SIGKILL)
-	if err != nil {
-		s.T().Fatalf("error killing process for emulator: %v", err)
-	}
 
-	s.T().Logf("unsetting %s", emulatorHost)
-	err = os.Unsetenv(emulatorHost)
-	if err != nil {
-		s.T().Fatalf("error unsetting %s: %v", emulatorHost, err)
+	if err := syscall.Kill(-s.cmd.Process.Pid, syscall.SIGKILL); err != nil {
+		s.T().Fatalf("error killing process for emulator: %v", err)
 	}
 }
 
 func (s *Suite) TearDownTest() {
 	url := fmt.Sprintf(emulatorFlushEndpoint, s.host, testProject)
-	request, err := http.NewRequest("DELETE", url, nil)
+
+	client := &http.Client{}
+
+	request, err := http.NewRequestWithContext(context.Background(), http.MethodDelete, url, nil)
 	if err != nil {
 		s.T().Fatalf("error creating http DELETE request: %v", err)
 	}
 
-	client := new(http.Client)
 	response, err := client.Do(request)
 	if err != nil {
 		s.T().Fatalf("error performing http DELETE operation: %v", err)
 	}
 
+	defer response.Body.Close()
+
 	status := response.Status
 	expected := "200 OK"
+
 	if status != expected {
 		s.T().Fatalf("expected status %q but was: %q", expected, status)
 	}

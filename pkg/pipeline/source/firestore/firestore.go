@@ -22,5 +22,6 @@ func (fs *Firestore) Read(
 		Project:    fs.Project,
 		Collection: fs.Collection,
 	}
+
 	return firestoreio.Read(scope, cfg, elemType)
 }

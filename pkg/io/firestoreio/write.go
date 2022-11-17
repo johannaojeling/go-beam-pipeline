@@ -13,7 +13,7 @@ import (
 const defaultWriteBatchSize = 500
 
 func init() {
-	register.DoFn3x1[context.Context, beam.X, func(string, beam.X), error](&createIdFn{})
+	register.DoFn3x1[context.Context, beam.X, func(string, beam.X), error](&createIDFn{})
 	register.Emitter2[string, beam.X]()
 	register.DoFn4x1[context.Context, string, beam.X, func(string), error](&writeFn{})
 	register.Emitter1[string]()
@@ -34,7 +34,7 @@ func Write(
 	elemType := col.Type().Type()
 	keyed := beam.ParDo(
 		scope,
-		newCreateIdFn(cfg.Project, cfg.Collection, elemType),
+		newCreateIDFn(cfg.Project, cfg.Collection, elemType),
 		col,
 	)
 
@@ -48,12 +48,12 @@ func Write(
 	)
 }
 
-type createIdFn struct {
+type createIDFn struct {
 	firestoreFn
 }
 
-func newCreateIdFn(project string, collection string, elemType reflect.Type) *createIdFn {
-	return &createIdFn{
+func newCreateIDFn(project string, collection string, elemType reflect.Type) *createIDFn {
+	return &createIDFn{
 		firestoreFn{
 			Project:    project,
 			Collection: collection,
@@ -62,13 +62,14 @@ func newCreateIdFn(project string, collection string, elemType reflect.Type) *cr
 	}
 }
 
-func (fn *createIdFn) ProcessElement(
+func (fn *createIDFn) ProcessElement(
 	_ context.Context,
 	elem beam.X,
 	emit func(string, beam.X),
 ) error {
 	docRef := fn.collectionRef.NewDoc()
 	emit(docRef.ID, elem)
+
 	return nil
 }
 
@@ -98,6 +99,7 @@ func newWriteFn(cfg WriteConfig, elemType reflect.Type) *writeFn {
 func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
 	fn.batch = fn.client.Batch()
 	fn.batchCount = 0
+
 	return nil
 }
 
@@ -112,14 +114,15 @@ func (fn *writeFn) ProcessElement(
 	fn.batchCount++
 
 	if fn.batchCount >= fn.BatchSize {
-		err := fn.flush(ctx)
-		if err != nil {
+		if err := fn.flush(ctx); err != nil {
 			return err
 		}
+
 		fn.batch = fn.client.Batch()
 	}
 
 	emit(id)
+
 	return nil
 }
 
@@ -127,15 +130,17 @@ func (fn *writeFn) FinishBundle(ctx context.Context, _ func(string)) error {
 	if fn.batchCount > 0 {
 		return fn.flush(ctx)
 	}
+
 	return nil
 }
 
 func (fn *writeFn) flush(ctx context.Context) error {
-	_, err := fn.batch.Commit(ctx)
-	if err != nil {
-		return fmt.Errorf("error committing batch: %v", err)
+	if _, err := fn.batch.Commit(ctx); err != nil {
+		return fmt.Errorf("error committing batch: %w", err)
 	}
+
 	fn.batch = nil
 	fn.batchCount = 0
+
 	return nil
 }

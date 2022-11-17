@@ -12,40 +12,41 @@ import (
 
 func NewClient(ctx context.Context, url string) (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(url)
+
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		return nil, fmt.Errorf("error connecting to MongoDB: %v", err)
+		return nil, fmt.Errorf("error connecting to MongoDB: %w", err)
 	}
 
 	readPref := readpref.Primary()
-	err = client.Ping(ctx, readPref)
-	if err != nil {
-		return nil, fmt.Errorf("error pinging MongoDB: %v", err)
+	if err := client.Ping(ctx, readPref); err != nil {
+		return nil, fmt.Errorf("error pinging MongoDB: %w", err)
 	}
+
 	return client, nil
 }
 
 func DropCollection(ctx context.Context, collection *mongo.Collection) error {
-	err := collection.Drop(ctx)
-	if err != nil {
-		return fmt.Errorf("error deleting collection %q: %v", collection.Name(), err)
+	if err := collection.Drop(ctx); err != nil {
+		return fmt.Errorf("error deleting collection %q: %w", collection.Name(), err)
 	}
+
 	return nil
 }
 
 func ReadDocuments(ctx context.Context, collection *mongo.Collection) ([]map[string]any, error) {
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
-		return nil, fmt.Errorf("error finding documents: %v", err)
+		return nil, fmt.Errorf("error finding documents: %w", err)
 	}
 	defer cursor.Close(ctx)
 
 	var documents []map[string]any
+
 	for cursor.Next(ctx) {
 		var doc map[string]any
-		err := cursor.Decode(&doc)
-		if err != nil {
-			return nil, fmt.Errorf("error decoding document: %v", err)
+		if err := cursor.Decode(&doc); err != nil {
+			return nil, fmt.Errorf("error decoding document: %w", err)
 		}
 
 		delete(doc, "_id")
@@ -60,14 +61,14 @@ func WriteDocuments(
 	collection *mongo.Collection,
 	documents []map[string]any,
 ) error {
-	var docs []any
-	for _, doc := range documents {
-		docs = append(docs, doc)
+	docs := make([]any, len(documents))
+	for i, doc := range documents {
+		docs[i] = doc
 	}
 
-	_, err := collection.InsertMany(ctx, docs)
-	if err != nil {
-		return fmt.Errorf("error inserting documents: %v", err)
+	if _, err := collection.InsertMany(ctx, docs); err != nil {
+		return fmt.Errorf("error inserting documents: %w", err)
 	}
+
 	return nil
 }

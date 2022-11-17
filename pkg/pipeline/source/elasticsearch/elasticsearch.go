@@ -15,8 +15,8 @@ import (
 
 type Elasticsearch struct {
 	URLs      creds.Credential `yaml:"urls"`
-	CloudId   creds.Credential `yaml:"cloud_id"`
-	ApiKey    creds.Credential `yaml:"api_key"`
+	CloudID   creds.Credential `yaml:"cloud_id"`
+	APIKey    creds.Credential `yaml:"api_key"`
 	Index     string           `yaml:"index"`
 	Query     string           `yaml:"query"`
 	BatchSize int              `yaml:"batch_size"`
@@ -27,32 +27,34 @@ func (es *Elasticsearch) Read(
 	ctx context.Context,
 	secretReader *gcp.SecretReader,
 	scope beam.Scope,
-	elemType reflect.Type) (beam.PCollection, error) {
+	elemType reflect.Type,
+) (beam.PCollection, error) {
 	scope = scope.Scope("Read from Elasticsearch")
 
 	urls, err := es.URLs.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("error getting URLs value: %v", err)
+		return beam.PCollection{}, fmt.Errorf("error getting URLs value: %w", err)
 	}
+
 	var addresses []string
 	if urls != "" {
 		addresses = strings.Split(urls, ",")
 	}
 
-	cloudId, err := es.CloudId.GetValue(ctx, secretReader)
+	cloudID, err := es.CloudID.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("error getting Cloud ID value: %v", err)
+		return beam.PCollection{}, fmt.Errorf("error getting Cloud ID value: %w", err)
 	}
 
-	apiKey, err := es.ApiKey.GetValue(ctx, secretReader)
+	apiKey, err := es.APIKey.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("error getting API key value: %v", err)
+		return beam.PCollection{}, fmt.Errorf("error getting API key value: %w", err)
 	}
 
 	cfg := elasticsearchio.ReadConfig{
 		Addresses: addresses,
-		CloudId:   cloudId,
-		ApiKey:    apiKey,
+		CloudID:   cloudID,
+		APIKey:    apiKey,
 		Index:     es.Index,
 		Query:     es.Query,
 		BatchSize: es.BatchSize,

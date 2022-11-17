@@ -27,16 +27,19 @@ type Suite struct {
 
 func (s *Suite) SetupSuite() {
 	ctx := context.Background()
+
 	container, err := createContainer(ctx)
 	if err != nil {
 		s.T().Fatalf("error creating MongoDB container: %v", err)
 	}
+
 	s.container = container
 
-	url, err := getContainerUrl(ctx, container)
+	url, err := getContainerURL(ctx, container)
 	if err != nil {
 		s.T().Fatalf("error getting container url: %v", err)
 	}
+
 	s.URL = url
 }
 
@@ -54,35 +57,40 @@ func createContainer(ctx context.Context) (testcontainers.Container, error) {
 		ContainerRequest: containerRequest,
 		Started:          true,
 	}
-	return testcontainers.GenericContainer(ctx, genericContainerRequest)
+
+	container, err := testcontainers.GenericContainer(ctx, genericContainerRequest)
+	if err != nil {
+		return nil, fmt.Errorf("error creating container: %w", err)
+	}
+
+	return container, nil
 }
 
-func getContainerUrl(ctx context.Context, container testcontainers.Container) (string, error) {
+func getContainerURL(ctx context.Context, container testcontainers.Container) (string, error) {
 	host, err := container.Host(ctx)
 	if err != nil {
-		return "", fmt.Errorf("error getting container host: %v", err)
+		return "", fmt.Errorf("error getting container host: %w", err)
 	}
 
 	port, err := container.MappedPort(ctx, mongoPort)
 	if err != nil {
-		return "", fmt.Errorf("error getting container port: %v", err)
+		return "", fmt.Errorf("error getting container port: %w", err)
 	}
 
 	url := fmt.Sprintf("mongodb://%s:%s@%s:%s", mongoUser, mongoPwd, host, port.Port())
+
 	return url, nil
 }
 
 func (s *Suite) TearDownSuite() {
 	ctx := context.Background()
-	err := s.container.Terminate(ctx)
-	if err != nil {
+	if err := s.container.Terminate(ctx); err != nil {
 		s.T().Errorf("error terminating container: %v", err)
 	}
 }
 
 func (s *Suite) TearDownTest(ctx context.Context, collection *mongo.Collection) {
-	err := mongodbutils.DropCollection(ctx, collection)
-	if err != nil {
+	if err := mongodbutils.DropCollection(ctx, collection); err != nil {
 		s.T().Fatal(err.Error())
 	}
 }

@@ -12,10 +12,10 @@ import (
 )
 
 func init() {
-	beam.RegisterType(reflect.TypeOf((*mongoDbFn)(nil)))
+	beam.RegisterType(reflect.TypeOf((*mongoDBFn)(nil)))
 }
 
-type mongoDbFn struct {
+type mongoDBFn struct {
 	URL        string
 	Database   string
 	Collection string
@@ -24,36 +24,40 @@ type mongoDbFn struct {
 	coll       *mongo.Collection
 }
 
-func (fn *mongoDbFn) Setup() error {
+func (fn *mongoDBFn) Setup() error {
 	ctx := context.Background()
+
 	client, err := newClient(ctx, fn.URL)
 	if err != nil {
-		return fmt.Errorf("error initializing MongoDB client: %v", err)
+		return fmt.Errorf("error initializing MongoDB client: %w", err)
 	}
+
 	fn.client = client
 	fn.coll = client.Database(fn.Database).Collection(fn.Collection)
+
 	return nil
 }
 
-func (fn *mongoDbFn) Teardown() error {
-	err := fn.client.Disconnect(context.Background())
-	if err != nil {
-		return fmt.Errorf("error closing MongoDB client: %v", err)
+func (fn *mongoDBFn) Teardown() error {
+	if err := fn.client.Disconnect(context.Background()); err != nil {
+		return fmt.Errorf("error closing MongoDB client: %w", err)
 	}
+
 	return nil
 }
 
 func newClient(ctx context.Context, url string) (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(url)
+
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		return nil, fmt.Errorf("error connecting to MongoDB: %v", err)
+		return nil, fmt.Errorf("error connecting to MongoDB: %w", err)
 	}
 
 	readPref := readpref.Primary()
-	err = client.Ping(ctx, readPref)
-	if err != nil {
-		return nil, fmt.Errorf("error pinging MongoDB: %v", err)
+	if err := client.Ping(ctx, readPref); err != nil {
+		return nil, fmt.Errorf("error pinging MongoDB: %w", err)
 	}
+
 	return client, nil
 }

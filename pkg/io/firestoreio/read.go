@@ -2,6 +2,7 @@ package firestoreio
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -27,6 +28,7 @@ func Read(
 ) beam.PCollection {
 	scope = scope.Scope("firestoreio.Read")
 	impulse := beam.Impulse(scope)
+
 	return beam.ParDo(
 		scope,
 		newReadFn(cfg, elemType),
@@ -62,21 +64,22 @@ func (fn *readFn) ProcessElement(
 
 	for {
 		docSnap, err := iter.Next()
-		if err == iterator.Done {
+		if errors.Is(err, iterator.Done) {
 			break
 		}
+
 		if err != nil {
-			return fmt.Errorf("error iterating: %v", err)
+			return fmt.Errorf("error iterating: %w", err)
 		}
 
 		out := reflect.New(fn.Type.T).Interface()
-		err = docSnap.DataTo(out)
-		if err != nil {
-			return fmt.Errorf("error parsing document: %v", err)
+		if err := docSnap.DataTo(out); err != nil {
+			return fmt.Errorf("error parsing document: %w", err)
 		}
 
 		newElem := reflect.ValueOf(out).Elem().Interface()
 		emit(newElem)
 	}
+
 	return nil
 }

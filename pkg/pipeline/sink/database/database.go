@@ -6,8 +6,6 @@ import (
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/io/databaseio"
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/creds"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
@@ -27,9 +25,10 @@ func (db *Database) Write(
 	col beam.PCollection,
 ) error {
 	scope = scope.Scope("Write to db")
+
 	dsn, err := db.DSN.GetValue(ctx, secretReader)
 	if err != nil {
-		return fmt.Errorf("error getting DSN value: %v", err)
+		return fmt.Errorf("error getting DSN value: %w", err)
 	}
 
 	columns := db.Columns
@@ -38,5 +37,6 @@ func (db *Database) Write(
 	}
 
 	databaseio.Write(scope, db.Driver, dsn, db.Table, columns, col)
+
 	return nil
 }

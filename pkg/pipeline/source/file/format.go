@@ -3,8 +3,8 @@ package file
 type Format string
 
 const (
-	Avro    Format = "AVRO"
-	Csv     Format = "CSV"
-	Json    Format = "JSON"
-	Parquet Format = "PARQUET"
+	AVRO    Format = "AVRO"
+	CSV     Format = "CSV"
+	JSON    Format = "JSON"
+	PARQUET Format = "PARQUET"
 )

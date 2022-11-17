@@ -13,6 +13,7 @@ func Read(scope beam.Scope, path string, elemType reflect.Type) beam.PCollection
 	scope = scope.Scope("Read from json")
 	col := textio.Read(scope, path)
 	encoded := beam.ParDo(scope, stringio.NewEncodeFn(), col)
+
 	return beam.ParDo(
 		scope,
 		NewUnMarshalFn(elemType),

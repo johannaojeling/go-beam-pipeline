@@ -9,16 +9,16 @@ type SearchRequest struct {
 }
 
 type OpenPITResponse struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type PointInTime struct {
-	Id        string `json:"id"`
+	ID        string `json:"id"`
 	KeepAlive string `json:"keep_alive"`
 }
 
 type SearchResponse struct {
-	PitId string `json:"pit_id"`
+	PitID string `json:"pit_id"`
 	Hits  *Hits  `json:"hits"`
 }
 

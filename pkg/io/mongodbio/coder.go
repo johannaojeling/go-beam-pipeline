@@ -11,12 +11,14 @@ func init() {
 	beam.RegisterCoder(reflect.TypeOf((*primitive.ObjectID)(nil)).Elem(), encode, decode)
 }
 
-func encode(objectId primitive.ObjectID) []byte {
-	return objectId[:]
+func encode(objectID primitive.ObjectID) []byte {
+	return objectID[:]
 }
 
 func decode(bytes []byte) primitive.ObjectID {
-	var objectId primitive.ObjectID
-	copy(objectId[:], bytes[:12])
-	return objectId
+	var objectID primitive.ObjectID
+
+	copy(objectID[:], bytes[:12])
+
+	return objectID
 }

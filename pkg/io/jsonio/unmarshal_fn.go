@@ -29,12 +29,12 @@ func (fn *UnMarshalFn) ProcessElement(
 	emit func(beam.X),
 ) error {
 	out := reflect.New(fn.Type.T).Interface()
-	err := json.Unmarshal(elem, out)
-	if err != nil {
-		return fmt.Errorf("error unmarshaling json: %v", err)
+	if err := json.Unmarshal(elem, out); err != nil {
+		return fmt.Errorf("error unmarshaling json: %w", err)
 	}
 
 	newElem := reflect.ValueOf(out).Elem().Interface()
 	emit(newElem)
+
 	return nil
 }

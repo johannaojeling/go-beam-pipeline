@@ -31,27 +31,30 @@ type Suite struct {
 func (s *Suite) SetupSuite() {
 	ctx := context.Background()
 	networkName := "test-network"
+
 	network, err := createNetwork(ctx, networkName)
 	if err != nil {
 		s.T().Fatalf("error creating network: %v", err)
 	}
+
 	s.network = network
 
 	container, err := createContainer(ctx, networkName)
 	if err != nil {
 		s.T().Fatalf("error creating Elasticsearch container: %v", err)
 	}
+
 	s.container = container
 
-	url, err := getContainerUrl(ctx, container)
+	url, err := getContainerURL(ctx, container)
 	if err != nil {
 		s.T().Fatalf("error getting container url: %v", err)
 	}
 
-	err = waitUntilHealthy(url)
-	if err != nil {
+	if err := waitUntilHealthy(ctx, url); err != nil {
 		s.T().Fatalf("error waiting for Elasticsearch to get into a healthy state: %v", err)
 	}
+
 	s.URL = url
 }
 
@@ -63,7 +66,13 @@ func createNetwork(ctx context.Context, name string) (testcontainers.Network, er
 	genericNetworkRequest := testcontainers.GenericNetworkRequest{
 		NetworkRequest: networkRequest,
 	}
-	return testcontainers.GenericNetwork(ctx, genericNetworkRequest)
+
+	network, err := testcontainers.GenericNetwork(ctx, genericNetworkRequest)
+	if err != nil {
+		return nil, fmt.Errorf("error creating network: %w", err)
+	}
+
+	return network, nil
 }
 
 func createContainer(ctx context.Context, networkName string) (testcontainers.Container, error) {
@@ -81,55 +90,72 @@ func createContainer(ctx context.Context, networkName string) (testcontainers.Co
 		ContainerRequest: containerRequest,
 		Started:          true,
 	}
-	return testcontainers.GenericContainer(ctx, genericContainerRequest)
+
+	container, err := testcontainers.GenericContainer(ctx, genericContainerRequest)
+	if err != nil {
+		return nil, fmt.Errorf("error creating container: %w", err)
+	}
+
+	return container, nil
 }
 
-func getContainerUrl(ctx context.Context, container testcontainers.Container) (string, error) {
+func getContainerURL(ctx context.Context, container testcontainers.Container) (string, error) {
 	host, err := container.Host(ctx)
 	if err != nil {
-		return "", fmt.Errorf("error getting container host: %v", err)
+		return "", fmt.Errorf("error getting container host: %w", err)
 	}
 
 	port, err := container.MappedPort(ctx, esPort)
 	if err != nil {
-		return "", fmt.Errorf("error getting container port: %v", err)
+		return "", fmt.Errorf("error getting container port: %w", err)
 	}
 
 	url := fmt.Sprintf("http://%s:%s", host, port.Port())
+
 	return url, nil
 }
 
-func waitUntilHealthy(url string) error {
-	healthUrl := url + "/_cluster/health"
+func waitUntilHealthy(ctx context.Context, url string) error {
+	healthURL := url + "/_cluster/health"
 
 	backOff := backoff.NewExponentialBackOff()
 	backOff.MaxElapsedTime = 30 * time.Second
 
-	retryable := func() error {
-		_, err := http.Get(healthUrl)
-		if err != nil {
-			log.Printf("Waiting for Elasticsearch to get healthy, retrying...")
-		}
-		return err
+	client := &http.Client{}
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, healthURL, http.NoBody)
+	if err != nil {
+		return fmt.Errorf("error creating request: %w", err)
 	}
 
-	err := backoff.Retry(retryable, backOff)
-	if err != nil {
-		return fmt.Errorf("timed out: %v", err)
+	retryable := func() error {
+		response, err := client.Do(request)
+		if err != nil {
+			log.Printf("Waiting for Elasticsearch to get healthy, retrying...")
+
+			return fmt.Errorf("error getting response: %w", err)
+		}
+
+		defer response.Body.Close()
+
+		return nil
 	}
+
+	if err := backoff.Retry(retryable, backOff); err != nil {
+		return fmt.Errorf("timed out: %w", err)
+	}
+
 	return nil
 }
 
 func (s *Suite) TearDownSuite() {
 	ctx := context.Background()
-	err := s.container.Terminate(ctx)
-	if err != nil {
+	if err := s.container.Terminate(ctx); err != nil {
 		s.T().Errorf("error terminating container: %v", err)
 	}
 
-	err = s.network.Remove(ctx)
-	if err != nil {
-		s.T().Errorf("error removing netowrk: %v", err)
+	if err := s.network.Remove(ctx); err != nil {
+		s.T().Errorf("error removing network: %v", err)
 	}
 }
 

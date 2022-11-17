@@ -55,6 +55,7 @@ func TestWrite(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error initializing Miniredis: %v", err)
 			}
+
 			defer miniRedis.Close()
 
 			address := miniRedis.Addr()
@@ -76,10 +77,12 @@ func TestWrite(t *testing.T) {
 			ptest.RunAndValidate(t, pipeline)
 
 			ctx := context.Background()
+
 			client, err := redisutils.NewClient(ctx, url)
 			if err != nil {
 				t.Fatalf("error intializing Redis client: %v", err)
 			}
+
 			defer client.Close()
 
 			actual, err := redisutils.GetEntries(ctx, client, tc.keyPrefix)
@@ -157,6 +160,7 @@ func TestWriteKV(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error initializing Miniredis: %v", err)
 			}
+
 			defer miniRedis.Close()
 
 			address := miniRedis.Addr()
@@ -183,10 +187,12 @@ func TestWriteKV(t *testing.T) {
 			ptest.RunAndValidate(t, pipeline)
 
 			ctx := context.Background()
+
 			client, err := redisutils.NewClient(ctx, url)
 			if err != nil {
 				t.Fatalf("error intializing Redis client: %v", err)
 			}
+
 			defer client.Close()
 
 			actual, err := redisutils.GetEntries(ctx, client, tc.keyPrefix)
@@ -214,7 +220,12 @@ type entry struct {
 }
 
 func (entry entry) MarshalBinary() ([]byte, error) {
-	return json.Marshal(entry)
+	data, err := json.Marshal(entry)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling entry: %w", err)
+	}
+
+	return data, nil
 }
 
 type entryKV struct {

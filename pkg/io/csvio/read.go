@@ -14,6 +14,7 @@ func Read(
 ) beam.PCollection {
 	scope = scope.Scope("Read from csv")
 	col := textio.Read(scope, path)
+
 	return beam.ParDo(
 		scope,
 		NewUnMarshalFn(elemType),

@@ -35,22 +35,30 @@ func (source *Source) Read(
 	elemType reflect.Type,
 ) (beam.PCollection, error) {
 	scope = scope.Scope("Read from source")
-	switch format := source.Format; format {
+
+	var (
+		col beam.PCollection
+		err error
+	)
+
+	switch source.Format {
 	case BigQuery:
-		return source.BigQuery.Read(scope, elemType), nil
+		col = source.BigQuery.Read(scope, elemType)
 	case Database:
-		return source.Database.Read(ctx, secretReader, scope, elemType)
+		col, err = source.Database.Read(ctx, secretReader, scope, elemType)
 	case Elasticsearch:
-		return source.Elasticsearch.Read(ctx, secretReader, scope, elemType)
+		col, err = source.Elasticsearch.Read(ctx, secretReader, scope, elemType)
 	case File:
-		return source.File.Read(scope, elemType)
+		col, err = source.File.Read(scope, elemType)
 	case Firestore:
-		return source.Firestore.Read(scope, elemType), nil
+		col = source.Firestore.Read(scope, elemType)
 	case MongoDB:
-		return source.MongoDB.Read(ctx, secretReader, scope, elemType)
+		col, err = source.MongoDB.Read(ctx, secretReader, scope, elemType)
 	case Redis:
-		return source.Redis.Read(ctx, secretReader, scope, elemType)
+		col, err = source.Redis.Read(ctx, secretReader, scope, elemType)
 	default:
-		return beam.PCollection{}, fmt.Errorf("source format %q is not supported", format)
+		err = fmt.Errorf("source format %q is not supported", source.Format)
 	}
+
+	return col, err
 }

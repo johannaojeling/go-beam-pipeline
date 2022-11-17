@@ -19,6 +19,7 @@ func TestParseConfig(t *testing.T) {
 		if err != nil {
 			t.Fatalf("error reading config file: %v", err)
 		}
+
 		fields := struct {
 			Bucket string
 		}{

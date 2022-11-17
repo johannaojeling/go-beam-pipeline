@@ -23,5 +23,6 @@ func (bq *BigQuery) Read(
 		Dataset: bq.Dataset,
 		Table:   bq.Table,
 	}
+
 	return bigqueryio.Read(scope, bq.Project, tableName.String(), elemType)
 }

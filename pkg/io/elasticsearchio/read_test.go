@@ -22,7 +22,8 @@ func TestReadSuite(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	suite.Run(t, new(ReadSuite))
+
+	suite.Run(t, &ReadSuite{})
 }
 
 func (s *ReadSuite) TestRead() {
@@ -68,13 +69,11 @@ func (s *ReadSuite) TestRead() {
 				t.Fatalf("error initializing client: %v", err)
 			}
 
-			err = esutils.IndexDocuments(ctx, client, index, tc.input)
-			if err != nil {
+			if err := esutils.IndexDocuments(ctx, client, index, tc.input); err != nil {
 				t.Fatalf("error indexing documents: %v", err)
 			}
 
-			err = esutils.RefreshIndices(ctx, client, []string{index})
-			if err != nil {
+			if err := esutils.RefreshIndices(ctx, client, []string{index}); err != nil {
 				t.Fatalf("error refreshing index: %v", err)
 			}
 

@@ -28,7 +28,7 @@ func (redis *Redis) Read(
 
 	url, err := redis.URL.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("error getting URL value: %v", err)
+		return beam.PCollection{}, fmt.Errorf("error getting URL value: %w", err)
 	}
 
 	cfg := redisio.ReadConfig{
@@ -36,5 +36,6 @@ func (redis *Redis) Read(
 		KeyPatterns: redis.KeyPatterns,
 		BatchSize:   redis.BatchSize,
 	}
+
 	return redisio.Read(scope, cfg, elemType), nil
 }

@@ -30,12 +30,12 @@ func (fn *UnMarshalFn) ProcessElement(
 	emit func(beam.X),
 ) error {
 	out := reflect.New(fn.Type.T).Interface()
-	err := csv.Unmarshal(elem, out)
-	if err != nil {
-		return fmt.Errorf("error unmarshaling csv: %v", err)
+	if err := csv.Unmarshal(elem, out); err != nil {
+		return fmt.Errorf("error unmarshaling csv: %w", err)
 	}
 
 	newElem := reflect.ValueOf(out).Elem().Interface()
 	emit(newElem)
+
 	return nil
 }

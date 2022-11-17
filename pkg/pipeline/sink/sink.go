@@ -34,24 +34,25 @@ func (sink *Sink) Write(
 	col beam.PCollection,
 ) error {
 	scope = scope.Scope("Write to sink")
-	switch format := sink.Format; format {
+
+	var err error
+
+	switch sink.Format {
 	case BigQuery:
 		sink.BigQuery.Write(scope, col)
-		return nil
 	case Database:
-		return sink.Database.Write(ctx, secretReader, scope, col)
+		err = sink.Database.Write(ctx, secretReader, scope, col)
 	case Elasticsearch:
-		return sink.Elasticsearch.Write(ctx, secretReader, scope, col)
+		err = sink.Elasticsearch.Write(ctx, secretReader, scope, col)
 	case File:
-		return sink.File.Write(scope, col)
-	case Firestore:
-		sink.Firestore.Write(scope, col)
-		return nil
+		err = sink.File.Write(scope, col)
 	case MongoDB:
-		return sink.MongoDB.Write(ctx, secretReader, scope, col)
+		err = sink.MongoDB.Write(ctx, secretReader, scope, col)
 	case Redis:
-		return sink.Redis.Write(ctx, secretReader, scope, col)
+		err = sink.Redis.Write(ctx, secretReader, scope, col)
 	default:
-		return fmt.Errorf("sink format %q is not supported", format)
+		err = fmt.Errorf("sink format %q is not supported", sink.Format)
 	}
+
+	return err
 }

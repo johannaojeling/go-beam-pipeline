@@ -2,6 +2,7 @@ package firestoreutils
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"cloud.google.com/go/firestore"
@@ -9,7 +10,12 @@ import (
 )
 
 func NewClient(ctx context.Context, project string) (*firestore.Client, error) {
-	return firestore.NewClient(ctx, project)
+	client, err := firestore.NewClient(ctx, project)
+	if err != nil {
+		return nil, fmt.Errorf("error initializing Firestore client: %w", err)
+	}
+
+	return client, nil
 }
 
 func ReadDocuments(
@@ -18,6 +24,7 @@ func ReadDocuments(
 	collection string,
 ) ([]map[string]any, error) {
 	collectionRef := client.Collection(collection)
+
 	iter := collectionRef.Documents(ctx)
 	defer iter.Stop()
 
@@ -25,21 +32,22 @@ func ReadDocuments(
 
 	for {
 		docSnap, err := iter.Next()
-		if err == iterator.Done {
+		if errors.Is(err, iterator.Done) {
 			break
 		}
+
 		if err != nil {
-			return nil, fmt.Errorf("error iterating: %v", err)
+			return nil, fmt.Errorf("error iterating: %w", err)
 		}
 
 		var record map[string]any
-		err = docSnap.DataTo(&record)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing document to map: %v", err)
+		if err := docSnap.DataTo(&record); err != nil {
+			return nil, fmt.Errorf("error parsing document to map: %w", err)
 		}
 
 		records = append(records, record)
 	}
+
 	return records, nil
 }
 
@@ -57,9 +65,9 @@ func WriteDocuments(
 		batch.Create(docRef, record)
 	}
 
-	_, err := batch.Commit(ctx)
-	if err != nil {
-		return fmt.Errorf("error committing batch: %v", err)
+	if _, err := batch.Commit(ctx); err != nil {
+		return fmt.Errorf("error committing batch: %w", err)
 	}
+
 	return nil
 }

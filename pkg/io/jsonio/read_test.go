@@ -47,8 +47,7 @@ func TestRead(t *testing.T) {
 			tempDir := t.TempDir()
 			path := filepath.Join(tempDir, "input.json")
 
-			err := fileutils.WriteText(path, tc.input)
-			if err != nil {
+			if err := fileutils.WriteText(path, tc.input); err != nil {
 				t.Fatalf("error writing input %v", err)
 			}
 

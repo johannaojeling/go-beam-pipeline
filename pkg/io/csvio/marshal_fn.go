@@ -31,9 +31,10 @@ func (fn *MarshalFn) ProcessElement(
 ) error {
 	csvLine, err := csv.Marshal(elem)
 	if err != nil {
-		return fmt.Errorf("error marshaling csv: %v", err)
+		return fmt.Errorf("error marshaling csv: %w", err)
 	}
 
 	emit(csvLine)
+
 	return nil
 }

@@ -20,8 +20,8 @@ func init() {
 
 type WriteConfig struct {
 	Addresses  []string
-	CloudId    string
-	ApiKey     string
+	CloudID    string
+	APIKey     string
 	Index      string
 	FlushBytes int
 }
@@ -53,8 +53,8 @@ func newWriteFn(
 	return &writeFn{
 		esFn: esFn{
 			Addresses: cfg.Addresses,
-			CloudId:   cfg.CloudId,
-			ApiKey:    cfg.ApiKey,
+			CloudID:   cfg.CloudID,
+			APIKey:    cfg.APIKey,
 			Index:     cfg.Index,
 			Type:      beam.EncodedType{T: elemType},
 		},
@@ -68,11 +68,14 @@ func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
 		Client:     fn.client,
 		FlushBytes: fn.FlushBytes,
 	}
+
 	bulkIndexer, err := esutil.NewBulkIndexer(config)
 	if err != nil {
-		return fmt.Errorf("error initializing bulk indexer: %v", err)
+		return fmt.Errorf("error initializing bulk indexer: %w", err)
 	}
+
 	fn.bulkIndexer = bulkIndexer
+
 	return nil
 }
 
@@ -83,33 +86,30 @@ func (fn *writeFn) ProcessElement(
 ) error {
 	data, err := json.Marshal(elem)
 	if err != nil {
-		return fmt.Errorf("error encoding document: %v", err)
+		return fmt.Errorf("error encoding document: %w", err)
 	}
-	body := bytes.NewReader(data)
 
+	body := bytes.NewReader(data)
 	onSuccessFn := func(_ context.Context, _ esutil.BulkIndexerItem, responseItem esutil.BulkIndexerResponseItem) {
 		emit(responseItem.DocumentID)
 	}
-
-	err = fn.bulkIndexer.Add(
-		ctx,
-		esutil.BulkIndexerItem{
-			Action:    "index",
-			Body:      body,
-			OnSuccess: onSuccessFn,
-			OnFailure: onFailureFn,
-		},
-	)
-	if err != nil {
-		return fmt.Errorf("error adding bulk indexer item: %v", err)
+	item := esutil.BulkIndexerItem{
+		Action:    "index",
+		Body:      body,
+		OnSuccess: onSuccessFn,
+		OnFailure: onFailureFn,
 	}
+
+	if err := fn.bulkIndexer.Add(ctx, item); err != nil {
+		return fmt.Errorf("error adding bulk indexer item: %w", err)
+	}
+
 	return nil
 }
 
 func (fn *writeFn) FinishBundle(ctx context.Context, _ func(string)) error {
-	err := fn.bulkIndexer.Close(ctx)
-	if err != nil {
-		return fmt.Errorf("error closing bulk indexer: %v", err)
+	if err := fn.bulkIndexer.Close(ctx); err != nil {
+		return fmt.Errorf("error closing bulk indexer: %w", err)
 	}
 
 	stats := fn.bulkIndexer.Stats()
@@ -118,6 +118,7 @@ func (fn *writeFn) FinishBundle(ctx context.Context, _ func(string)) error {
 	}
 
 	fn.bulkIndexer = nil
+
 	return nil
 }
 

@@ -95,6 +95,7 @@ func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
 	pipe := fn.client.Pipeline()
 	fn.pipeline = &pipe
 	fn.batchCount = 0
+
 	return nil
 }
 
@@ -110,36 +111,40 @@ func (fn *writeFn) ProcessElement(
 	fn.batchCount++
 
 	if fn.batchCount >= fn.BatchSize {
-		err := fn.flush(ctx)
-		if err != nil {
+		if err := fn.flush(ctx); err != nil {
 			return err
 		}
+
 		pipe = fn.client.Pipeline()
+
 		fn.pipeline = &pipe
 	}
 
 	emit(key)
+
 	return nil
 }
 
 func (fn *writeFn) FinishBundle(ctx context.Context, _ func(string)) error {
 	if fn.batchCount > 0 {
-		err := fn.flush(ctx)
-		if err != nil {
-			return fmt.Errorf("error flushing: %v", err)
+		if err := fn.flush(ctx); err != nil {
+			return fmt.Errorf("error flushing: %w", err)
 		}
 	}
+
 	return nil
 }
 
 func (fn *writeFn) flush(ctx context.Context) error {
 	pipeline := fn.pipeline
 	pipe := *pipeline
-	_, err := pipe.Exec(ctx)
-	if err != nil {
-		return fmt.Errorf("error executing commands: %v", err)
+
+	if _, err := pipe.Exec(ctx); err != nil {
+		return fmt.Errorf("error executing commands: %w", err)
 	}
+
 	fn.pipeline = nil
 	fn.batchCount = 0
+
 	return nil
 }

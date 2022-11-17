@@ -37,20 +37,20 @@ func TestUnmarshal(t *testing.T) {
 		{
 			reason:     "Should return error when field types do not match",
 			input:      `true,test,123,2,not-a-float`,
-			expected:   new(entry),
+			expected:   &entry{},
 			expectsErr: true,
 		},
 		{
 			reason:     "Should return error when input is not valid csv",
 			input:      `true,test",123,2,123.456`,
-			expected:   new(entry),
+			expected:   &entry{},
 			expectsErr: true,
 		},
 	}
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
-			actual := new(entry)
+			actual := &entry{}
 			err := Unmarshal(tc.input, actual)
 
 			assert.Equal(t, tc.expectsErr, err != nil, "Error should match")

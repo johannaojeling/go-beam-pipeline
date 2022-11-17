@@ -22,7 +22,8 @@ func TestReadSuite(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	suite.Run(t, new(ReadSuite))
+
+	suite.Run(t, &ReadSuite{})
 }
 
 func (s *ReadSuite) TestRead() {
@@ -73,15 +74,17 @@ func (s *ReadSuite) TestRead() {
 			}
 
 			ctx := context.Background()
+
 			client, err := mongodbutils.NewClient(ctx, s.URL)
 			if err != nil {
 				t.Fatalf("error initializing client: %v", err)
 			}
+
 			defer client.Disconnect(ctx) //nolint:errcheck
 
 			testCollection := client.Database(database).Collection(collection)
-			err = mongodbutils.WriteDocuments(ctx, testCollection, tc.records)
-			if err != nil {
+
+			if err := mongodbutils.WriteDocuments(ctx, testCollection, tc.records); err != nil {
 				t.Fatalf("error writing records to collection %v", err)
 			}
 

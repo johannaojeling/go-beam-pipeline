@@ -28,7 +28,7 @@ func (mongodb *MongoDB) Write(
 
 	url, err := mongodb.URL.GetValue(ctx, secretReader)
 	if err != nil {
-		return fmt.Errorf("error getting URL value: %v", err)
+		return fmt.Errorf("error getting URL value: %w", err)
 	}
 
 	cfg := mongodbio.WriteConfig{
@@ -38,5 +38,6 @@ func (mongodb *MongoDB) Write(
 		BatchSize:  mongodb.BatchSize,
 	}
 	mongodbio.Write(scope, cfg, col)
+
 	return nil
 }

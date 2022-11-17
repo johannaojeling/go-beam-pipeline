@@ -31,6 +31,7 @@ func Read(
 ) beam.PCollection {
 	scope = scope.Scope("mongodbio.Read")
 	impulse := beam.Impulse(scope)
+
 	return beam.ParDo(
 		scope,
 		newReadFn(cfg, elemType),
@@ -40,7 +41,7 @@ func Read(
 }
 
 type readFn struct {
-	mongoDbFn
+	mongoDBFn
 	BatchSize int
 	Filter    string
 }
@@ -55,7 +56,7 @@ func newReadFn(
 	}
 
 	return &readFn{
-		mongoDbFn: mongoDbFn{
+		mongoDBFn: mongoDBFn{
 			URL:        cfg.URL,
 			Database:   cfg.Database,
 			Collection: cfg.Collection,
@@ -72,9 +73,8 @@ func (fn *readFn) ProcessElement(
 	emit func(beam.X),
 ) error {
 	var filter any
-	err := json.Unmarshal([]byte(fn.Filter), &filter)
-	if err != nil {
-		return fmt.Errorf("error unmarshaling filter to json: %v", err)
+	if err := json.Unmarshal([]byte(fn.Filter), &filter); err != nil {
+		return fmt.Errorf("error unmarshaling filter to json: %w", err)
 	}
 
 	var findOptions []*options.FindOptions
@@ -84,19 +84,19 @@ func (fn *readFn) ProcessElement(
 
 	cursor, err := fn.coll.Find(ctx, filter, findOptions...)
 	if err != nil {
-		return fmt.Errorf("error finding documents: %v", err)
+		return fmt.Errorf("error finding documents: %w", err)
 	}
 	defer cursor.Close(ctx)
 
 	for cursor.Next(ctx) {
 		out := reflect.New(fn.Type.T).Interface()
-		err := cursor.Decode(out)
-		if err != nil {
-			return fmt.Errorf("error decoding document: %v", err)
+		if err := cursor.Decode(out); err != nil {
+			return fmt.Errorf("error decoding document: %w", err)
 		}
 
 		newElem := reflect.ValueOf(out).Elem().Interface()
 		emit(newElem)
 	}
+
 	return nil
 }

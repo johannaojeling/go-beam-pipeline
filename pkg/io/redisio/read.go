@@ -41,6 +41,7 @@ func Read(
 		keyed,
 	)
 	encoded := beam.ParDo(scope, stringio.NewEncodeFn(), values)
+
 	return beam.ParDo(
 		scope,
 		jsonio.NewUnMarshalFn(elemType),
@@ -55,6 +56,7 @@ func ReadKV(
 ) beam.PCollection {
 	scope = scope.Scope("redisio.ReadKV")
 	col := beam.CreateList(scope, cfg.KeyPatterns)
+
 	return beam.ParDo(scope, newReadFn(cfg.URL, cfg.BatchSize), col)
 }
 
@@ -82,26 +84,36 @@ func (fn *readFn) ProcessElement(
 	log.Info(ctx, "Reading from Redis")
 
 	var cursor uint64
+
 	for {
 		var keys []string
+
 		var err error
+
 		keys, cursor, err = fn.client.Scan(ctx, cursor, elem, fn.BatchSize).Result()
 		if err != nil {
-			return fmt.Errorf("error scanning keys: %v", err)
+			return fmt.Errorf("error scanning keys: %w", err)
 		}
+
 		if len(keys) == 0 {
 			break
 		}
 
 		cmd := fn.client.MGet(ctx, keys...)
+
 		values, err := cmd.Result()
 		if err != nil {
-			return fmt.Errorf("error executing MGET command: %v", err)
+			return fmt.Errorf("error executing MGET command: %w", err)
 		}
 
 		for i := 0; i < len(keys); i++ {
 			key := keys[i]
-			value := values[i].(string)
+
+			value, ok := values[i].(string)
+			if !ok {
+				return fmt.Errorf("unexpected value type: %T", values[i])
+			}
+
 			emit(key, value)
 		}
 
@@ -109,5 +121,6 @@ func (fn *readFn) ProcessElement(
 			break
 		}
 	}
+
 	return nil
 }

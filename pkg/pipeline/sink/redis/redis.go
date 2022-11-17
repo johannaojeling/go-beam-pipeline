@@ -29,7 +29,7 @@ func (redis *Redis) Write(
 
 	url, err := redis.URL.GetValue(ctx, secretReader)
 	if err != nil {
-		return fmt.Errorf("error getting URL value: %v", err)
+		return fmt.Errorf("error getting URL value: %w", err)
 	}
 
 	cfg := redisio.WriteConfig{
@@ -39,5 +39,6 @@ func (redis *Redis) Write(
 		KeyField:   redis.KeyField,
 	}
 	redisio.Write(scope, cfg, col)
+
 	return nil
 }

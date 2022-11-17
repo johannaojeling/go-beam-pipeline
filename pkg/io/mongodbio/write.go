@@ -16,7 +16,7 @@ const defaultWriteBatchSize = 500
 
 func init() {
 	register.DoFn3x1[context.Context, beam.X, func(primitive.ObjectID, beam.X), error](
-		&createIdFn{},
+		&createIDFn{},
 	)
 	register.Emitter2[primitive.ObjectID, beam.X]()
 	register.DoFn4x1[context.Context, primitive.ObjectID, beam.X, func(string), error](&writeFn{})
@@ -39,7 +39,7 @@ func Write(
 	elemType := col.Type().Type()
 	keyed := beam.ParDo(
 		scope,
-		newCreateIdFn(elemType),
+		newCreateIDFn(elemType),
 		col,
 	)
 
@@ -53,28 +53,29 @@ func Write(
 	)
 }
 
-type createIdFn struct {
+type createIDFn struct {
 	Type beam.EncodedType
 }
 
-func newCreateIdFn(elemType reflect.Type) *createIdFn {
-	return &createIdFn{
+func newCreateIDFn(elemType reflect.Type) *createIDFn {
+	return &createIDFn{
 		Type: beam.EncodedType{T: elemType},
 	}
 }
 
-func (fn *createIdFn) ProcessElement(
+func (fn *createIDFn) ProcessElement(
 	_ context.Context,
 	elem beam.X,
 	emit func(primitive.ObjectID, beam.X),
 ) error {
 	id := primitive.NewObjectID()
 	emit(id, elem)
+
 	return nil
 }
 
 type writeFn struct {
-	mongoDbFn
+	mongoDBFn
 	BatchSize   int
 	writeModels []mongo.WriteModel
 }
@@ -86,7 +87,7 @@ func newWriteFn(cfg WriteConfig, elemType reflect.Type) *writeFn {
 	}
 
 	return &writeFn{
-		mongoDbFn: mongoDbFn{
+		mongoDBFn: mongoDBFn{
 			URL:        cfg.URL,
 			Database:   cfg.Database,
 			Collection: cfg.Collection,
@@ -111,13 +112,13 @@ func (fn *writeFn) ProcessElement(
 	fn.writeModels = append(fn.writeModels, model)
 
 	if len(fn.writeModels) >= fn.BatchSize {
-		err := fn.flush(ctx)
-		if err != nil {
+		if err := fn.flush(ctx); err != nil {
 			return err
 		}
 	}
 
 	emit(id.Hex())
+
 	return nil
 }
 
@@ -125,14 +126,16 @@ func (fn *writeFn) FinishBundle(ctx context.Context, _ func(string)) error {
 	if len(fn.writeModels) > 0 {
 		return fn.flush(ctx)
 	}
+
 	return nil
 }
 
 func (fn *writeFn) flush(ctx context.Context) error {
-	_, err := fn.coll.BulkWrite(ctx, fn.writeModels)
-	if err != nil {
-		return fmt.Errorf("error bulk writing: %v", err)
+	if _, err := fn.coll.BulkWrite(ctx, fn.writeModels); err != nil {
+		return fmt.Errorf("error bulk writing: %w", err)
 	}
+
 	fn.writeModels = []mongo.WriteModel(nil)
+
 	return nil
 }

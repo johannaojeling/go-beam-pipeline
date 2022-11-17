@@ -23,8 +23,8 @@ func init() {
 
 type ReadConfig struct {
 	Addresses []string
-	CloudId   string
-	ApiKey    string
+	CloudID   string
+	APIKey    string
 	Index     string
 	Query     string
 	BatchSize int
@@ -62,6 +62,7 @@ func newReadFn(
 	if batchSize <= 0 {
 		batchSize = defaultReadBatchSize
 	}
+
 	keepAlive := cfg.KeepAlive
 	if keepAlive == "" {
 		keepAlive = defaultReadKeepAlive
@@ -70,8 +71,8 @@ func newReadFn(
 	return &readFn{
 		esFn: esFn{
 			Addresses: cfg.Addresses,
-			CloudId:   cfg.CloudId,
-			ApiKey:    cfg.ApiKey,
+			CloudID:   cfg.CloudID,
+			APIKey:    cfg.APIKey,
 			Index:     cfg.Index,
 			Type:      beam.EncodedType{T: elemType},
 		},
@@ -88,11 +89,11 @@ func (fn *readFn) ProcessElement(
 ) error {
 	pitResponse, err := fn.openPIT(ctx)
 	if err != nil {
-		return fmt.Errorf("error opening Point In Time: %v", err)
+		return fmt.Errorf("error opening Point In Time: %w", err)
 	}
 
 	pit := &PointInTime{
-		Id:        pitResponse.Id,
+		ID:        pitResponse.ID,
 		KeepAlive: fn.KeepAlive,
 	}
 	query := []byte(fn.Query)
@@ -103,15 +104,15 @@ func (fn *readFn) ProcessElement(
 	}
 	sort := []string{"_shard_doc:asc"}
 
-	pitId, err := fn.search(ctx, searchRequest, sort, emit)
+	pitID, err := fn.search(ctx, searchRequest, sort, emit)
 	if err != nil {
-		return fmt.Errorf("error searching: %v", err)
+		return fmt.Errorf("error searching: %w", err)
 	}
 
-	err = fn.closePIT(ctx, pitId)
-	if err != nil {
-		return fmt.Errorf("error closing Point In Time: %v", err)
+	if err := fn.closePIT(ctx, pitID); err != nil {
+		return fmt.Errorf("error closing Point In Time: %w", err)
 	}
+
 	return nil
 }
 
@@ -122,6 +123,7 @@ func (fn *readFn) search(
 	emit func(beam.X),
 ) (string, error) {
 	body := esutil.NewJSONReader(searchRequest)
+
 	response, err := fn.client.Search(
 		fn.client.Search.WithContext(ctx),
 		fn.client.Search.WithBody(body),
@@ -130,26 +132,25 @@ func (fn *readFn) search(
 		fn.client.Search.WithTrackTotalHits(false),
 	)
 	if err != nil {
-		return "", fmt.Errorf("error calling Search API: %v", err)
+		return "", fmt.Errorf("error calling Search API: %w", err)
 	}
 
 	defer response.Body.Close()
+
 	if response.IsError() {
 		return "", fmt.Errorf("error in response: %v", response.String())
 	}
 
-	searchResponse := new(SearchResponse)
-	err = json.NewDecoder(response.Body).Decode(searchResponse)
-	if err != nil {
-		return "", fmt.Errorf("error parsing response body: %v", err)
+	searchResponse := &SearchResponse{}
+	if err := json.NewDecoder(response.Body).Decode(searchResponse); err != nil {
+		return "", fmt.Errorf("error parsing response body: %w", err)
 	}
 
 	hits := searchResponse.Hits.Hits
 	for _, hit := range hits {
 		out := reflect.New(fn.Type.T).Interface()
-		err := json.Unmarshal(hit.Source, out)
-		if err != nil {
-			return "", fmt.Errorf("error unmarshaling document: %v", err)
+		if err := json.Unmarshal(hit.Source, out); err != nil {
+			return "", fmt.Errorf("error unmarshaling document: %w", err)
 		}
 
 		newElem := reflect.ValueOf(out).Elem().Interface()
@@ -157,15 +158,15 @@ func (fn *readFn) search(
 	}
 
 	hitCount := len(hits)
-	pitId := searchResponse.PitId
+	pitID := searchResponse.PitID
 
 	if hitCount != fn.BatchSize {
-		return pitId, nil
+		return pitID, nil
 	}
 
 	query := searchRequest.Query
 	pit := &PointInTime{
-		Id:        pitId,
+		ID:        pitID,
 		KeepAlive: fn.KeepAlive,
 	}
 	searchAfter := searchResponse.Hits.Hits[hitCount-1].Sort
@@ -186,18 +187,18 @@ func (fn *readFn) openPIT(ctx context.Context) (*OpenPITResponse, error) {
 		fn.client.OpenPointInTime.WithContext(ctx),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error calling PIT API: %v", err)
+		return nil, fmt.Errorf("error calling PIT API: %w", err)
 	}
 
 	defer response.Body.Close()
+
 	if response.IsError() {
 		return nil, fmt.Errorf("error in response: %v", response.String())
 	}
 
-	openPitResponse := new(OpenPITResponse)
-	err = json.NewDecoder(response.Body).Decode(openPitResponse)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing response body: %v", err)
+	openPitResponse := &OpenPITResponse{}
+	if err := json.NewDecoder(response.Body).Decode(openPitResponse); err != nil {
+		return nil, fmt.Errorf("error parsing response body: %w", err)
 	}
 
 	return openPitResponse, nil
@@ -205,9 +206,9 @@ func (fn *readFn) openPIT(ctx context.Context) (*OpenPITResponse, error) {
 
 func (fn *readFn) closePIT(
 	ctx context.Context,
-	pidId string,
+	pidID string,
 ) error {
-	data := &OpenPITResponse{Id: pidId}
+	data := &OpenPITResponse{ID: pidID}
 	body := esutil.NewJSONReader(data)
 
 	response, err := fn.client.ClosePointInTime(
@@ -215,12 +216,14 @@ func (fn *readFn) closePIT(
 		fn.client.ClosePointInTime.WithBody(body),
 	)
 	if err != nil {
-		return fmt.Errorf("error calling PIT API: %v", err)
+		return fmt.Errorf("error calling PIT API: %w", err)
 	}
 
 	defer response.Body.Close()
+
 	if response.IsError() {
 		return fmt.Errorf("error in response: %v", response.String())
 	}
+
 	return nil
 }

@@ -20,9 +20,11 @@ func (cred Credential) GetValue(
 	if cred.SecretName != "" {
 		value, err := secretReader.ReadSecret(ctx, cred.SecretName)
 		if err != nil {
-			return "", fmt.Errorf("error retrieving secret: %v", err)
+			return "", fmt.Errorf("error retrieving secret: %w", err)
 		}
+
 		return value, nil
 	}
+
 	return os.Getenv(cred.EnvVar), nil
 }

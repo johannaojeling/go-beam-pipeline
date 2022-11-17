@@ -50,12 +50,12 @@ func TestWrite(t *testing.T) {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := fileutils.ReadJson(path)
+			actual, err := fileutils.ReadJSON(path)
 			if err != nil {
 				t.Fatalf("error reading output file %v", err)
 			}
 
-			expected, err := fileutils.ReadJson(expectedPath)
+			expected, err := fileutils.ReadJSON(expectedPath)
 			if err != nil {
 				t.Fatalf("error reading expected file %v", err)
 			}

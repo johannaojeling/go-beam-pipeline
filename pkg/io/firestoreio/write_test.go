@@ -21,7 +21,8 @@ func TestWriteSuite(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	suite.Run(t, new(WriteSuite))
+
+	suite.Run(t, &WriteSuite{})
 }
 
 func (s *WriteSuite) TestWrite() {
@@ -74,10 +75,12 @@ func (s *WriteSuite) TestWrite() {
 			ptest.RunAndValidate(t, pipeline)
 
 			ctx := context.Background()
+
 			client, err := firestoreutils.NewClient(ctx, project)
 			if err != nil {
 				t.Fatalf("error creating Firestore client: %v", err)
 			}
+
 			defer client.Close()
 
 			actual, err := firestoreutils.ReadDocuments(ctx, client, collection)

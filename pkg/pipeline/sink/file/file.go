@@ -20,21 +20,25 @@ type File struct {
 
 func (file *File) Write(scope beam.Scope, col beam.PCollection) error {
 	scope = scope.Scope("Write to file")
-	switch format := file.Format; format {
-	case Avro:
+
+	var err error
+
+	switch file.Format {
+	case AVRO:
 		cfg := avroio.WriteConfig{
 			Path:   file.Path,
 			Schema: file.Avro.Schema,
 		}
 		avroio.Write(scope, cfg, col)
-	case Csv:
+	case CSV:
 		csvio.Write(scope, file.Path, col)
-	case Json:
+	case JSON:
 		jsonio.Write(scope, file.Path, col)
-	case Parquet:
+	case PARQUET:
 		parquetio.Write(scope, file.Path, col)
 	default:
-		return fmt.Errorf("file format %q is not supported", format)
+		err = fmt.Errorf("file format %q is not supported", file.Format)
 	}
-	return nil
+
+	return err
 }

@@ -31,9 +31,8 @@ func Unmarshal(line string, out any) error {
 	structType := structVal.Type()
 	outVal := reflect.New(structType).Elem()
 
-	err = unmarshalRow(row, outVal)
-	if err != nil {
-		return fmt.Errorf("error unmarshaling row to out value: %v", err)
+	if err := unmarshalRow(row, outVal); err != nil {
+		return fmt.Errorf("error unmarshaling row to out value: %w", err)
 	}
 
 	structVal.Set(outVal)
@@ -47,8 +46,9 @@ func convertToRow(line string) ([]string, error) {
 
 	row, err := csvReader.Read()
 	if err != nil {
-		return nil, fmt.Errorf("error reading line to csv row: %v", err)
+		return nil, fmt.Errorf("error reading line to csv row: %w", err)
 	}
+
 	return row, nil
 }
 
@@ -59,9 +59,10 @@ func unmarshalRow(row []string, val reflect.Value) error {
 
 		err := parseRowValue(rowVal, fieldVal)
 		if err != nil {
-			return fmt.Errorf("error parsing row value: %v", err)
+			return fmt.Errorf("error parsing row value: %w", err)
 		}
 	}
+
 	return nil
 }
 
@@ -73,7 +74,7 @@ func parseRowValue(rowVal string, fieldVal reflect.Value) error {
 	case reflect.Bool:
 		parsedVal, err := strconv.ParseBool(rowVal)
 		if err != nil {
-			return fmt.Errorf("error parsing row value to bool: %v", err)
+			return fmt.Errorf("error parsing row value to bool: %w", err)
 		}
 
 		fieldVal.SetBool(parsedVal)
@@ -81,7 +82,7 @@ func parseRowValue(rowVal string, fieldVal reflect.Value) error {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		parsedVal, err := strconv.ParseInt(rowVal, 10, 64)
 		if err != nil {
-			return fmt.Errorf("error parsing row value to int: %v", err)
+			return fmt.Errorf("error parsing row value to int: %w", err)
 		}
 
 		fieldVal.SetInt(parsedVal)
@@ -89,7 +90,7 @@ func parseRowValue(rowVal string, fieldVal reflect.Value) error {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		parsedVal, err := strconv.ParseUint(rowVal, 10, 64)
 		if err != nil {
-			return fmt.Errorf("error parsing row value to uint: %v", err)
+			return fmt.Errorf("error parsing row value to uint: %w", err)
 		}
 
 		fieldVal.SetUint(parsedVal)
@@ -97,7 +98,7 @@ func parseRowValue(rowVal string, fieldVal reflect.Value) error {
 	case reflect.Float32, reflect.Float64:
 		parsedVal, err := strconv.ParseFloat(rowVal, 64)
 		if err != nil {
-			return fmt.Errorf("error parsing row value to float: %v", err)
+			return fmt.Errorf("error parsing row value to float: %w", err)
 		}
 
 		fieldVal.SetFloat(parsedVal)
@@ -105,5 +106,6 @@ func parseRowValue(rowVal string, fieldVal reflect.Value) error {
 	default:
 		return fmt.Errorf("unable to parse row value of kind %v", kind)
 	}
+
 	return nil
 }

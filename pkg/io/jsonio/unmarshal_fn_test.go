@@ -12,7 +12,7 @@ import (
 
 func TestUnMarshalFn_ProcessElement(t *testing.T) {
 	type user struct {
-		Id   int    `json:"id"`
+		ID   int    `json:"id"`
 		Name string `json:"name"`
 	}
 
@@ -36,7 +36,7 @@ func TestUnMarshalFn_ProcessElement(t *testing.T) {
 			elemType: reflect.TypeOf(user{}),
 			input:    []byte(`{"id":1,"name":"user1"}`),
 			expected: user{
-				Id:   1,
+				ID:   1,
 				Name: "user1",
 			},
 		},

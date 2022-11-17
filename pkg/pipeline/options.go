@@ -26,12 +26,11 @@ func (options *Options) Construct(
 
 	col, err := options.Source.Read(ctx, secretReader, scope, elemType)
 	if err != nil {
-		return nil, fmt.Errorf("error creating source transform: %v", err)
+		return nil, fmt.Errorf("error creating source transform: %w", err)
 	}
 
-	err = options.Sink.Write(ctx, secretReader, scope, col)
-	if err != nil {
-		return nil, fmt.Errorf("error creating sink transform: %v", err)
+	if err := options.Sink.Write(ctx, secretReader, scope, col); err != nil {
+		return nil, fmt.Errorf("error creating sink transform: %w", err)
 	}
 
 	return pipeline, nil

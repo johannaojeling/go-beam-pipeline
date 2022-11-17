@@ -30,7 +30,7 @@ func (mongodb *MongoDB) Read(
 
 	url, err := mongodb.URL.GetValue(ctx, secretReader)
 	if err != nil {
-		return beam.PCollection{}, fmt.Errorf("error getting URL value: %v", err)
+		return beam.PCollection{}, fmt.Errorf("error getting URL value: %w", err)
 	}
 
 	cfg := mongodbio.ReadConfig{
@@ -40,5 +40,6 @@ func (mongodb *MongoDB) Read(
 		BatchSize:  mongodb.BatchSize,
 		Filter:     mongodb.Filter,
 	}
+
 	return mongodbio.Read(scope, cfg, elemType), nil
 }

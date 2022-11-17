@@ -9,8 +9,6 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/mongodbutils"
 )
 
 type WriteSuite struct {
@@ -19,7 +17,7 @@ type WriteSuite struct {
 
 func TestWriteSuite(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping integration test")
+		t.Skip("skipping long-running integration test")
 	}
 
 	suite.Run(t, &WriteSuite{})
@@ -65,20 +63,14 @@ func (s *WriteSuite) TestWrite() {
 			ptest.RunAndValidate(t, pipeline)
 
 			ctx := context.Background()
-			client, err := mongodbutils.NewClient(ctx, s.URL)
-			if err != nil {
-				t.Fatalf("error initializing client: %v", err)
-			}
-			defer client.Disconnect(ctx) //nolint:errcheck
-
+			client := NewClient(ctx, t, s.URL)
 			testCollection := client.Database(database).Collection(collection)
-			actual, err := mongodbutils.ReadDocuments(ctx, testCollection)
-			if err != nil {
-				t.Fatalf("error reading documents %v", err)
-			}
+
+			actual := ReadDocuments(ctx, t, testCollection)
 
 			assert.ElementsMatch(t, tc.expected, actual, "Elements should match in any order")
-			s.TearDownTest(ctx, testCollection)
+
+			DropCollection(ctx, t, testCollection)
 		})
 	}
 }

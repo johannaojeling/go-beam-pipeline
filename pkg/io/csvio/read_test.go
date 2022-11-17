@@ -11,7 +11,7 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/passert"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/fileutils"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils"
 )
 
 func TestRead(t *testing.T) {
@@ -38,9 +38,7 @@ func TestRead(t *testing.T) {
 			tempDir := t.TempDir()
 			path := filepath.Join(tempDir, "input.csv")
 
-			if err := fileutils.WriteText(path, tc.input); err != nil {
-				t.Fatalf("error writing input %v", err)
-			}
+			testutils.WriteText(t, path, tc.input)
 
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()

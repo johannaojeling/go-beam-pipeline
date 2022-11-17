@@ -8,6 +8,7 @@ require (
 	github.com/alicebob/miniredis/v2 v2.21.0
 	github.com/apache/beam/sdks/v2 v2.42.0
 	github.com/cenkalti/backoff/v4 v4.1.3
+	github.com/docker/go-connections v0.4.0
 	github.com/elastic/go-elasticsearch/v8 v8.3.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
@@ -42,7 +43,6 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker v20.10.11+incompatible // indirect
-	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.1.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect

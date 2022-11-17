@@ -1,39 +1,65 @@
-package redisutils
+package redisio
 
 import (
 	"context"
 	"fmt"
+	"testing"
 
+	"github.com/alicebob/miniredis/v2"
 	"github.com/go-redis/redis/v8"
 )
 
-func NewClient(ctx context.Context, url string) (*redis.Client, error) {
+func NewRedis(t *testing.T) *miniredis.Miniredis {
+	t.Helper()
+
+	redis, err := miniredis.Run()
+	if err != nil {
+		t.Fatalf("failed to start miniredis: %s", err)
+	}
+
+	t.Cleanup(redis.Close)
+
+	return redis
+}
+
+func NewClient(ctx context.Context, t *testing.T, url string) *redis.Client {
+	t.Helper()
+
 	opt, err := redis.ParseURL(url)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing URL: %w", err)
+		t.Fatalf("error parsing URL: %v", err)
 	}
 
 	client := redis.NewClient(opt)
 	if _, err = client.Ping(ctx).Result(); err != nil {
-		return nil, fmt.Errorf("error pinging Redis: %w", err)
+		t.Fatalf("error pinging Redis: %v", err)
 	}
 
-	return client, nil
+	t.Cleanup(func() {
+		if err := client.Close(); err != nil {
+			t.Fatalf("error closing client: %v", err)
+		}
+	})
+
+	return client
 }
 
 func GetEntries(
 	ctx context.Context,
+	t *testing.T,
 	client *redis.Client,
 	prefix string,
-) (map[string]string, error) {
+) map[string]string {
+	t.Helper()
+
 	keys, err := getKeys(ctx, client, prefix)
 	if err != nil {
-		return nil, fmt.Errorf("error getting keys: %w", err)
+		t.Fatalf("error getting keys: %v", err)
 	}
 
 	values, err := getValues(ctx, client, keys)
 	if err != nil {
-		return nil, fmt.Errorf("error getting values: %w", err)
+		t.Fatalf("error getting values: %v", err)
 	}
 
 	entries := make(map[string]string, len(keys))
@@ -41,10 +67,17 @@ func GetEntries(
 		entries[keys[i]] = values[i]
 	}
 
-	return entries, nil
+	return entries
 }
 
-func SetEntries(ctx context.Context, client *redis.Client, entries map[string]string) error {
+func SetEntries(
+	ctx context.Context,
+	t *testing.T,
+	client *redis.Client,
+	entries map[string]string,
+) {
+	t.Helper()
+
 	size := len(entries) * 2
 	args := make([]any, 0, size)
 
@@ -54,10 +87,8 @@ func SetEntries(ctx context.Context, client *redis.Client, entries map[string]st
 	}
 
 	if err := client.MSet(ctx, args...).Err(); err != nil {
-		return fmt.Errorf("error executing MSET: %w", err)
+		t.Fatalf("error executing MSET: %v", err)
 	}
-
-	return nil
 }
 
 func getKeys(ctx context.Context, client *redis.Client, prefix string) ([]string, error) {

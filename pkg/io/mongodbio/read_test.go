@@ -10,8 +10,6 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/passert"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/mongodbutils"
 )
 
 type ReadSuite struct {
@@ -20,7 +18,7 @@ type ReadSuite struct {
 
 func TestReadSuite(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping integration test")
+		t.Skip("skipping long-running integration test")
 	}
 
 	suite.Run(t, &ReadSuite{})
@@ -74,19 +72,10 @@ func (s *ReadSuite) TestRead() {
 			}
 
 			ctx := context.Background()
-
-			client, err := mongodbutils.NewClient(ctx, s.URL)
-			if err != nil {
-				t.Fatalf("error initializing client: %v", err)
-			}
-
-			defer client.Disconnect(ctx) //nolint:errcheck
-
+			client := NewClient(ctx, t, s.URL)
 			testCollection := client.Database(database).Collection(collection)
 
-			if err := mongodbutils.WriteDocuments(ctx, testCollection, tc.records); err != nil {
-				t.Fatalf("error writing records to collection %v", err)
-			}
+			WriteDocuments(ctx, t, testCollection, tc.records)
 
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
@@ -96,7 +85,7 @@ func (s *ReadSuite) TestRead() {
 			passert.Equals(scope, actual, tc.expected...)
 			ptest.RunAndValidate(t, pipeline)
 
-			s.TearDownTest(ctx, testCollection)
+			DropCollection(ctx, t, testCollection)
 		})
 	}
 }

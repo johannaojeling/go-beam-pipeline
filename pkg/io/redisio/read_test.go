@@ -6,12 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/alicebob/miniredis/v2"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/passert"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/redisutils"
 )
 
 func TestRead(t *testing.T) {
@@ -72,14 +69,8 @@ func TestRead(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
-			miniRedis, err := miniredis.Run()
-			if err != nil {
-				t.Fatalf("error initializing Miniredis: %v", err)
-			}
-
-			defer miniRedis.Close()
-
-			address := miniRedis.Addr()
+			redis := NewRedis(t)
+			address := redis.Addr()
 			url := fmt.Sprintf("redis://%s/0", address)
 
 			cfg := ReadConfig{
@@ -89,17 +80,9 @@ func TestRead(t *testing.T) {
 			}
 
 			ctx := context.Background()
+			client := NewClient(ctx, t, url)
 
-			client, err := redisutils.NewClient(ctx, url)
-			if err != nil {
-				t.Fatalf("error intializing Redis client: %v", err)
-			}
-
-			defer client.Close()
-
-			if err := redisutils.SetEntries(ctx, client, tc.input); err != nil {
-				t.Fatalf("error setting Redis values: %v", err)
-			}
+			SetEntries(ctx, t, client, tc.input)
 
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()

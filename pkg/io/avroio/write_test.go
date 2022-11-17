@@ -9,8 +9,6 @@ import (
 	_ "github.com/apache/beam/sdks/v2/go/pkg/beam/io/filesystem/local"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/fileutils"
 )
 
 func TestWrite(t *testing.T) {
@@ -61,15 +59,8 @@ func TestWrite(t *testing.T) {
 
 			ptest.RunAndValidate(t, pipeline)
 
-			actual, err := fileutils.ReadAvro(path)
-			if err != nil {
-				t.Fatalf("error reading output file %v", err)
-			}
-
-			expected, err := fileutils.ReadAvro(expectedPath)
-			if err != nil {
-				t.Fatalf("error reading expected file %v", err)
-			}
+			actual := ReadAvro(t, path)
+			expected := ReadAvro(t, expectedPath)
 
 			assert.Equal(t, expected, actual)
 		})

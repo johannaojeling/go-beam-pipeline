@@ -9,8 +9,6 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/esutils"
 )
 
 type WriteSuite struct {
@@ -19,7 +17,7 @@ type WriteSuite struct {
 
 func TestWriteSuite(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping integration test")
+		t.Skip("skipping long-running integration test")
 	}
 
 	suite.Run(t, &WriteSuite{})
@@ -67,24 +65,15 @@ func (s *WriteSuite) TestWrite() {
 			ptest.RunAndValidate(t, pipeline)
 
 			ctx := context.Background()
-			client, err := esutils.NewClient(ctx, addresses)
-			if err != nil {
-				t.Fatalf("error initializing client: %v", err)
-			}
-
-			if err := esutils.RefreshIndices(ctx, client, []string{index}); err != nil {
-				t.Fatalf("error refreshing index: %v", err)
-			}
+			client := NewClient(t, addresses)
+			RefreshIndices(ctx, t, client, []string{index})
 
 			query := `{"match_all": {}}`
-			actual, err := esutils.SearchDocuments(ctx, client, index, query)
-			if err != nil {
-				t.Fatalf("error reading documents %v", err)
-			}
+			actual := SearchDocuments(ctx, t, client, index, query)
 
 			assert.ElementsMatch(t, tc.expected, actual, "Elements should match in any order")
 
-			s.TearDownTest(ctx, client, index)
+			DeleteIndices(ctx, t, client, []string{index})
 		})
 	}
 }

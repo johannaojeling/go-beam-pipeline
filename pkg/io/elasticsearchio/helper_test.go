@@ -1,10 +1,11 @@
-package esutils
+package elasticsearchio
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"testing"
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
@@ -15,78 +16,78 @@ type SearchBody struct {
 	Query json.RawMessage `json:"query"`
 }
 
-type SearchResponse struct {
-	Hits struct {
-		Hits []struct {
-			Source json.RawMessage `json:"_source"`
-		} `json:"hits"`
-		Total struct {
-			Value int `json:"value"`
-		} `json:"total"`
-	} `json:"hits"`
-}
+func NewClient(t *testing.T, addresses []string) *elasticsearch.Client {
+	t.Helper()
 
-func NewClient(ctx context.Context, addresses []string) (*elasticsearch.Client, error) {
 	config := elasticsearch.Config{
 		Addresses: addresses,
 	}
 
 	client, err := elasticsearch.NewClient(config)
 	if err != nil {
-		return nil, fmt.Errorf("error creating client: %w", err)
+		t.Fatalf("error creating client: %v", err)
 	}
 
-	return client, nil
+	return client
 }
 
-func RefreshIndices(ctx context.Context, client *elasticsearch.Client, indices []string) error {
+func RefreshIndices(
+	ctx context.Context,
+	t *testing.T,
+	client *elasticsearch.Client,
+	indices []string,
+) {
+	t.Helper()
+
 	refreshRequest := esapi.IndicesRefreshRequest{
 		Index: indices,
 	}
 
 	response, err := refreshRequest.Do(ctx, client)
 	if err != nil {
-		return fmt.Errorf("error calling Refresh API: %w", err)
+		t.Fatalf("error calling Refresh API: %v", err)
 	}
 
 	defer response.Body.Close()
 
 	if response.IsError() {
-		return fmt.Errorf("error in response: %w", err)
+		t.Fatalf("error in response: %v", err)
 	}
-
-	return nil
 }
 
 func DeleteIndices(
 	ctx context.Context,
+	t *testing.T,
 	client *elasticsearch.Client,
 	indices []string,
-) error {
+) {
+	t.Helper()
+
 	response, err := client.Indices.Delete(
 		indices,
 		client.Indices.Delete.WithContext(ctx),
 		client.Indices.Delete.WithIgnoreUnavailable(true),
 	)
 	if err != nil {
-		return fmt.Errorf("error calling Delete API: %w", err)
+		t.Fatalf("error calling Delete API: %v", err)
 	}
 
 	defer response.Body.Close()
 
 	if response.IsError() {
-		return fmt.Errorf("error in response: %v", response.String())
+		t.Fatalf("error in response: %v", response.String())
 	}
-
-	return nil
 }
 
 func IndexDocuments(
 	ctx context.Context,
+	t *testing.T,
 	client *elasticsearch.Client,
 	index string,
 	documents []map[string]any,
-) error {
+) {
+	t.Helper()
+
 	config := esutil.BulkIndexerConfig{
 		Client: client,
 		Index:  index,
@@ -94,26 +95,23 @@ func IndexDocuments(
 
 	bulkIndexer, err := esutil.NewBulkIndexer(config)
 	if err != nil {
-		return fmt.Errorf("error initializing bulk indexer: %w", err)
+		t.Fatalf("error initializing bulk indexer: %v", err)
 	}
 
 	for _, doc := range documents {
-		err := addDocument(ctx, bulkIndexer, doc)
-		if err != nil {
-			return fmt.Errorf("error adding document to bulk indexer: %w", err)
+		if err := addDocument(ctx, bulkIndexer, doc); err != nil {
+			t.Fatalf("error adding document: %v", err)
 		}
 	}
 
 	if err := bulkIndexer.Close(ctx); err != nil {
-		return fmt.Errorf("error closing bulk indexer: %w", err)
+		t.Fatalf("error closing bulk indexer: %v", err)
 	}
 
 	stats := bulkIndexer.Stats()
 	if numFailed := stats.NumFailed; numFailed > 0 {
-		return fmt.Errorf("error indexing %d document(s)", numFailed)
+		t.Fatalf("error indexing %d document(s)", numFailed)
 	}
-
-	return nil
 }
 
 func addDocument(
@@ -141,10 +139,13 @@ func addDocument(
 
 func SearchDocuments(
 	ctx context.Context,
+	t *testing.T,
 	client *elasticsearch.Client,
 	index string,
 	query string,
-) ([]map[string]any, error) {
+) []map[string]any {
+	t.Helper()
+
 	searchBody := &SearchBody{
 		Query: []byte(query),
 	}
@@ -153,10 +154,10 @@ func SearchDocuments(
 
 	var records []map[string]any
 	if err := search(ctx, client, index, searchBody, from, size, true, &records); err != nil {
-		return nil, fmt.Errorf("error searching index: %w", err)
+		t.Fatalf("error searching index: %v", err)
 	}
 
-	return records, nil
+	return records
 }
 
 func search(

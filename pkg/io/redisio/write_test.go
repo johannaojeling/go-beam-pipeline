@@ -8,12 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alicebob/miniredis/v2"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/redisutils"
 )
 
 func TestWrite(t *testing.T) {
@@ -51,14 +48,8 @@ func TestWrite(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
-			miniRedis, err := miniredis.Run()
-			if err != nil {
-				t.Fatalf("error initializing Miniredis: %v", err)
-			}
-
-			defer miniRedis.Close()
-
-			address := miniRedis.Addr()
+			redis := NewRedis(t)
+			address := redis.Addr()
 			url := fmt.Sprintf("redis://%s/0", address)
 
 			cfg := WriteConfig{
@@ -77,18 +68,9 @@ func TestWrite(t *testing.T) {
 			ptest.RunAndValidate(t, pipeline)
 
 			ctx := context.Background()
+			client := NewClient(ctx, t, url)
 
-			client, err := redisutils.NewClient(ctx, url)
-			if err != nil {
-				t.Fatalf("error intializing Redis client: %v", err)
-			}
-
-			defer client.Close()
-
-			actual, err := redisutils.GetEntries(ctx, client, tc.keyPrefix)
-			if err != nil {
-				t.Fatalf("error getting values: %v", err)
-			}
+			actual := GetEntries(ctx, t, client, tc.keyPrefix)
 
 			assert.Equal(t, tc.expected, actual, "Entries should match")
 		})
@@ -156,14 +138,8 @@ func TestWriteKV(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
-			miniRedis, err := miniredis.Run()
-			if err != nil {
-				t.Fatalf("error initializing Miniredis: %v", err)
-			}
-
-			defer miniRedis.Close()
-
-			address := miniRedis.Addr()
+			redis := NewRedis(t)
+			address := redis.Addr()
 			url := fmt.Sprintf("redis://%s/0", address)
 
 			cfg := WriteKVConfig{
@@ -187,18 +163,9 @@ func TestWriteKV(t *testing.T) {
 			ptest.RunAndValidate(t, pipeline)
 
 			ctx := context.Background()
+			client := NewClient(ctx, t, url)
 
-			client, err := redisutils.NewClient(ctx, url)
-			if err != nil {
-				t.Fatalf("error intializing Redis client: %v", err)
-			}
-
-			defer client.Close()
-
-			actual, err := redisutils.GetEntries(ctx, client, tc.keyPrefix)
-			if err != nil {
-				t.Fatalf("error getting values: %v", err)
-			}
+			actual := GetEntries(ctx, t, client, tc.keyPrefix)
 
 			assert.Equal(t, tc.expected, actual, "Entries should match")
 		})

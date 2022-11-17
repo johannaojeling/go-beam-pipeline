@@ -10,8 +10,6 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/passert"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/esutils"
 )
 
 type ReadSuite struct {
@@ -20,7 +18,7 @@ type ReadSuite struct {
 
 func TestReadSuite(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping integration test")
+		t.Skip("skipping long-running integration test")
 	}
 
 	suite.Run(t, &ReadSuite{})
@@ -55,7 +53,6 @@ func (s *ReadSuite) TestRead() {
 		s.T().Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
 			addresses := []string{s.URL}
 			index := "testindex"
-
 			readCfg := ReadConfig{
 				Addresses: addresses,
 				Index:     index,
@@ -64,18 +61,10 @@ func (s *ReadSuite) TestRead() {
 			}
 
 			ctx := context.Background()
-			client, err := esutils.NewClient(ctx, addresses)
-			if err != nil {
-				t.Fatalf("error initializing client: %v", err)
-			}
+			client := NewClient(t, addresses)
 
-			if err := esutils.IndexDocuments(ctx, client, index, tc.input); err != nil {
-				t.Fatalf("error indexing documents: %v", err)
-			}
-
-			if err := esutils.RefreshIndices(ctx, client, []string{index}); err != nil {
-				t.Fatalf("error refreshing index: %v", err)
-			}
+			IndexDocuments(ctx, t, client, index, tc.input)
+			RefreshIndices(ctx, t, client, []string{index})
 
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
@@ -85,7 +74,7 @@ func (s *ReadSuite) TestRead() {
 			passert.Equals(scope, actual, tc.expected...)
 			ptest.RunAndValidate(t, pipeline)
 
-			s.TearDownTest(ctx, client, index)
+			DeleteIndices(ctx, t, client, []string{index})
 		})
 	}
 }

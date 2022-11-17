@@ -1,8 +1,8 @@
-package mongodbutils
+package mongodbio
 
 import (
 	"context"
-	"fmt"
+	"testing"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,35 +10,50 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-func NewClient(ctx context.Context, url string) (*mongo.Client, error) {
+func NewClient(ctx context.Context, t *testing.T, url string) *mongo.Client {
+	t.Helper()
+
 	clientOptions := options.Client().ApplyURI(url)
 
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		return nil, fmt.Errorf("error connecting to MongoDB: %w", err)
+		t.Fatalf("error connecting to MongoDB: %v", err)
 	}
+
+	t.Cleanup(func() {
+		if err := client.Disconnect(ctx); err != nil {
+			t.Fatalf("error disconnecting from MongoDB: %v", err)
+		}
+	})
 
 	readPref := readpref.Primary()
 	if err := client.Ping(ctx, readPref); err != nil {
-		return nil, fmt.Errorf("error pinging MongoDB: %w", err)
+		t.Fatalf("error pinging MongoDB: %v", err)
 	}
 
-	return client, nil
+	return client
 }
 
-func DropCollection(ctx context.Context, collection *mongo.Collection) error {
+func DropCollection(ctx context.Context, t *testing.T, collection *mongo.Collection) {
+	t.Helper()
+
 	if err := collection.Drop(ctx); err != nil {
-		return fmt.Errorf("error deleting collection %q: %w", collection.Name(), err)
+		t.Fatalf("error deleting collection %q: %v", collection.Name(), err)
 	}
-
-	return nil
 }
 
-func ReadDocuments(ctx context.Context, collection *mongo.Collection) ([]map[string]any, error) {
+func ReadDocuments(
+	ctx context.Context,
+	t *testing.T,
+	collection *mongo.Collection,
+) []map[string]any {
+	t.Helper()
+
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
-		return nil, fmt.Errorf("error finding documents: %w", err)
+		t.Fatalf("error finding documents: %v", err)
 	}
+
 	defer cursor.Close(ctx)
 
 	var documents []map[string]any
@@ -46,29 +61,30 @@ func ReadDocuments(ctx context.Context, collection *mongo.Collection) ([]map[str
 	for cursor.Next(ctx) {
 		var doc map[string]any
 		if err := cursor.Decode(&doc); err != nil {
-			return nil, fmt.Errorf("error decoding document: %w", err)
+			t.Fatalf("error decoding document: %v", err)
 		}
 
 		delete(doc, "_id")
 		documents = append(documents, doc)
 	}
 
-	return documents, nil
+	return documents
 }
 
 func WriteDocuments(
 	ctx context.Context,
+	t *testing.T,
 	collection *mongo.Collection,
 	documents []map[string]any,
-) error {
+) {
+	t.Helper()
+
 	docs := make([]any, len(documents))
 	for i, doc := range documents {
 		docs[i] = doc
 	}
 
 	if _, err := collection.InsertMany(ctx, docs); err != nil {
-		return fmt.Errorf("error inserting documents: %w", err)
+		t.Fatalf("error inserting documents: %v", err)
 	}
-
-	return nil
 }

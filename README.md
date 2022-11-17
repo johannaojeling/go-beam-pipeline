@@ -36,7 +36,8 @@ The image below shows a Dataflow pipeline that reads from MongoDB Atlas and writ
 ## Pre-requisites
 
 - Go version 1.18
-- Gcloud SDK
+- Gcloud CLI
+- Docker
 
 ## Development
 
@@ -56,7 +57,7 @@ Run unit tests
 go test ./... -short
 ```
 
-Run unit tests and integration tests
+Run unit tests and long-running integration tests
 
 ```bash
 go test ./...

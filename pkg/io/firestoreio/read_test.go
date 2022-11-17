@@ -10,8 +10,6 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/passert"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/testing/ptest"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils/firestoreutils"
 )
 
 type ReadSuite struct {
@@ -20,7 +18,7 @@ type ReadSuite struct {
 
 func TestReadSuite(t *testing.T) {
 	if testing.Short() {
-		t.Skip("skipping integration test")
+		t.Skip("skipping long-running integration test")
 	}
 
 	suite.Run(t, &ReadSuite{})
@@ -62,7 +60,7 @@ func (s *ReadSuite) TestRead() {
 
 	for i, tc := range testCases {
 		s.T().Run(fmt.Sprintf("Test %d: %s", i, tc.reason), func(t *testing.T) {
-			project := testProject
+			project := emulatorProject
 			collection := "docs"
 
 			cfg := ReadConfig{
@@ -71,17 +69,9 @@ func (s *ReadSuite) TestRead() {
 			}
 
 			ctx := context.Background()
+			client := NewClient(ctx, t, project)
 
-			client, err := firestoreutils.NewClient(ctx, project)
-			if err != nil {
-				t.Fatalf("error creating Firestore client: %v", err)
-			}
-
-			defer client.Close()
-
-			if err := firestoreutils.WriteDocuments(ctx, client, collection, tc.records); err != nil {
-				t.Fatalf("error writing records to collection: %v", err)
-			}
+			WriteDocuments(ctx, t, client, collection, tc.records)
 
 			beam.Init()
 			pipeline, scope := beam.NewPipelineWithRoot()
@@ -91,7 +81,7 @@ func (s *ReadSuite) TestRead() {
 			passert.Equals(scope, actual, tc.expected...)
 			ptest.RunAndValidate(t, pipeline)
 
-			s.TearDownTest()
+			FlushDatabase(ctx, t, s.URL)
 		})
 	}
 }

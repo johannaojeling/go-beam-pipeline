@@ -19,18 +19,7 @@ func ReadText(t *testing.T, path string) string {
 func WriteText(t *testing.T, path string, content string) {
 	t.Helper()
 
-	file, err := os.Create(path)
-	if err != nil {
-		t.Fatalf("error creating file: %v", err)
-	}
-
-	defer file.Close()
-
-	if _, err = file.WriteString(content); err != nil {
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatalf("error writing to file: %v", err)
-	}
-
-	if err := file.Sync(); err != nil {
-		t.Fatalf("error syncing with file: %v", err)
 	}
 }

@@ -21,8 +21,8 @@ type firestoreFn struct {
 	collectionRef *firestore.CollectionRef
 }
 
-func (fn *firestoreFn) Setup() error {
-	client, err := firestore.NewClient(context.Background(), fn.Project)
+func (fn *firestoreFn) Setup(ctx context.Context) error {
+	client, err := firestore.NewClient(ctx, fn.Project)
 	if err != nil {
 		return fmt.Errorf("error initializing Firestore client: %w", err)
 	}

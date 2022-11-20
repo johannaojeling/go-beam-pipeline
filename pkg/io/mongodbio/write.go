@@ -135,7 +135,7 @@ func (fn *writeFn) flush(ctx context.Context) error {
 		return fmt.Errorf("error bulk writing: %w", err)
 	}
 
-	fn.writeModels = []mongo.WriteModel(nil)
+	fn.writeModels = nil
 
 	return nil
 }

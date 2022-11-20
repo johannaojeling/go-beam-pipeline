@@ -13,7 +13,7 @@ import (
 const defaultWriteBatchSize = 500
 
 func init() {
-	register.DoFn3x1[context.Context, beam.X, func(string, beam.X), error](&createIDFn{})
+	register.DoFn3x0[context.Context, beam.X, func(string, beam.X)](&createIDFn{})
 	register.Emitter2[string, beam.X]()
 	register.DoFn4x1[context.Context, string, beam.X, func(string), error](&writeFn{})
 	register.Emitter1[string]()
@@ -66,11 +66,9 @@ func (fn *createIDFn) ProcessElement(
 	_ context.Context,
 	elem beam.X,
 	emit func(string, beam.X),
-) error {
+) {
 	docRef := fn.collectionRef.NewDoc()
 	emit(docRef.ID, elem)
-
-	return nil
 }
 
 type writeFn struct {
@@ -96,11 +94,8 @@ func newWriteFn(cfg WriteConfig, elemType reflect.Type) *writeFn {
 	}
 }
 
-func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
+func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) {
 	fn.batch = fn.client.Batch()
-	fn.batchCount = 0
-
-	return nil
 }
 
 func (fn *writeFn) ProcessElement(

@@ -68,7 +68,7 @@ type writeFn struct {
 	Expiration time.Duration
 	BatchSize  int
 	Type       beam.EncodedType
-	pipeline   *redis.Pipeliner
+	pipeline   redis.Pipeliner
 	batchCount int
 }
 
@@ -91,12 +91,8 @@ func newWriteFn(
 	}
 }
 
-func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) error {
-	pipe := fn.client.Pipeline()
-	fn.pipeline = &pipe
-	fn.batchCount = 0
-
-	return nil
+func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) {
+	fn.pipeline = fn.client.Pipeline()
 }
 
 func (fn *writeFn) ProcessElement(
@@ -105,9 +101,7 @@ func (fn *writeFn) ProcessElement(
 	value beam.X,
 	emit func(string),
 ) error {
-	pipeline := fn.pipeline
-	pipe := *pipeline
-	pipe.Set(ctx, key, value, fn.Expiration)
+	fn.pipeline.Set(ctx, key, value, fn.Expiration)
 	fn.batchCount++
 
 	if fn.batchCount >= fn.BatchSize {
@@ -115,9 +109,7 @@ func (fn *writeFn) ProcessElement(
 			return err
 		}
 
-		pipe = fn.client.Pipeline()
-
-		fn.pipeline = &pipe
+		fn.pipeline = fn.client.Pipeline()
 	}
 
 	emit(key)
@@ -136,10 +128,7 @@ func (fn *writeFn) FinishBundle(ctx context.Context, _ func(string)) error {
 }
 
 func (fn *writeFn) flush(ctx context.Context) error {
-	pipeline := fn.pipeline
-	pipe := *pipeline
-
-	if _, err := pipe.Exec(ctx); err != nil {
+	if _, err := fn.pipeline.Exec(ctx); err != nil {
 		return fmt.Errorf("error executing commands: %w", err)
 	}
 

@@ -18,9 +18,7 @@ type redisFn struct {
 	client *redis.Client
 }
 
-func (fn *redisFn) Setup() error {
-	ctx := context.Background()
-
+func (fn *redisFn) Setup(ctx context.Context) error {
 	client, err := newClient(ctx, fn.URL)
 	if err != nil {
 		return fmt.Errorf("error initializing Redis client: %w", err)

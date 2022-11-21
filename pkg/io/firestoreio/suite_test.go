@@ -30,14 +30,15 @@ func (s *Suite) SetupSuite() {
 	env := map[string]string{
 		"GOOGLE_CLOUD_PROJECT": emulatorProject,
 	}
-	cfg := testutils.ContainerConfig{
-		Image:      emulatorImage,
-		Env:        env,
-		Ports:      []string{emulatorPort + "/tcp"},
-		WaitForLog: "Dev App Server is now running",
-	}
 
-	s.container = testutils.CreateContainer(s.ctx, s.T(), cfg)
+	s.container = testutils.CreateContainer(
+		s.ctx,
+		s.T(),
+		emulatorImage,
+		testutils.WithEnv(env),
+		testutils.WithPorts([]string{emulatorPort + "/tcp"}),
+		testutils.WithWaitForLog("Dev App Server is now running"),
+	)
 
 	address := testutils.GetContainerAddress(s.ctx, s.T(), s.container, emulatorPort)
 	s.URL = fmt.Sprintf(

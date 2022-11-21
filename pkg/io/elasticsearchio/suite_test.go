@@ -33,15 +33,16 @@ func (s *Suite) SetupSuite() {
 		"discovery.type":         "single-node",
 		"xpack.security.enabled": "false",
 	}
-	cfg := testutils.ContainerConfig{
-		Image:      esImage,
-		Env:        env,
-		Networks:   []string{esNetwork},
-		Ports:      []string{esPort + "/tcp"},
-		WaitForLog: "started",
-	}
 
-	s.container = testutils.CreateContainer(s.ctx, s.T(), cfg)
+	s.container = testutils.CreateContainer(
+		s.ctx,
+		s.T(),
+		esImage,
+		testutils.WithEnv(env),
+		testutils.WithNetworks([]string{esNetwork}),
+		testutils.WithPorts([]string{esPort + "/tcp"}),
+		testutils.WithWaitForLog("started"),
+	)
 
 	address := testutils.GetContainerAddress(s.ctx, s.T(), s.container, esPort)
 	s.URL = fmt.Sprintf("http://%s", address)

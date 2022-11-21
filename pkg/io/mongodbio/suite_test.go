@@ -31,14 +31,15 @@ func (s *Suite) SetupSuite() {
 		"MONGO_INITDB_ROOT_USERNAME": mongoUser,
 		"MONGO_INITDB_ROOT_PASSWORD": mongoPwd,
 	}
-	cfg := testutils.ContainerConfig{
-		Image:      mongoImage,
-		Env:        env,
-		Ports:      []string{mongoPort + "/tcp"},
-		WaitForLog: "started",
-	}
 
-	s.container = testutils.CreateContainer(s.ctx, s.T(), cfg)
+	s.container = testutils.CreateContainer(
+		s.ctx,
+		s.T(),
+		mongoImage,
+		testutils.WithEnv(env),
+		testutils.WithPorts([]string{mongoPort + "/tcp"}),
+		testutils.WithWaitForLog("started"),
+	)
 
 	address := testutils.GetContainerAddress(s.ctx, s.T(), s.container, mongoPort)
 	s.URL = fmt.Sprintf("mongodb://%s:%s@%s", mongoUser, mongoPwd, address)

@@ -14,12 +14,30 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-type ContainerConfig struct {
-	Image      string
-	Env        map[string]string
-	Networks   []string
-	Ports      []string
-	WaitForLog string
+type ContainerOptionFn func(*testcontainers.ContainerRequest)
+
+func WithEnv(env map[string]string) ContainerOptionFn {
+	return func(option *testcontainers.ContainerRequest) {
+		option.Env = env
+	}
+}
+
+func WithNetworks(networks []string) ContainerOptionFn {
+	return func(option *testcontainers.ContainerRequest) {
+		option.Networks = networks
+	}
+}
+
+func WithPorts(ports []string) ContainerOptionFn {
+	return func(option *testcontainers.ContainerRequest) {
+		option.ExposedPorts = ports
+	}
+}
+
+func WithWaitForLog(log string) ContainerOptionFn {
+	return func(option *testcontainers.ContainerRequest) {
+		option.WaitingFor = wait.ForLog(log)
+	}
 }
 
 func CreateNetwork(ctx context.Context, t *testing.T, name string) testcontainers.Network {
@@ -44,16 +62,17 @@ func CreateNetwork(ctx context.Context, t *testing.T, name string) testcontainer
 func CreateContainer(
 	ctx context.Context,
 	t *testing.T,
-	cfg ContainerConfig,
+	image string,
+	opts ...ContainerOptionFn,
 ) testcontainers.Container {
 	t.Helper()
 
 	request := testcontainers.ContainerRequest{
-		Image:        cfg.Image,
-		Env:          cfg.Env,
-		ExposedPorts: cfg.Ports,
-		Networks:     cfg.Networks,
-		WaitingFor:   wait.ForLog(cfg.WaitForLog),
+		Image: image,
+	}
+
+	for _, opt := range opts {
+		opt(&request)
 	}
 
 	genericContainerRequest := testcontainers.GenericContainerRequest{

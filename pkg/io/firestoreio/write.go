@@ -74,7 +74,8 @@ func (fn *createIDFn) ProcessElement(
 type writeFn struct {
 	firestoreFn
 	BatchSize  int
-	batch      *firestore.WriteBatch
+	bulkWriter *firestore.BulkWriter
+	jobs       []*firestore.BulkWriterJob
 	batchCount int
 }
 
@@ -94,26 +95,31 @@ func newWriteFn(cfg WriteConfig, elemType reflect.Type) *writeFn {
 	}
 }
 
-func (fn *writeFn) StartBundle(_ context.Context, _ func(string)) {
-	fn.batch = fn.client.Batch()
+func (fn *writeFn) StartBundle(ctx context.Context, _ func(string)) {
+	fn.bulkWriter = fn.client.BulkWriter(ctx)
 }
 
 func (fn *writeFn) ProcessElement(
-	ctx context.Context,
+	_ context.Context,
 	id string,
 	elem beam.X,
 	emit func(string),
 ) error {
 	docRef := fn.collectionRef.Doc(id)
-	fn.batch.Create(docRef, &elem)
+
+	job, err := fn.bulkWriter.Set(docRef, &elem)
+	if err != nil {
+		return fmt.Errorf("error creating document: %w", err)
+	}
+
+	fn.jobs = append(fn.jobs, job)
+
 	fn.batchCount++
 
 	if fn.batchCount >= fn.BatchSize {
-		if err := fn.flush(ctx); err != nil {
-			return err
+		if err := fn.flush(); err != nil {
+			return fmt.Errorf("error flushing batch: %w", err)
 		}
-
-		fn.batch = fn.client.Batch()
 	}
 
 	emit(id)
@@ -121,21 +127,39 @@ func (fn *writeFn) ProcessElement(
 	return nil
 }
 
-func (fn *writeFn) FinishBundle(ctx context.Context, _ func(string)) error {
+func (fn *writeFn) FinishBundle(_ context.Context, _ func(string)) error {
 	if fn.batchCount > 0 {
-		return fn.flush(ctx)
+		if err := fn.flush(); err != nil {
+			return fmt.Errorf("error flushing batch: %w", err)
+		}
 	}
+
+	fn.bulkWriter = nil
 
 	return nil
 }
 
-func (fn *writeFn) flush(ctx context.Context) error {
-	if _, err := fn.batch.Commit(ctx); err != nil {
-		return fmt.Errorf("error committing batch: %w", err)
+func (fn *writeFn) flush() error {
+	fn.bulkWriter.Flush()
+
+	if errors := getJobErrors(fn.jobs); errors != nil {
+		return fmt.Errorf("error getting job results: %v", errors)
 	}
 
-	fn.batch = nil
+	fn.jobs = nil
 	fn.batchCount = 0
 
 	return nil
+}
+
+func getJobErrors(jobs []*firestore.BulkWriterJob) []error {
+	var errors []error
+
+	for _, job := range jobs {
+		if _, err := job.Results(); err != nil {
+			errors = append(errors, err)
+		}
+	}
+
+	return errors
 }

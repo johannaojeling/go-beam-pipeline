@@ -71,16 +71,22 @@ func WriteDocuments(
 	t.Helper()
 
 	collectionRef := client.Collection(collection)
-	batch := client.Batch()
+	bulkWriter := client.BulkWriter(ctx)
 
 	for _, record := range records {
 		docRef := collectionRef.NewDoc()
-		batch.Create(docRef, record)
+
+		job, err := bulkWriter.Create(docRef, record)
+		if err != nil {
+			t.Fatalf("error creating document: %v", err)
+		}
+
+		if _, err := job.Results(); err != nil {
+			t.Fatalf("error getting job results: %v", err)
+		}
 	}
 
-	if _, err := batch.Commit(ctx); err != nil {
-		t.Fatalf("error committing batch: %v", err)
-	}
+	bulkWriter.End()
 }
 
 func FlushDatabase(ctx context.Context, t *testing.T, url string) {

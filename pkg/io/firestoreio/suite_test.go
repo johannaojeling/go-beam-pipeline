@@ -3,9 +3,11 @@ package firestoreio
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils"
 )
@@ -37,7 +39,9 @@ func (s *Suite) SetupSuite() {
 		emulatorImage,
 		testutils.WithEnv(env),
 		testutils.WithPorts([]string{emulatorPort + "/tcp"}),
-		testutils.WithWaitForLog("Dev App Server is now running"),
+		testutils.WithWaitStrategy(
+			wait.ForLog("Dev App Server is now running").WithStartupTimeout(2*time.Minute),
+		),
 	)
 
 	address := testutils.GetContainerAddress(s.ctx, s.T(), s.container, emulatorPort)

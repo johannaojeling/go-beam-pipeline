@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 
 	"github.com/johannaojeling/go-beam-pipeline/pkg/internal/testutils"
 )
@@ -41,7 +42,7 @@ func (s *Suite) SetupSuite() {
 		testutils.WithEnv(env),
 		testutils.WithNetworks([]string{esNetwork}),
 		testutils.WithPorts([]string{esPort + "/tcp"}),
-		testutils.WithWaitForLog("started"),
+		testutils.WithWaitStrategy(wait.ForLog("started")),
 	)
 
 	address := testutils.GetContainerAddress(s.ctx, s.T(), s.container, esPort)

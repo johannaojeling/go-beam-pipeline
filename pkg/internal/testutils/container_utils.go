@@ -34,9 +34,9 @@ func WithPorts(ports []string) ContainerOptionFn {
 	}
 }
 
-func WithWaitForLog(log string) ContainerOptionFn {
+func WithWaitStrategy(strategy wait.Strategy) ContainerOptionFn {
 	return func(option *testcontainers.ContainerRequest) {
-		option.WaitingFor = wait.ForLog(log)
+		option.WaitingFor = strategy
 	}
 }
 

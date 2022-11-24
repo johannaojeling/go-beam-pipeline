@@ -46,6 +46,8 @@ func (sink *Sink) Write(
 		err = sink.Elasticsearch.Write(ctx, secretReader, scope, col)
 	case File:
 		err = sink.File.Write(scope, col)
+	case Firestore:
+		sink.Firestore.Write(scope, col)
 	case MongoDB:
 		err = sink.MongoDB.Write(ctx, secretReader, scope, col)
 	case Redis:

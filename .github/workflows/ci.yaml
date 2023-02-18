@@ -5,19 +5,22 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     env:
-      GO_VERSION: "1.18"
+      GO_VERSION: "1.19"
       PYTHON_VERSION: "3.10"
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+
       - name: Set up cache
         uses: actions/cache@v3
         with:
@@ -28,30 +31,35 @@ jobs:
             ~/.cache/go-build
             ~/go/pkg/mod
           key: pre-commit-${{ hashFiles('**/.pre-commit-config.yaml') }}
+
       - name: Create and activate virtual environment
         run: |
           python -m venv venv
           source venv/bin/activate
+
       - name: Install pre-commit
         run: pip install -U pre-commit
-      - name: Install goimports, golangci-lint, golines
+
+      - name: Install linters
         run: |
-          go install golang.org/x/tools/cmd/goimports@v0.2.0
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.0
           go install github.com/segmentio/golines@v0.11.0
+
       - name: Run pre-commit checks
         run: pre-commit run -a
   test:
     runs-on: ubuntu-latest
     env:
-      GO_VERSION: "1.18"
+      GO_VERSION: "1.19"
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+
       - name: Set up cache
         uses: actions/cache@v3
         with:
@@ -59,7 +67,9 @@ jobs:
             ~/.cache/go-build
             ~/go/pkg/mod
           key: test-${{ hashFiles('**/go.sum') }}
+
       - name: Install dependencies
         run: go mod download
+
       - name: Run unit tests
         run: go test ./... -short

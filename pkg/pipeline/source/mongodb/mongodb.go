@@ -6,8 +6,9 @@ import (
 	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
+	"github.com/apache/beam/sdks/v2/go/pkg/beam/io/mongodbio"
+	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/johannaojeling/go-beam-pipeline/pkg/io/mongodbio"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/creds"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
@@ -16,7 +17,6 @@ type MongoDB struct {
 	URL        creds.Credential `yaml:"url"`
 	Database   string           `yaml:"database"`
 	Collection string           `yaml:"collection"`
-	BatchSize  int              `yaml:"batch_size"`
 	Filter     string           `yaml:"filter"`
 }
 
@@ -33,13 +33,21 @@ func (mongodb *MongoDB) Read(
 		return beam.PCollection{}, fmt.Errorf("error getting URL value: %w", err)
 	}
 
-	cfg := mongodbio.ReadConfig{
-		URL:        url,
-		Database:   mongodb.Database,
-		Collection: mongodb.Collection,
-		BatchSize:  mongodb.BatchSize,
-		Filter:     mongodb.Filter,
+	var filter bson.M
+
+	if mongodb.Filter != "" {
+		if err := bson.UnmarshalExtJSON([]byte(mongodb.Filter), true, &filter); err != nil {
+			return beam.PCollection{}, fmt.Errorf("error unmarshalling filter: %w", err)
+		}
 	}
 
-	return mongodbio.Read(scope, cfg, elemType), nil
+	return mongodbio.Read(
+		scope,
+		url,
+		mongodb.Database,
+		mongodb.Collection,
+		elemType,
+		mongodbio.WithReadFilter(filter),
+		mongodbio.WithReadBucketAuto(true),
+	), nil
 }

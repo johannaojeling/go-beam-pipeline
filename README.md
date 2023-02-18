@@ -29,13 +29,9 @@ Supported sinks:
 - Memorystore (Redis)
 - MongoDB
 
-The image below shows a Dataflow pipeline that reads from MongoDB Atlas and writes to Cloud Storage (csv).
+## Prerequisites
 
-![Dataflow pipeline](images/dataflow.png)
-
-## Pre-requisites
-
-- Go version 1.18
+- Go version 1.19
 - Gcloud CLI
 - Docker
 

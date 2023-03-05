@@ -1,4 +1,4 @@
-package source
+package options
 
 type Format string
 
@@ -10,4 +10,13 @@ const (
 	Firestore     Format = "FIRESTORE"
 	MongoDB       Format = "MONGODB"
 	Redis         Format = "REDIS"
+)
+
+type FileFormat string
+
+const (
+	Avro    FileFormat = "AVRO"
+	CSV     FileFormat = "CSV"
+	JSON    FileFormat = "JSON"
+	Parquet FileFormat = "PARQUET"
 )

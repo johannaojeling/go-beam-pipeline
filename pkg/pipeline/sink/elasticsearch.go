@@ -1,4 +1,4 @@
-package elasticsearch
+package sink
 
 import (
 	"context"
@@ -6,29 +6,21 @@ import (
 	"strings"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
-
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/elasticsearchio"
-	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/creds"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/options"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
 
-type Elasticsearch struct {
-	URLs       creds.Credential `yaml:"urls"`
-	CloudID    creds.Credential `yaml:"cloud_id"`
-	APIKey     creds.Credential `yaml:"api_key"`
-	Index      string           `yaml:"index"`
-	FlushBytes int              `yaml:"flush_bytes"`
-}
-
-func (es *Elasticsearch) Write(
+func WriteToElasticsearch(
 	ctx context.Context,
-	secretReader *gcp.SecretReader,
 	scope beam.Scope,
+	opt options.ElasticsearchWriteOption,
+	secretReader *gcp.SecretReader,
 	col beam.PCollection,
 ) error {
 	scope = scope.Scope("Write to Elasticsearch")
 
-	urls, err := es.URLs.GetValue(ctx, secretReader)
+	urls, err := opt.URLs.GetValue(ctx, secretReader)
 	if err != nil {
 		return fmt.Errorf("error getting URLs value: %w", err)
 	}
@@ -39,12 +31,12 @@ func (es *Elasticsearch) Write(
 		addresses = strings.Split(urls, ",")
 	}
 
-	cloudID, err := es.CloudID.GetValue(ctx, secretReader)
+	cloudID, err := opt.CloudID.GetValue(ctx, secretReader)
 	if err != nil {
 		return fmt.Errorf("error getting Cloud ID value: %w", err)
 	}
 
-	apiKey, err := es.APIKey.GetValue(ctx, secretReader)
+	apiKey, err := opt.APIKey.GetValue(ctx, secretReader)
 	if err != nil {
 		return fmt.Errorf("error getting API key value: %w", err)
 	}
@@ -53,8 +45,8 @@ func (es *Elasticsearch) Write(
 		Addresses:  addresses,
 		CloudID:    cloudID,
 		APIKey:     apiKey,
-		Index:      es.Index,
-		FlushBytes: es.FlushBytes,
+		Index:      opt.Index,
+		FlushBytes: opt.FlushBytes,
 	}
 	elasticsearchio.Write(scope, cfg, col)
 

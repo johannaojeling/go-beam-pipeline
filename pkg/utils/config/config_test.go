@@ -4,17 +4,12 @@ import (
 	"os"
 	"testing"
 
+	"github.com/johannaojeling/go-beam-pipeline/pkg/options"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline"
-	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink"
-	sinkfile "github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink/file"
-	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source"
-	sourcefile "github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source/file"
 )
 
 func TestParseConfig(t *testing.T) {
-	t.Run("Should parse yaml config with templated fields to Options", func(t *testing.T) {
+	t.Run("Should parse yaml config with templated fields to PipelineOption", func(t *testing.T) {
 		content, err := os.ReadFile("./testdata/config.yaml")
 		if err != nil {
 			t.Fatalf("error reading config file: %v", err)
@@ -25,20 +20,20 @@ func TestParseConfig(t *testing.T) {
 		}{
 			Bucket: "test-bucket",
 		}
-		var actual pipeline.Options
+		var actual options.PipelineOption
 		err = ParseConfig(string(content), fields, &actual)
 
-		expected := pipeline.Options{
-			Source: &source.Source{
+		expected := options.PipelineOption{
+			Source: options.SourceOption{
 				Format: "FILE",
-				File: &sourcefile.File{
+				File: options.FileReadOption{
 					Format: "JSON",
 					Path:   "gs://test-bucket/input.json",
 				},
 			},
-			Sink: &sink.Sink{
+			Sink: options.SinkOption{
 				Format: "FILE",
-				File: &sinkfile.File{
+				File: options.FileWriteOption{
 					Format: "JSON",
 					Path:   "gs://test-bucket/output.json",
 				},
@@ -46,6 +41,6 @@ func TestParseConfig(t *testing.T) {
 		}
 
 		assert.NoError(t, err, "Error should be nil")
-		assert.Equal(t, expected, actual, "Options should match")
+		assert.Equal(t, expected, actual, "PipelineOption should match")
 	})
 }

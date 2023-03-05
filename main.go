@@ -12,12 +12,12 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/options/gcpopts"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/x/beamx"
 	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
-
+	"github.com/johannaojeling/go-beam-pipeline/pkg/options"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/config"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/file"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
+	_ "github.com/lib/pq"
 )
 
 var (
@@ -64,9 +64,9 @@ func main() {
 		Bucket:  *bucket,
 	}
 
-	var options pipeline.Options
-	if err := config.ParseConfig(string(content), fields, &options); err != nil {
-		log.Fatalf("error parsing config to Options: %v", err)
+	var opt options.PipelineOption
+	if err := config.ParseConfig(string(content), fields, &opt); err != nil {
+		log.Fatalf("Failed to parse config to pipeline options: %v", err)
 	}
 
 	secretReader := gcp.NewSecretReader()
@@ -74,12 +74,12 @@ func main() {
 
 	elemType := reflect.TypeOf(Event{})
 
-	beamPipeline, err := options.Construct(ctx, secretReader, elemType)
+	beamPipeline, err := pipeline.Construct(ctx, opt, secretReader, elemType)
 	if err != nil {
-		log.Fatalf("error constructing pipeline: %v", err)
+		log.Fatalf("Failed to construct pipeline: %v", err)
 	}
 
 	if err = beamx.Run(ctx, beamPipeline); err != nil {
-		log.Fatalf("error executing job: %v", err)
+		log.Fatalf("Failed to execute job: %v", err)
 	}
 }

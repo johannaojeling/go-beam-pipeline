@@ -2,12 +2,9 @@
 
 ## Introduction
 
-This project contains a pipeline with a number of IO transforms developed with the Apache Beam Go SDK. It can be run
-with DirectRunner or DataflowRunner.
-
-The pipeline reads from a source and writes to a sink. Which source and sink to use can be configured in a templated
-yaml file, which is passed to the program as an argument. Example configuration is in
-the [examples/config](examples/config) folder.
+This project contains a pipeline with a number of IO transforms developed with the Apache Beam Go SDK. The pipeline
+reads from a source and writes to a sink. Which source and sink to use can be configured in a templated yaml file, which
+is passed to the program as an argument. Example configuration is in the [examples/config](examples/config) folder.
 
 Supported sources:
 
@@ -61,7 +58,7 @@ go test ./...
 
 ### Running with DirectRunner
 
-Set environment variables
+Set variables
 
 | Variable    | Description                                        |
 |-------------|----------------------------------------------------|
@@ -77,7 +74,7 @@ go run main.go --configPath=${CONFIG_PATH} --project=${PROJECT} --bucket=${BUCKE
 
 ## Deployment
 
-Set environment variables
+Set variables
 
 | Variable        | Description                                                                                                                                                                                                                                        |
 |-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

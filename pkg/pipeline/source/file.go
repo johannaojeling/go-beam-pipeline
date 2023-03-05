@@ -1,4 +1,4 @@
-package file
+package source
 
 import (
 	"fmt"
@@ -7,18 +7,14 @@ import (
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/io/avroio"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/io/parquetio"
-
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/csvio"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/io/jsonio"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/options"
 )
 
-type File struct {
-	Format Format `yaml:"format"`
-	Path   string `yaml:"path"`
-}
-
-func (file *File) Read(
+func ReadFromFile(
 	scope beam.Scope,
+	opt options.FileReadOption,
 	elemType reflect.Type,
 ) (beam.PCollection, error) {
 	scope = scope.Scope("Read from file")
@@ -28,17 +24,17 @@ func (file *File) Read(
 		err error
 	)
 
-	switch file.Format {
-	case AVRO:
-		col = avroio.Read(scope, file.Path, elemType)
-	case CSV:
-		col = csvio.Read(scope, file.Path, elemType)
-	case JSON:
-		col = jsonio.Read(scope, file.Path, elemType)
-	case PARQUET:
-		col = parquetio.Read(scope, file.Path, elemType)
+	switch opt.Format {
+	case options.Avro:
+		col = avroio.Read(scope, opt.Path, elemType)
+	case options.CSV:
+		col = csvio.Read(scope, opt.Path, elemType)
+	case options.JSON:
+		col = jsonio.Read(scope, opt.Path, elemType)
+	case options.Parquet:
+		col = parquetio.Read(scope, opt.Path, elemType)
 	default:
-		err = fmt.Errorf("file format %q is not supported", file.Format)
+		err = fmt.Errorf("file format %q not supported", opt.Format)
 	}
 
 	return col, err

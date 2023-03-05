@@ -6,31 +6,27 @@ import (
 	"reflect"
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
-
+	"github.com/johannaojeling/go-beam-pipeline/pkg/options"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/sink"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/pipeline/source"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
 
-type Options struct {
-	Source *source.Source `yaml:"source"`
-	Sink   *sink.Sink     `yaml:"sink"`
-}
-
-func (options *Options) Construct(
+func Construct(
 	ctx context.Context,
+	opt options.PipelineOption,
 	secretReader *gcp.SecretReader,
 	elemType reflect.Type,
 ) (*beam.Pipeline, error) {
 	pipeline, scope := beam.NewPipelineWithRoot()
 
-	col, err := options.Source.Read(ctx, secretReader, scope, elemType)
+	col, err := source.Read(ctx, scope, opt.Source, secretReader, elemType)
 	if err != nil {
-		return nil, fmt.Errorf("error creating source transform: %w", err)
+		return nil, fmt.Errorf("error constructing source transform: %w", err)
 	}
 
-	if err := options.Sink.Write(ctx, secretReader, scope, col); err != nil {
-		return nil, fmt.Errorf("error creating sink transform: %w", err)
+	if err := sink.Write(ctx, scope, opt.Sink, secretReader, col); err != nil {
+		return nil, fmt.Errorf("error constructing sink transform: %w", err)
 	}
 
 	return pipeline, nil

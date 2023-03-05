@@ -1,4 +1,4 @@
-package mongodb
+package source
 
 import (
 	"context"
@@ -7,36 +7,29 @@ import (
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/io/mongodbio"
-	"go.mongodb.org/mongo-driver/bson"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/creds"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/options"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
-type MongoDB struct {
-	URL        creds.Credential `yaml:"url"`
-	Database   string           `yaml:"database"`
-	Collection string           `yaml:"collection"`
-	Filter     string           `yaml:"filter"`
-}
-
-func (mongodb *MongoDB) Read(
+func ReadFromMongoDB(
 	ctx context.Context,
-	secretReader *gcp.SecretReader,
 	scope beam.Scope,
+	opt options.MongoDBReadOption,
+	secretReader *gcp.SecretReader,
 	elemType reflect.Type,
 ) (beam.PCollection, error) {
 	scope = scope.Scope("Read from MongoDB")
 
-	url, err := mongodb.URL.GetValue(ctx, secretReader)
+	url, err := opt.URL.GetValue(ctx, secretReader)
 	if err != nil {
 		return beam.PCollection{}, fmt.Errorf("error getting URL value: %w", err)
 	}
 
 	var filter bson.M
 
-	if mongodb.Filter != "" {
-		if err := bson.UnmarshalExtJSON([]byte(mongodb.Filter), true, &filter); err != nil {
+	if opt.Filter != "" {
+		if err := bson.UnmarshalExtJSON([]byte(opt.Filter), true, &filter); err != nil {
 			return beam.PCollection{}, fmt.Errorf("error unmarshalling filter: %w", err)
 		}
 	}
@@ -44,8 +37,8 @@ func (mongodb *MongoDB) Read(
 	return mongodbio.Read(
 		scope,
 		url,
-		mongodb.Database,
-		mongodb.Collection,
+		opt.Database,
+		opt.Collection,
 		elemType,
 		mongodbio.WithReadFilter(filter),
 		mongodbio.WithReadBucketAuto(true),

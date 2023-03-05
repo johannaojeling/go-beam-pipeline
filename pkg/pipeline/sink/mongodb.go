@@ -1,4 +1,4 @@
-package mongodb
+package sink
 
 import (
 	"context"
@@ -6,26 +6,20 @@ import (
 
 	"github.com/apache/beam/sdks/v2/go/pkg/beam"
 	"github.com/apache/beam/sdks/v2/go/pkg/beam/io/mongodbio"
-
-	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/creds"
+	"github.com/johannaojeling/go-beam-pipeline/pkg/options"
 	"github.com/johannaojeling/go-beam-pipeline/pkg/utils/gcp"
 )
 
-type MongoDB struct {
-	URL        creds.Credential `yaml:"url"`
-	Database   string           `yaml:"database"`
-	Collection string           `yaml:"collection"`
-}
-
-func (mongodb *MongoDB) Write(
+func WriteToMongoDB(
 	ctx context.Context,
-	secretReader *gcp.SecretReader,
 	scope beam.Scope,
+	opt options.MongoDBWriteOption,
+	secretReader *gcp.SecretReader,
 	col beam.PCollection,
 ) error {
 	scope = scope.Scope("Write to MongoDB")
 
-	url, err := mongodb.URL.GetValue(ctx, secretReader)
+	url, err := opt.URL.GetValue(ctx, secretReader)
 	if err != nil {
 		return fmt.Errorf("error getting URL value: %w", err)
 	}
@@ -33,8 +27,8 @@ func (mongodb *MongoDB) Write(
 	mongodbio.Write(
 		scope,
 		url,
-		mongodb.Database,
-		mongodb.Collection,
+		opt.Database,
+		opt.Collection,
 		col,
 	)
 
